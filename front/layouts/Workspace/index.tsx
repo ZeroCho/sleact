@@ -20,6 +20,7 @@ import {
   ProfileModal,
   RightMenu,
   WorkspaceButton,
+  WorkspaceModal,
   WorkspaceName,
   Workspaces,
 } from './styles';
@@ -28,10 +29,11 @@ const Workspace = () => {
   const { data: userData, revalidate } = useSWR('/api/user', fetcher);
   const { workspace } = useParams<{ workspace?: string }>();
   const { data: channelData } = useSWR<Array<{ id: number, name: string }>>(`/api/workspace/${workspace}/channels`, fetcher);
-  const { data: workspaceData } = useSWR<Array<{ id: number, name: string, url: string }>>(`/api/workspace/${workspace}/channels`, fetcher);
+  const { data: workspaceData } = useSWR<Array<{ id: number, name: string, url: string }>>(`/api/workspaces`, fetcher);
   const { data: memberData } = useSWR<Array<{ id: number, nickname: string }>>(`/api/workspace/${workspace}/members`, fetcher);
   const [showModal, setShowModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace] = useInput('');
 
   const onLogOut = useCallback(() => {
@@ -54,6 +56,10 @@ const Workspace = () => {
     setShowUserMenu((prev) => !prev);
   }, []);
 
+  const toggleWorkspaceModal = useCallback(() => {
+    setShowWorkspaceModal((prev) => !prev);
+  }, []);
+
   if (userData === false) {
     return <Redirect to="/login" />;
   }
@@ -68,6 +74,13 @@ const Workspace = () => {
             </span>
             {showUserMenu && (
               <ProfileModal>
+                <div style={{ display: 'flex' }}>
+                  <img src={gravatar.url(userData.email, { s: '36px' })} alt={userData.nickname} />
+                  <div style={{display: 'flex', flexDirection: 'column', marginLeft: 10 }}>
+                    <span id="profile-name">{userData.nickname}</span>
+                    <span id="profile-active">Active</span>
+                  </div>
+                </div>
                 <LogOutButton onClick={onLogOut}>로그아웃</LogOutButton>
               </ProfileModal>
             )}
@@ -87,9 +100,16 @@ const Workspace = () => {
         <AddButton onClick={onClickAddWorkspace}>+</AddButton>
       </Workspaces>
       <Channels>
-        <WorkspaceName>
-          {workspace}
+        <WorkspaceName onClick={toggleWorkspaceModal}>
+          {workspaceData?.find((v) => v.url === workspace)?.name}
         </WorkspaceName>
+        {showWorkspaceModal && (
+          <WorkspaceModal>
+            <button>워크스페이스에 사용자 초대</button>
+            <button>채널 만들기</button>
+            <button onClick={onLogOut}>로그아웃</button>
+          </WorkspaceModal>
+        )}
         <h2>
           <i
             className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
@@ -121,6 +141,15 @@ const Workspace = () => {
             return (
               <Link key={member.id} to={`/workspace/${workspace}/dm/${member.id}`}>
                 <i
+                  className="c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence c-icon--presence-offline"
+                  aria-hidden="true" data-qa="presence_indicator"
+                  data-qa-presence-self="false" data-qa-presence-active="false" data-qa-presence-dnd="false" />
+                <i
+                  className="c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence c-presence--active c-icon--presence-online"
+                  aria-hidden="true"
+                  data-qa="presence_indicator" data-qa-presence-self="false" data-qa-presence-active="false"
+                  data-qa-presence-dnd="false" />
+                <i
                   className="c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence c-presence--active c-icon--presence-online"
                   aria-hidden="true"
                   data-qa="presence_indicator" data-qa-presence-self="false" data-qa-presence-active="false"
@@ -129,6 +158,12 @@ const Workspace = () => {
               </Link>
             );
           })}
+          <button
+            className="c-button-unstyled p-channel_sidebar__link p-channel_sidebar__link--invites p-channel_sidebar__link--dim"
+            role="presentation" data-sidebar-link-id="Vinvites" data-qa-channel-sidebar-link-id="Vinvites"
+            type="button">
+            <span className="p-channel_sidebar__name" data-qa="channel_sidebar_name_invite_people">Invite people</span>
+          </button>
         </div>
       </Channels>
       <Chats>

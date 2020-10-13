@@ -9,16 +9,12 @@ const Channel = require('../models/channel');
 
 const router = express.Router();
 
-router.get('/user', (req, res, next) => {
-  return res.json(req.user || false);
-});
-
 router.get('/workspaces', isLoggedIn, async (req, res, next) => {
   try {
-    const workspaces = await Workspace.findOne({
-      where: { url: req.params.workspace },
+    const workspaces = await Workspace.findAll({
       include: [{
         model: User,
+        as: 'Members',
         attributes: ['id'],
         through: {
           where: { UserId: req.user.id },
@@ -57,6 +53,105 @@ router.get('/workspace/:workspace/channels', isLoggedIn, async (req, res, next) 
   }
 });
 
+router.get('/workspace/:workspace/channel/:channel/chats', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getChannels({
+      include: [{
+        model: User,
+        attributes: ['id'],
+        through: {
+          where: {
+            UserId: req.user.id,
+          },
+          attributes: ['UserId']
+        }
+      }]
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/workspace/:workspace/channel/:channel/chat', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getChannels({
+      include: [{
+        model: User,
+        attributes: ['id'],
+        through: {
+          where: {
+            UserId: req.user.id,
+          },
+          attributes: ['UserId']
+        }
+      }]
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/workspace/:workspace/dm/:one/:two', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getChannels({
+      include: [{
+        model: User,
+        attributes: ['id'],
+        through: {
+          where: {
+            UserId: req.user.id,
+          },
+          attributes: ['UserId']
+        }
+      }]
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/workspace/:workspace/dm/:one/:two', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getChannels({
+      include: [{
+        model: User,
+        attributes: ['id'],
+        through: {
+          where: {
+            UserId: req.user.id,
+          },
+          attributes: ['UserId']
+        }
+      }]
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.get('/workspace/:workspace/members', isLoggedIn, async (req, res, next) => {
   try {
@@ -72,6 +167,90 @@ router.get('/workspace/:workspace/members', isLoggedIn, async (req, res, next) =
   } catch (error) {
     next(error);
   }
+});
+
+router.post('/workspace/:workspace/member', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getMembers({
+      attributes: ['id', 'nickname', 'email']
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/workspace/:workspace/member/:member', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getMembers({
+      attributes: ['id', 'nickname', 'email']
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/workspace/:workspace/channel/:channel/members', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getMembers({
+      attributes: ['id', 'nickname', 'email']
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/workspace/:workspace/channel/:channel/member', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getMembers({
+      attributes: ['id', 'nickname', 'email']
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/workspace/:workspace/channel/:channel/member/:member', isLoggedIn, async (req, res, next) => {
+  try {
+    const workspace = await Workspace.findOne({
+      where: { url: req.params.workspace },
+    });
+    if (!workspace) {
+      return res.status(404).send('존재하지 않는 워크스페이스입니다.');
+    }
+    return res.json(await workspace.getMembers({
+      attributes: ['id', 'nickname', 'email']
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/user', (req, res, next) => {
+  return res.json(req.user || false);
 });
 
 router.post('/user', isNotLoggedIn, async (req, res, next) => {

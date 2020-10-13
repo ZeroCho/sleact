@@ -13,10 +13,6 @@ const LogIn = () => {
   const [password, onChangePassword] = useInput('');
   const onSubmit = useCallback((e) => {
     e.preventDefault();
-    console.log({
-      email,
-      password,
-    });
     axios.post('/api/login', { email, password }, {
       withCredentials: true,
     })

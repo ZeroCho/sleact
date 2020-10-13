@@ -1,5 +1,5 @@
 import useInput from '@hooks/useInput';
-import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
+import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
 import fetcher from '@utils/fetcher';
 import React, { useCallback, useState } from 'react';
 import { Redirect } from 'react-router-dom';
@@ -9,6 +9,7 @@ import axios from 'axios';
 const SignUp = () => {
   const { data: userData, revalidate } = useSWR('/api/user', fetcher);
   const [signUpError, setSignUpError] = useState('');
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [mismatchError, setMismatchError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -22,17 +23,12 @@ const SignUp = () => {
 
   const onSubmit = useCallback((e) => {
     e.preventDefault();
-    console.log({
-      email,
-      nickname,
-      password,
-      passwordCheck,
-    });
     if (!mismatchError) {
       setSignUpError('');
+      setSignUpSuccess(false);
       axios.post('/api/user', { email, nickname, password })
         .then(() => {
-          revalidate();
+          setSignUpSuccess(true);
         })
         .catch((error) => {
           console.error(error.response);
@@ -79,6 +75,7 @@ const SignUp = () => {
           </div>
           {mismatchError && <Error>비밀번호가 일치하지 않습니다.</Error>}
           {signUpError && <Error>{signUpError}</Error>}
+          {signUpSuccess && <Success>회원가입되었습니다! 로그인해주세요.</Success>}
         </Label>
         <Button type="submit">
           회원가입

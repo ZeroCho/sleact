@@ -35,10 +35,17 @@ const config: webpack.Configuration = {
           '@babel/preset-react',
           '@babel/preset-typescript',
         ],
-        plugins: [
-          // ... other plugins
-          isDevelopment && require.resolve('react-refresh/babel'),
-        ].filter(Boolean),
+        env: {
+          development: {
+            plugins: [
+              ['emotion', { sourceMap: true }],
+              require.resolve('react-refresh/babel')
+            ]
+          },
+          production: {
+            plugins: ['emotion']
+          }
+        }
       },
       exclude: path.join(__dirname, 'node_modules'),
     }],

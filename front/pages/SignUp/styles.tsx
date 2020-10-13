@@ -86,6 +86,12 @@ export const Button = styled.button`
 export const Error = styled.div`
   color: #e01e5a;
   margin: 8px 0 16px;
+  font-weight: bold;
+`;
+
+export const Success = styled.div`
+  color: #2EB67D;
+  font-weight: bold;
 `;
 
 export const LinkContainer = styled.p`
