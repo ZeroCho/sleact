@@ -17,41 +17,44 @@ const config: webpack.Configuration = {
       '@layouts': path.resolve(__dirname, 'layouts'),
       '@pages': path.resolve(__dirname, 'pages'),
       '@utils': path.resolve(__dirname, 'utils'),
-    }
+    },
   },
   entry: {
     app: './client',
   },
   module: {
-    rules: [{
-      test: /\.tsx?$/,
-      loader: 'babel-loader',
-      options: {
-        presets: [
-          ['@babel/preset-env', {
-            targets: {browsers: ['last 2 chrome versions']},
-            debug: isDevelopment,
-          }],
-          '@babel/preset-react',
-          '@babel/preset-typescript',
-        ],
-        env: {
-          development: {
-            plugins: [
-              ['emotion', { sourceMap: true }],
-              require.resolve('react-refresh/babel')
-            ]
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            [
+              '@babel/preset-env',
+              {
+                targets: { browsers: ['last 2 chrome versions'] },
+                debug: isDevelopment,
+              },
+            ],
+            '@babel/preset-react',
+            '@babel/preset-typescript',
+          ],
+          env: {
+            development: {
+              plugins: [['emotion', { sourceMap: true }], require.resolve('react-refresh/babel')],
+            },
+            production: {
+              plugins: ['emotion'],
+            },
           },
-          production: {
-            plugins: ['emotion']
-          }
-        }
+        },
+        exclude: path.join(__dirname, 'node_modules'),
       },
-      exclude: path.join(__dirname, 'node_modules'),
-    }, {
-      test: /\.css?$/,
-      use: ['style-loader', 'css-loader']
-    }],
+      {
+        test: /\.css?$/,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin({
@@ -74,7 +77,7 @@ const config: webpack.Configuration = {
         target: 'http://localhost:3095',
         changeOrigin: true,
       },
-    }
+    },
   },
 };
 

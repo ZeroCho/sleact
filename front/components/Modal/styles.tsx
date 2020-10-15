@@ -7,6 +7,7 @@ export const CreateModal = styled.div`
   bottom: 0;
   top: 0;
   right: 0;
+  z-index: 1022;
 
   & > div {
     margin-top: 200px;
@@ -19,7 +20,7 @@ export const CreateModal = styled.div`
     border-radius: 6px;
     user-select: none;
     max-width: 440px;
-    padding: 40px;
+    padding: 30px 40px 0;
     z-index: 1012;
     position: relative;
   }

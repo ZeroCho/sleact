@@ -5,9 +5,10 @@ interface Props {
   show: boolean;
   onCloseModal: () => void;
   style: CSSProperties;
+  closeButton?: boolean;
 }
 
-const Menu: FC<PropsWithChildren<Props>> = ({ style, show, children, onCloseModal }) => {
+const Menu: FC<PropsWithChildren<Props>> = ({ closeButton, style, show, children, onCloseModal }) => {
   const stopPropagation = useCallback((e) => {
     e.stopPropagation();
   }, []);
@@ -18,11 +19,14 @@ const Menu: FC<PropsWithChildren<Props>> = ({ style, show, children, onCloseModa
   return (
     <CreateMenu onClick={onCloseModal}>
       <div onClick={stopPropagation} style={style}>
-        <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>
+        {closeButton && <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>}
         {children}
       </div>
     </CreateMenu>
   );
+};
+Menu.defaultProps = {
+  closeButton: true,
 };
 
 export default Menu;

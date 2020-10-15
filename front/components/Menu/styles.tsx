@@ -17,7 +17,7 @@ export const CreateMenu = styled.div`
     border-radius: 6px;
     user-select: none;
     min-width: 360px;
-    z-index: 1012;
+    z-index: 512;
     max-height: calc(100vh - 20px);
     color: rgb(29, 28, 29);
   }

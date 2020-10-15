@@ -1,17 +1,31 @@
 import Chat from '@components/Chat';
+import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
-import { ChatArea, ChatZone, Form, Header, Section, SendButton, StickyHeader, Toolbox } from '@pages/Channel/styles';
+import {
+  ChatArea,
+  ChatZone,
+  Form,
+  Header,
+  MentionsTextarea,
+  Section,
+  SendButton,
+  StickyHeader,
+  Toolbox,
+  EachMention,
+} from '@pages/Channel/styles';
 import { Button, Input, Label } from '@pages/SignUp/styles';
 import fetcher from '@utils/fetcher';
 import autosize from 'autosize';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
 import useSWR from 'swr';
 import { Scrollbars } from 'react-custom-scrollbars';
+import gravatar from 'gravatar';
+import { Mention, SuggestionDataItem } from 'react-mentions';
 
 export interface IChat {
   id: number;
@@ -122,13 +136,13 @@ const makeSection = (chatList: IChat[]) => {
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   // const { data: chatData } = useSWR<Array<{ id: number, content: string }>>(`/api/workspace/${workspace}/channel/${channel}/chats`, fetcher);
-  const { data: channelMembersData, revalidate: revalidateMembers } = useSWR<Array<{ id: number; content: string }>>(
-    `/api/workspace/${workspace}/channel/${channel}/members`,
-    fetcher,
-  );
-  const [chat, onChangeChat] = useInput('');
-  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
+  const { data: channelMembersData, revalidate: revalidateMembers } = useSWR<
+    Array<{ id: number; email: string; nickname: string }>
+  >(`/api/workspace/${workspace}/channel/${channel}/members`, fetcher);
+  const [chat, onChangeChat, setChat] = useInput('');
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
+  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const onInviteMember = useCallback(
     (e) => {
@@ -155,11 +169,12 @@ const Channel = () => {
   }, []);
 
   const onSubmitForm = useCallback(() => {
+    console.log(chat);
     if (chat?.trim()) {
-      axios
-        .post(`/api/channel/${channel}/chat`)
-        .then(() => {})
-        .catch(console.error);
+      // axios
+      //   .post(`/api/channel/${channel}/chat`)
+      //   .then(() => {})
+      //   .catch(console.error);
     }
   }, [chat]);
 
@@ -169,7 +184,7 @@ const Channel = () => {
 
   useEffect(() => {
     autosize(document.querySelector('#editor-chat')!);
-  }, []);
+  }, [chat]);
 
   const onKeydownChat = useCallback(
     (e) => {
@@ -178,16 +193,39 @@ const Channel = () => {
           e.preventDefault();
           onSubmitForm();
         }
-      } else {
       }
     },
     [chat],
   );
 
+  const renderUserSuggestion: (
+    suggestion: SuggestionDataItem,
+    search: string,
+    highlightedDisplay: React.ReactNode,
+    index: number,
+    focused: boolean,
+  ) => React.ReactNode = useCallback(
+    (member, search, highlightedDisplay, index, focus) => {
+      if (!channelMembersData) {
+        return null;
+      }
+      return (
+        <EachMention focus={focus}>
+          <img
+            src={gravatar.url(channelMembersData[index].email, { s: '20px' })}
+            alt={channelMembersData[index].nickname}
+          />
+          <span>{channelMembersData[index].nickname}</span>
+        </EachMention>
+      );
+    },
+    [channelMembersData],
+  );
+
   const chatSections = makeSection(dummyChat);
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexWrap: 'wrap', height: 'calc(100vh - 38px)', flexFlow: 'column' }}>
       <Header>
         <span>#{channel}</span>
         <div style={{ display: 'flex', flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
@@ -221,13 +259,21 @@ const Channel = () => {
       </ChatZone>
       <ChatArea>
         <Form onSubmit={onSubmitForm}>
-          <textarea
+          <MentionsTextarea
             id="editor-chat"
-            placeholder={`Message #${channel}`}
             value={chat}
             onChange={onChangeChat}
             onKeyDown={onKeydownChat}
-          />
+            placeholder={`Message #${channel}`}
+          >
+            <Mention
+              appendSpaceOnAdd
+              style={{ background: 'rgba(29, 155, 209, .1)', color: 'rgb(18, 100, 163)' }}
+              trigger="@"
+              data={channelMembersData?.map((v) => ({ id: v.id, display: v.nickname })) || []}
+              renderSuggestion={renderUserSuggestion}
+            />
+          </MentionsTextarea>
           <Toolbox>
             <SendButton
               className={
