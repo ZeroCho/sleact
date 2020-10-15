@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 
 export const RightMenu = styled.div`
   float: right;
@@ -138,12 +138,18 @@ export const WorkspaceModal = styled.div`
   min-width: 360px;
   z-index: 1012;
   max-height: calc(100vh - 20px);
-  padding: 0 0 10px;
+  padding: 10px 0 10px;
   color: rgb(29, 28, 29);
   
   & > button {
     width: 100%;
-    border-top: 1px solid rgb(28, 29, 28)
+    border: none;
+    background: transparent;
+    border-top: 1px solid rgb(28, 29, 28);
+
+    &:last-of-type {
+      border-bottom:1px solid rgb(28, 29, 28);
+    }
   }
 `;
 
@@ -154,7 +160,7 @@ export const Chats = styled.div`
   width: calc(100% - 325px);
 `;
 
-export const CreateWorkspaceModal = styled.div`
+export const CreateModal = styled.div`
   position: fixed;
   text-align: center;
   left: 0;
@@ -209,4 +215,22 @@ export const WorkspaceButton = styled.button`
   font-size: 18px;
   font-weight: 700;
   color: black;
+`;
+
+export const CollapseButton  =styled.button<{ collapse: boolean }>`
+  background: transparent;
+  border: none;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  margin-left: 10px;
+  
+  ${({ collapse }) => collapse && `
+    & i {
+      transform: none;
+    }
+  `};
 `;

@@ -1,9 +1,12 @@
 import useInput from '@hooks/useInput';
+import { CloseModalButton, CreateModal } from '@layouts/Workspace/styles';
 import { ChatArea, ChatZone, Form, Header, SendButton, StickyHeader, Toolbox } from '@pages/Channel/styles';
+import { Button, Input, Label } from '@pages/SignUp/styles';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { toast, ToastContainer } from 'react-toastify';
 import useSWR from 'swr';
 import autosize from 'autosize';
 import dayjs from 'dayjs';
@@ -49,8 +52,30 @@ const makeSection = (chatList: IChat[]) => {
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string, channel: string }>();
   // const { data: chatData } = useSWR<Array<{ id: number, content: string }>>(`/api/workspace/${workspace}/channel/${channel}/chats`, fetcher);
-  const { data: channelMembersData } = useSWR<Array<{ id: number, content: string }>>(`/api/workspace/${workspace}/channel/${channel}/members`, fetcher);
+  const { data: channelMembersData, revalidate: revalidateMembers } = useSWR<Array<{ id: number, content: string }>>(`/api/workspace/${workspace}/channel/${channel}/members`, fetcher);
   const [chat, onChangeChat] = useInput('');
+  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
+  const [newMember, onChangeNewMember, setNewMember] = useInput('');
+
+  const onInviteMember = useCallback((e) => {
+    e.preventDefault();
+    axios.post(`/api/workspace/${workspace}/channel/${channel}/member`, {
+      email: newMember,
+    })
+      .then(() => {
+        revalidateMembers();
+        setShowInviteChannelModal(false);
+        setNewMember('');
+      })
+      .catch((error) => {
+        console.dir(error);
+        toast.error(error.response?.data, { position: 'bottom-center' });
+      });
+  }, [newMember]);
+
+  const onCloseModal = useCallback(() => {
+    setShowInviteChannelModal(false);
+  }, []);
 
   const onSubmitForm = useCallback(() => {
     if (chat?.trim()) {
@@ -62,15 +87,12 @@ const Channel = () => {
     }
   }, [chat]);
 
+  const onClickInviteChannel = useCallback(() => {
+    setShowInviteChannelModal(true);
+  }, []);
+
   useEffect(() => {
     autosize(document.querySelector('#editor-chat')!)
-    const listener = () => {
-      console.log('hi');
-    };
-    window.addEventListener('scroll', listener);
-    return () => {
-      window.addEventListener('scroll', listener);
-    }
   }, []);
 
   const onKeydownChat = useCallback((e) => {
@@ -90,9 +112,15 @@ const Channel = () => {
     <div>
       <Header>
         <span>#{channel}</span>
-        <span>{channelMembersData?.length}</span>
-        <div style={{ display: 'flex', flex: 1, justifyContent: 'flex-end' }}>
-          <button className="c-button-unstyled p-ia__view_header__button" aria-label="Add people to #react-native" data-sk="tooltip_parent" type="button">
+        <div style={{ display: 'flex', flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
+          <span>{channelMembersData?.length}</span>
+          <button
+            onClick={onClickInviteChannel}
+            className="c-button-unstyled p-ia__view_header__button"
+            aria-label="Add people to #react-native"
+            data-sk="tooltip_parent"
+            type="button"
+          >
             <i className="c-icon p-ia__view_header__button_icon c-icon--add-user" aria-hidden="true" />
           </button>
         </div>
@@ -128,6 +156,23 @@ const Channel = () => {
           </Toolbox>
         </Form>
       </ChatArea>
+      {showInviteChannelModal && (
+        <CreateModal>
+          <div>
+            <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>
+            <form onSubmit={onInviteMember}>
+              <Label id="member-label">
+                <span>채널 멤버 초대</span>
+                <Input id="member" value={newMember} onChange={onChangeNewMember} />
+              </Label>
+              <Button type="submit">생성하기</Button>
+            </form>
+          </div>
+        </CreateModal>
+      )}
+      <ToastContainer
+        position="bottom-center"
+      />
     </div>
   );
 };

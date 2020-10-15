@@ -29,7 +29,7 @@ module.exports = class User extends Model {
   }
   static associate(db) {
     db.User.hasMany(db.Workspace, { as: 'Owned', foreignKey: 'OwnerId' });
-    db.User.belongsToMany(db.Workspace, { through: 'WorkspaceMembers' });
+    db.User.belongsToMany(db.Workspace, { through: 'WorkspaceMembers', as: 'Workspaces' });
     db.User.belongsToMany(db.Channel, { through: 'ChannelMembers' });
     db.User.hasMany(db.ChannelChat);
   }

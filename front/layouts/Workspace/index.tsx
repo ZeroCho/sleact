@@ -9,12 +9,15 @@ import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router';
 import { Link, Redirect, Route, Switch } from 'react-router-dom';
 import useSWR from 'swr';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
   AddButton,
   Channels,
   Chats,
-  CloseModalButton,
-  CreateWorkspaceModal,
+  CloseModalButton, CollapseButton,
+  CreateModal,
   Header, LogOutButton,
   ProfileImg,
   ProfileModal,
@@ -28,28 +31,105 @@ import {
 const Workspace = () => {
   const { data: userData, revalidate } = useSWR('/api/user', fetcher);
   const { workspace } = useParams<{ workspace?: string }>();
-  const { data: channelData } = useSWR<Array<{ id: number, name: string }>>(`/api/workspace/${workspace}/channels`, fetcher);
-  const { data: workspaceData } = useSWR<Array<{ id: number, name: string, url: string }>>(`/api/workspaces`, fetcher);
-  const { data: memberData } = useSWR<Array<{ id: number, nickname: string }>>(`/api/workspace/${workspace}/members`, fetcher);
-  const [showModal, setShowModal] = useState(false);
+  const { data: channelData, revalidate: revalidateChannel } = useSWR<Array<{ id: number, name: string }>>(`/api/workspace/${workspace}/channels`, fetcher);
+  const { data: workspaceData, revalidate: revalidateWorkspace } = useSWR<Array<{ id: number, name: string, url: string }>>(`/api/workspaces`, fetcher);
+  const { data: memberData, revalidate: revalidateMembers } = useSWR<Array<{ id: number, nickname: string }>>(`/api/workspace/${workspace}/members`, fetcher);
+  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
+  const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
+  const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
-  const [newWorkspace, onChangeNewWorkspace] = useInput('');
+  const [dmCollapse, setDMCollapse] = useState(false);
+  const [channelCollapse, setChannelCollapse] = useState(false);
+  const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
+  const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
+  const [newChannel, onChangeNewChannel, setNewChannel] = useInput('');
+  const [newMember, onChangeNewMember, setNewMember] = useInput('');
+
+  const toggleChannelCollapse = useCallback(() => {
+    setChannelCollapse((prev) => !prev);
+  }, [])
+
+  const toggleDMCollapse = useCallback(() => {
+    setDMCollapse((prev) => !prev);
+  }, [])
 
   const onLogOut = useCallback(() => {
     axios.post('/api/logout')
       .then(() => {
         revalidate();
       })
-      .catch(console.error);
+      .catch((error) => {
+        console.dir(error);
+        toast.error(error.response?.data, { position: 'bottom-center' });
+      });
   }, []);
 
-  const onClickAddWorkspace = useCallback(() => {
-    setShowModal(true);
+  const onCreateWorkspace = useCallback((e) => {
+    e.preventDefault();
+    axios.post('/api/workspace', {
+      workspace: newWorkspace,
+      url: newUrl,
+    })
+      .then(() => {
+        revalidateWorkspace();
+        setShowCreateWorkspaceModal(false);
+        setNewWorkspace('');
+        setNewUrl('');
+      })
+      .catch((error) => {
+        console.dir(error);
+        toast.error(error.response?.data, { position: 'bottom-center' });
+      })
+  }, [newWorkspace, newUrl]);
+  const onCreateChannel = useCallback((e) => {
+    e.preventDefault();
+    axios.post(`/api/workspace/${workspace}/channel`, {
+      name: newChannel,
+    })
+      .then(() => {
+        revalidateChannel();
+        setShowCreateChannelModal(false);
+        setNewChannel('');
+      })
+      .catch((error) => {
+        console.dir(error);
+        toast.error(error.response?.data, { position: 'bottom-center' });
+      });
+  }, [newChannel]);
+  const onInviteMember = useCallback((e) => {
+    e.preventDefault();
+    axios.post(`/api/workspace/${workspace}/member`, {
+      email: newMember,
+    })
+      .then(() => {
+        revalidateMembers();
+        revalidateChannel();
+        setShowInviteWorkspaceModal(false);
+        setNewMember('');
+      })
+      .catch((error) => {
+        console.dir(error);
+        toast.error(error.response?.data, { position: 'bottom-center' });
+      });
+  }, [newMember]);
+
+  const onClickCreateWorkspace = useCallback(() => {
+    setShowCreateWorkspaceModal(true);
+  }, []);
+
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal(true);
+  }, []);
+
+  const onClickInviteWorkspace = useCallback(() => {
+    setShowInviteWorkspaceModal(true);
   }, []);
 
   const onCloseModal = useCallback(() => {
-    setShowModal(false);
+    setShowCreateWorkspaceModal(false);
+    setShowCreateChannelModal(false);
+    setShowInviteWorkspaceModal(false);
   }, []);
 
   const onClickUserProfile = useCallback(() => {
@@ -97,7 +177,7 @@ const Workspace = () => {
             </Link>
           );
         })}
-        <AddButton onClick={onClickAddWorkspace}>+</AddButton>
+        <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
       </Workspaces>
       <Channels>
         <WorkspaceName onClick={toggleWorkspaceModal}>
@@ -105,39 +185,35 @@ const Workspace = () => {
         </WorkspaceName>
         {showWorkspaceModal && (
           <WorkspaceModal>
-            <button>워크스페이스에 사용자 초대</button>
-            <button>채널 만들기</button>
+            <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
+            <button onClick={onClickAddChannel}>채널 만들기</button>
             <button onClick={onLogOut}>로그아웃</button>
           </WorkspaceModal>
         )}
         <h2>
-          <i
-            className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
-            data-qa="channel-section-collapse" aria-hidden="true" />
+          <CollapseButton collapse={channelCollapse} onClick={toggleChannelCollapse}>
+            <i
+              className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
+              data-qa="channel-section-collapse" aria-hidden="true" />
+          </CollapseButton>
           <span>Channels</span>
-          <button
-            className="c-button-unstyled p-channel_sidebar__section_heading_right_item p-channel_sidebar__section_heading_plus"
-            aria-hidden="true" tabIndex={-1} data-qa="channel_sidebar__plus__channels"
-            data-sk="tooltip_parent" type="button" />
         </h2>
         <div>
-          {channelData?.map((channel) => {
+          {!channelCollapse && channelData?.map((channel) => {
             return (
               <Link key={channel.name} to={`/workspace/${workspace}/channel/${channel.name}`}># {channel.name}</Link>);
           })}
         </div>
         <h2>
-          <i
-            className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
-            data-qa="channel-section-collapse" aria-hidden="true" />
+          <CollapseButton collapse={dmCollapse} onClick={toggleDMCollapse}>
+            <i
+              className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
+              data-qa="channel-section-collapse" aria-hidden="true" />
+          </CollapseButton>
           <span>Direct Messages</span>
-          <button
-            className="c-button-unstyled p-channel_sidebar__section_heading_right_item p-channel_sidebar__section_heading_plus"
-            aria-hidden="true" tabIndex={-1} data-qa="channel_sidebar__plus__channels"
-            data-sk="tooltip_parent" type="button" />
         </h2>
         <div>
-          {memberData?.map((member) => {
+          {!dmCollapse && memberData?.map((member) => {
             return (
               <Link key={member.id} to={`/workspace/${workspace}/dm/${member.id}`}>
                 <i
@@ -158,12 +234,6 @@ const Workspace = () => {
               </Link>
             );
           })}
-          <button
-            className="c-button-unstyled p-channel_sidebar__link p-channel_sidebar__link--invites p-channel_sidebar__link--dim"
-            role="presentation" data-sidebar-link-id="Vinvites" data-qa-channel-sidebar-link-id="Vinvites"
-            type="button">
-            <span className="p-channel_sidebar__name" data-qa="channel_sidebar_name_invite_people">Invite people</span>
-          </button>
         </div>
       </Channels>
       <Chats>
@@ -172,20 +242,55 @@ const Workspace = () => {
           <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
         </Switch>
       </Chats>
-      {showModal && (
-        <CreateWorkspaceModal>
+      {showCreateWorkspaceModal && (
+        <CreateModal>
           <div>
             <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>
-            <div>
+            <form onSubmit={onCreateWorkspace}>
               <Label id="workspace-label">
                 <span>워크스페이스 이름</span>
                 <Input id="workspace" value={newWorkspace} onChange={onChangeNewWorkspace} />
-                <Button>생성하기</Button>
               </Label>
-            </div>
+              <Label id="workspace-url-label">
+                <span>워크스페이스 url</span>
+                <Input id="workspace-url" value={newUrl} onChange={onChangeNewUrl} />
+              </Label>
+              <Button type="submit">생성하기</Button>
+            </form>
           </div>
-        </CreateWorkspaceModal>
+        </CreateModal>
       )}
+      {showCreateChannelModal && (
+        <CreateModal>
+          <div>
+            <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>
+            <form onSubmit={onCreateChannel}>
+              <Label id="channel-label">
+                <span>채널 이름</span>
+                <Input id="channel" value={newChannel} onChange={onChangeNewChannel} />
+              </Label>
+              <Button>생성하기</Button>
+            </form>
+          </div>
+        </CreateModal>
+      )}
+      {showInviteWorkspaceModal && (
+        <CreateModal>
+          <div>
+            <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>
+            <form onSubmit={onInviteMember}>
+              <Label id="member-label">
+                <span>이메일</span>
+                <Input id="member" type="email" value={newMember} onChange={onChangeNewMember} />
+              </Label>
+              <Button type="submit">초대하기</Button>
+            </form>
+          </div>
+        </CreateModal>
+      )}
+      <ToastContainer
+        position="bottom-center"
+      />
     </div>
   );
 };

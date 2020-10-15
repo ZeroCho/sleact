@@ -24,6 +24,6 @@ module.exports = class Channel extends Model {
   }
   static associate(db) {
     db.Channel.belongsTo(db.Workspace);
-    db.Channel.belongsToMany(db.User, { through: 'ChannelMembers' });
+    db.Channel.belongsToMany(db.User, { through: 'ChannelMembers', as: 'Members' });
   }
 };

@@ -26,7 +26,7 @@ const LogIn = () => {
   }, [email, password]);
 
   if (userData) {
-    return <Redirect to="/workspace/sleact" />;
+    return <Redirect to="/workspace/sleact/channel/일반" />;
   }
 
   return (
