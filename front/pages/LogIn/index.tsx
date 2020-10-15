@@ -11,19 +11,27 @@ const LogIn = () => {
   const [logInError, setLogInError] = useState('');
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
-  const onSubmit = useCallback((e) => {
-    e.preventDefault();
-    axios.post('/api/login', { email, password }, {
-      withCredentials: true,
-    })
-      .then(() => {
-        revalidate();
-      })
-      .catch((error) => {
-        console.error(error.response);
-        setLogInError(error.response?.data);
-      });
-  }, [email, password]);
+  const onSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      axios
+        .post(
+          '/api/login',
+          { email, password },
+          {
+            withCredentials: true,
+          },
+        )
+        .then(() => {
+          revalidate();
+        })
+        .catch((error) => {
+          console.error(error.response);
+          setLogInError(error.response?.data);
+        });
+    },
+    [email, password],
+  );
 
   if (userData) {
     return <Redirect to="/workspace/sleact/channel/일반" />;
@@ -46,9 +54,7 @@ const LogIn = () => {
           </div>
           {logInError && <Error>{logInError}</Error>}
         </Label>
-        <Button type="submit">
-          로그인
-        </Button>
+        <Button type="submit">로그인</Button>
       </Form>
       <LinkContainer>
         아직 회원이 아니신가요?&nbsp;

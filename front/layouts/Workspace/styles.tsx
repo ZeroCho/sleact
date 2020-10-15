@@ -7,8 +7,8 @@ export const RightMenu = styled.div`
 export const Header = styled.header`
   height: 38px;
   background: #350d36;
-  color: #FFFFFF;
-  box-shadow: 0 1px 0 0 rgba(255,255,255,0.1);
+  color: #ffffff;
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.1);
   padding: 5px;
   text-align: center;
 `;
@@ -22,36 +22,20 @@ export const ProfileImg = styled.img`
 `;
 
 export const ProfileModal = styled.div`
-  position: fixed;
-  right: 0;
-  top: 38px;
-  --saf-0: rgba(var(--sk_foreground_low,29,28,29),0.13);
-  box-shadow: 0 0 0 1px var(--saf-0),0 4px 12px 0 rgba(0,0,0,.12);
-  background-color: rgba(var(--sk_foreground_min_solid,248,248,248),1);
-  border-radius: 6px;
-  user-select: none;
-  min-width: 360px;
-  z-index: 1012;
-  max-height: calc(100vh - 20px);
-  padding: 0 0 10px;
-  color: rgb(29, 28, 29);
-  
-  & > div {
-    padding: 20px;
-  }
-  
+  padding: 20px;
+
   & img {
     display: flex;
   }
-  
+
   & #profile-name {
     font-weight: bold;
-    display: inline-flex
+    display: inline-flex;
   }
-  
+
   & #profile-active {
     font-size: 13px;
-    display: inline-flex
+    display: inline-flex;
   }
 `;
 
@@ -61,15 +45,16 @@ export const LogOutButton = styled.button`
   border-top: 1px solid rgb(29, 28, 29);
   background: transparent;
   display: block;
-  height: 28px;
-  line-height: 28px;
-  padding: 5px 20px 0;
+  height: 33px;
+  padding: 5px 20px 5px;
+  outline: none;
+  cursor: pointer;
 `;
 
 export const Workspaces = styled.div`
   width: 65px;
   display: inline-block;
-  background: #3F0E40;
+  background: #3f0e40;
   height: calc(100% - 38px);
   border-top: 1px solid rgb(82, 38, 83);
   border-right: 1px solid rgb(82, 38, 83);
@@ -81,11 +66,11 @@ export const Workspaces = styled.div`
 export const Channels = styled.nav`
   width: 260px;
   display: inline-block;
-  background: #3F0E40;
-  color: rgb(188,171,188);
+  background: #3f0e40;
+  color: rgb(188, 171, 188);
   height: calc(100% - 38px);
   vertical-align: top;
-  
+
   & a {
     padding-left: 36px;
     color: inherit;
@@ -94,7 +79,7 @@ export const Channels = styled.nav`
     line-height: 28px;
     display: block;
   }
-  
+
   & h2 {
     height: 36px;
     line-height: 36px;
@@ -127,28 +112,23 @@ export const WorkspaceName = styled.button`
 `;
 
 export const WorkspaceModal = styled.div`
-  position: fixed;
-  top: 95px;
-  left: 80px;
-  --saf-0: rgba(var(--sk_foreground_low,29,28,29),0.13);
-  box-shadow: 0 0 0 1px var(--saf-0),0 4px 12px 0 rgba(0,0,0,.12);
-  background-color: rgba(var(--sk_foreground_min_solid,248,248,248),1);
-  border-radius: 6px;
-  user-select: none;
-  min-width: 360px;
-  z-index: 1012;
-  max-height: calc(100vh - 20px);
-  padding: 10px 0 10px;
-  color: rgb(29, 28, 29);
-  
+  padding: 10px 0 0;
+
+  & h2 {
+    padding-left: 20px;
+  }
+
   & > button {
     width: 100%;
+    height: 28px;
+    padding: 4px;
     border: none;
     background: transparent;
     border-top: 1px solid rgb(28, 29, 28);
+    cursor: pointer;
 
     &:last-of-type {
-      border-bottom:1px solid rgb(28, 29, 28);
+      border-bottom: 1px solid rgb(28, 29, 28);
     }
   }
 `;
@@ -158,40 +138,6 @@ export const Chats = styled.div`
   height: calc(100% - 160px);
   vertical-align: top;
   width: calc(100% - 325px);
-`;
-
-export const CreateModal = styled.div`
-  position: fixed;
-  text-align: center;
-  left: 0;
-  bottom: 0;
-  top: 0;
-  right: 0;
-  
-  & > div {
-    margin-top: 200px;
-    display: inline-block;
-    width: 440px;
-    background: white;
-    --saf-0: rgba(var(--sk_foreground_low,29,28,29),0.13);
-    box-shadow: 0 0 0 1px var(--saf-0),0 4px 12px 0 rgba(0,0,0,.12);
-    background-color: rgba(var(--sk_foreground_min_solid,248,248,248),1);
-    border-radius: 6px;
-    user-select: none;
-    max-width: 440px;
-    padding: 40px;
-    z-index: 1012;
-    position: relative;
-  }
-`;
-
-export const CloseModalButton = styled.button`
-  position: absolute;
-  right: 10px;
-  top: 6px;
-  background: transparent;
-  border: none;
-  font-size: 30px;
 `;
 
 export const AddButton = styled.button`
@@ -210,14 +156,14 @@ export const WorkspaceButton = styled.button`
   height: 40px;
   border-radius: 10px;
   background: white;
-  border: 3px solid #3F0E40;
+  border: 3px solid #3f0e40;
   margin-bottom: 15px;
   font-size: 18px;
   font-weight: 700;
   color: black;
 `;
 
-export const CollapseButton  =styled.button<{ collapse: boolean }>`
+export const CollapseButton = styled.button<{ collapse: boolean }>`
   background: transparent;
   border: none;
   width: 26px;
@@ -227,8 +173,10 @@ export const CollapseButton  =styled.button<{ collapse: boolean }>`
   align-items: center;
   color: white;
   margin-left: 10px;
-  
-  ${({ collapse }) => collapse && `
+
+  ${({ collapse }) =>
+    collapse &&
+    `
     & i {
       transform: none;
     }

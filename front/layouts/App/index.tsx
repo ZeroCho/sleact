@@ -1,8 +1,8 @@
-import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import Workspace from '@layouts/Workspace';
 import LogIn from '@pages/LogIn';
 import SignUp from '@pages/SignUp';
-import Workspace from '@layouts/Workspace';
+import React from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
 
 const App: React.FC = () => {
   const isLoggedIn = false;
@@ -15,7 +15,7 @@ const App: React.FC = () => {
       <Route path="/signup" component={SignUp} />
       <Route path="/workspace/:workspace" component={Workspace} />
     </Switch>
-  )
+  );
 };
 
 export default App;

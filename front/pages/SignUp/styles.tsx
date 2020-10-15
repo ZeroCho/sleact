@@ -2,11 +2,11 @@ import styled from '@emotion/styled';
 
 export const Header = styled.header`
   text-align: center;
-  font-family: Slack-Larsseit,Helvetica Neue,Helvetica,Segoe UI,Tahoma,Arial,sans-serif;
+  font-family: Slack-Larsseit, Helvetica Neue, Helvetica, Segoe UI, Tahoma, Arial, sans-serif;
   font-weight: 700;
   font-size: 48px;
   line-height: 46px;
-  letter-spacing: -.75px;
+  letter-spacing: -0.75px;
   margin-top: 50px;
   margin-bottom: 50px;
 `;
@@ -33,24 +33,24 @@ export const Label = styled.label`
 
 export const Input = styled.input`
   border-radius: 4px;
-  --saf-0: rgba(var(--sk_foreground_high_solid,134,134,134),1);
+  --saf-0: rgba(var(--sk_foreground_high_solid, 134, 134, 134), 1);
   border: 1px solid var(--saf-0);
-  transition: border 80ms ease-out,box-shadow 80ms ease-out;
+  transition: border 80ms ease-out, box-shadow 80ms ease-out;
   box-sizing: border-box;
   margin: 0 0 20px;
   width: 100%;
-  color: rgba(var(--sk_primary_foreground,29,28,29),1);
-  background-color: rgba(var(--sk_primary_background,255,255,255),1);
+  color: rgba(var(--sk_primary_foreground, 29, 28, 29), 1);
+  background-color: rgba(var(--sk_primary_background, 255, 255, 255), 1);
   padding: 12px;
   height: 44px;
   padding-top: 11px;
   padding-bottom: 13px;
   font-size: 18px;
   line-height: 1.33333333;
-  
+
   &:focus {
-    --saf-0: rgba(var(--sk_highlight,18,100,163),1);
-    box-shadow: 0 0 0 1px var(--saf-0),0 0 0 5px rgba(29,155,209,.3);
+    --saf-0: rgba(var(--sk_highlight, 18, 100, 163), 1);
+    box-shadow: 0 0 0 1px var(--saf-0), 0 0 0 5px rgba(29, 155, 209, 0.3);
   }
 `;
 
@@ -71,15 +71,15 @@ export const Button = styled.button`
   outline: none;
   cursor: pointer;
   border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.3);
-    
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+
   &:hover {
-    background-color: rgba(74,21,75,.9);
+    background-color: rgba(74, 21, 75, 0.9);
     border: none;
   }
   &:focus {
-    --saf-0: rgba(var(--sk_highlight,18,100,163),1);
-    box-shadow: 0 0 0 1px var(--saf-0),0 0 0 5px rgba(29,155,209,.3);
+    --saf-0: rgba(var(--sk_highlight, 18, 100, 163), 1);
+    box-shadow: 0 0 0 1px var(--saf-0), 0 0 0 5px rgba(29, 155, 209, 0.3);
   }
 `;
 
@@ -90,7 +90,7 @@ export const Error = styled.div`
 `;
 
 export const Success = styled.div`
-  color: #2EB67D;
+  color: #2eb67d;
   font-weight: bold;
 `;
 
@@ -100,12 +100,12 @@ export const LinkContainer = styled.p`
   margin: 0 auto 8px;
   width: 400px;
   max-width: 400px;
-  
+
   & a {
     color: #1264a3;
     text-decoration: none;
     font-weight: 700;
-    
+
     &:hover {
       text-decoration: underline;
     }
