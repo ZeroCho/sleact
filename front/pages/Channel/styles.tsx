@@ -34,6 +34,7 @@ export const MentionsTextarea = styled(MentionsInput)`
   font-size: 15px;
   padding: 9px 10px;
   background: white;
+  border-radius: 4px;
 
   & textarea {
     height: 44px;
@@ -42,6 +43,7 @@ export const MentionsTextarea = styled(MentionsInput)`
     border-radius: 4px !important;
     resize: none !important;
     line-height: 22px;
+    border: none;
   }
 
   & ul {
@@ -80,13 +82,12 @@ export const StickyHeader = styled.div`
     height: 28px;
     line-height: 27px;
     padding: 0 16px;
-    padding-right: 8px;
     z-index: 2;
     --saf-0: rgba(var(--sk_foreground_low, 29, 28, 29), 0.13);
     box-shadow: 0 0 0 1px var(--saf-0), 0 1px 3px 0 rgba(0, 0, 0, 0.08);
     border-radius: 24px;
     position: relative;
-    top: -14px;
+    top: -13px;
     background: white;
     border: none;
     outline: none;

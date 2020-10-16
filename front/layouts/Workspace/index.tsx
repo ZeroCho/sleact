@@ -1,18 +1,20 @@
 import Menu from '@components/Menu';
+import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
 import Channel from '@pages/Channel';
 import DirectMessage from '@pages/DirectMessage';
 import { Button, Input, Label } from '@pages/SignUp/styles';
+import { IUserWithOnline } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import gravatar from 'gravatar';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { Link, Redirect, Route, Switch } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import io from 'socket.io-client';
 import useSWR from 'swr';
-import Modal from '@components/Modal';
 
 import {
   AddButton,
@@ -31,22 +33,24 @@ import {
 } from './styles';
 
 const Workspace = () => {
-  const { data: userData, revalidate } = useSWR('/api/user', fetcher);
   const { workspace } = useParams<{ workspace?: string }>();
-  const { data: channelData, revalidate: revalidateChannel } = useSWR<Array<{ id: number; name: string }>>(
-    `/api/workspace/${workspace}/channels`,
-    fetcher,
-  );
+  const { data: userData, revalidate } = useSWR('/api/user', fetcher);
   const { data: workspaceData, revalidate: revalidateWorkspace } = useSWR<
     Array<{ id: number; name: string; url: string }>
-  >(`/api/workspaces`, fetcher);
-  const { data: memberData, revalidate: revalidateMembers } = useSWR<Array<{ id: number; nickname: string }>>(
-    `/api/workspace/${workspace}/members`,
+  >(userData ? `/api/workspaces` : null, fetcher);
+  const { data: channelData, revalidate: revalidateChannel } = useSWR<Array<{ id: number; name: string }>>(
+    userData ? `/api/workspace/${workspace}/channels` : null,
     fetcher,
   );
+  const { data: memberData, revalidate: revalidateMembers, mutate: mutateMember } = useSWR<IUserWithOnline[]>(
+    userData ? `/api/workspace/${workspace}/members` : null,
+    fetcher,
+  );
+  console.log('rerender', memberData);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
+  const [onlineList, setOnlineList] = useState<number[]>([]);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [dmCollapse, setDMCollapse] = useState(false);
@@ -163,6 +167,35 @@ const Workspace = () => {
     setShowWorkspaceModal((prev) => !prev);
   }, []);
 
+  const socketRef = useRef<SocketIOClient.Socket>();
+  useEffect(() => {
+    if (workspaceData) {
+      const socket = io(`http://localhost:3095/ws-${workspace}`, {
+        transports: ['websocket'],
+      });
+      socket.on('hello', (data: string) => {
+        console.log(`${data} connected`);
+      });
+      socket.on('onlineList', (data: number[]) => {
+        setOnlineList(data);
+      });
+      socket.on('offline', (data: number) => {
+        console.log('offline', workspace, data);
+        setOnlineList((list) => {
+          return list.filter((v) => v !== data);
+        });
+      });
+      socket.emit('login', userData.id);
+      socketRef.current = socket;
+    }
+    return () => {
+      console.log('clear', workspace);
+      socketRef.current?.disconnect();
+      socketRef.current = undefined;
+      setOnlineList([]);
+    };
+  }, [workspace, workspaceData, userData]);
+
   if (userData === false) {
     return <Redirect to="/login" />;
   }
@@ -245,33 +278,21 @@ const Workspace = () => {
         <div>
           {!dmCollapse &&
             memberData?.map((member) => {
+              const isOnline = onlineList.includes(member.id);
               return (
                 <Link key={member.id} to={`/workspace/${workspace}/dm/${member.id}`}>
                   <i
-                    className="c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence c-icon--presence-offline"
+                    className={`c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence ${
+                      isOnline ? 'c-presence--active c-icon--presence-online' : 'c-icon--presence-offline'
+                    }`}
                     aria-hidden="true"
                     data-qa="presence_indicator"
                     data-qa-presence-self="false"
                     data-qa-presence-active="false"
                     data-qa-presence-dnd="false"
                   />
-                  <i
-                    className="c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence c-presence--active c-icon--presence-online"
-                    aria-hidden="true"
-                    data-qa="presence_indicator"
-                    data-qa-presence-self="false"
-                    data-qa-presence-active="false"
-                    data-qa-presence-dnd="false"
-                  />
-                  <i
-                    className="c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence c-presence--active c-icon--presence-online"
-                    aria-hidden="true"
-                    data-qa="presence_indicator"
-                    data-qa-presence-self="false"
-                    data-qa-presence-active="false"
-                    data-qa-presence-dnd="false"
-                  />
-                  {member.nickname}
+                  <span>{member.nickname}</span>
+                  {member.id === userData.id && <span> (나)</span>}
                 </Link>
               );
             })}
@@ -280,7 +301,10 @@ const Workspace = () => {
       <Chats>
         <Switch>
           <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
-          <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
+          <Route
+            path="/workspace/:workspace/dm/:id"
+            render={(props) => <DirectMessage {...props} socket={socketRef.current} />}
+          />
         </Switch>
       </Chats>
       <Modal show={showCreateWorkspaceModal} onCloseModal={onCloseModal}>

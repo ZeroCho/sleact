@@ -1,5 +1,4 @@
 import Chat from '@components/Chat';
-import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
 import {
@@ -26,99 +25,7 @@ import useSWR from 'swr';
 import { Scrollbars } from 'react-custom-scrollbars';
 import gravatar from 'gravatar';
 import { Mention, SuggestionDataItem } from 'react-mentions';
-
-export interface IChat {
-  id: number;
-  UserId: number;
-  User: {
-    nickname: string;
-    email: string;
-  };
-  content: string;
-  createdAt: Date;
-}
-
-const dummyChat: IChat[] = [
-  {
-    id: 1,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content:
-      '첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글첫째 댓글',
-    createdAt: new Date(2020, 8, 13),
-  },
-  {
-    id: 2,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '둘째 댓글',
-    createdAt: new Date(2020, 8, 13),
-  },
-  {
-    id: 3,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '셋째 댓글',
-    createdAt: new Date(2020, 8, 14),
-  },
-  {
-    id: 4,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content:
-      '넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글넷째 댓글',
-    createdAt: new Date(2020, 8, 14),
-  },
-  {
-    id: 5,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '다섯째 댓글',
-    createdAt: new Date(2020, 8, 15),
-  },
-  {
-    id: 6,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '다섯째 댓글',
-    createdAt: new Date(2020, 8, 15),
-  },
-  {
-    id: 7,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '다섯째 댓글',
-    createdAt: new Date(2020, 8, 15),
-  },
-  {
-    id: 8,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '다섯째 댓글',
-    createdAt: new Date(2020, 8, 15),
-  },
-  {
-    id: 9,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '다섯째 댓글',
-    createdAt: new Date(2020, 8, 16),
-  },
-  {
-    id: 10,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '다섯째 댓글',
-    createdAt: new Date(2020, 8, 17),
-  },
-  {
-    id: 11,
-    UserId: 1,
-    User: { nickname: '제로초', email: 'zerohch0@gmail.com' },
-    content: '다섯째 댓글',
-    createdAt: new Date(2020, 8, 18),
-  },
-];
+import { IChat } from '@typings/db';
 
 const makeSection = (chatList: IChat[]) => {
   const sections: { [key: string]: IChat[] } = {};
@@ -135,10 +42,14 @@ const makeSection = (chatList: IChat[]) => {
 
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
-  // const { data: chatData } = useSWR<Array<{ id: number, content: string }>>(`/api/workspace/${workspace}/channel/${channel}/chats`, fetcher);
+  const { data: userData, revalidate } = useSWR('/api/user', fetcher);
+  const { data: chatData } = useSWR<IChat[]>(
+    userData ? `/api/workspace/${workspace}/channel/${channel}/chats` : null,
+    fetcher,
+  );
   const { data: channelMembersData, revalidate: revalidateMembers } = useSWR<
     Array<{ id: number; email: string; nickname: string }>
-  >(`/api/workspace/${workspace}/channel/${channel}/members`, fetcher);
+  >(userData ? `/api/workspace/${workspace}/channel/${channel}/members` : null, fetcher);
   const [chat, onChangeChat, setChat] = useInput('');
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
@@ -222,7 +133,7 @@ const Channel = () => {
     [channelMembersData],
   );
 
-  const chatSections = makeSection(dummyChat);
+  const chatSections = makeSection(chatData || []);
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', height: 'calc(100vh - 38px)', flexFlow: 'column' }}>
