@@ -1,6 +1,6 @@
 import Chat from '@components/Chat';
 import useInput from '@hooks/useInput';
-import { IChat } from '@typings/db';
+import { IDM } from '@typings/db';
 import {
   ChatArea,
   ChatZone,
@@ -20,11 +20,11 @@ import React, { FC, useCallback, useEffect, useRef } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Mention } from 'react-mentions';
 import { useParams } from 'react-router';
-import { toast, ToastContainer } from 'react-toastify';
-import useSWR from 'swr';
+import { toast } from 'react-toastify';
+import useSWR, { useSWRInfinite } from 'swr';
 
-const makeSection = (chatList: IChat[]) => {
-  const sections: { [key: string]: IChat[] } = {};
+const makeSection = (chatList: IDM[]) => {
+  const sections: { [key: string]: IDM[] } = {};
   chatList.forEach((chat) => {
     const monthDate = dayjs(chat.createdAt).format('YYYY-MM-DD');
     if (Array.isArray(sections[monthDate])) {
@@ -39,29 +39,46 @@ const makeSection = (chatList: IChat[]) => {
 interface Props {
   socket?: SocketIOClient.Socket;
 }
+
+const PAGE_SIZE = 15;
 const DirectMessage: FC<Props> = ({ socket }) => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
   const { data: myData } = useSWR('/api/user', fetcher);
   const { data: userData } = useSWR(`/api/workspace/${workspace}/user/${id}`, fetcher);
-  const { data: chatData, revalidate: revalidateChat } = useSWR<IChat[]>(
-    `/api/workspace/${workspace}/dm/${id}/chats`,
+  const { data: chatData, revalidate: revalidateChat, mutate: mutateChat, setSize } = useSWRInfinite<IDM[]>(
+    (index) => `/api/workspace/${workspace}/dm/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
+  console.log('chatData', chatData);
   const [chat, onChangeChat, setChat] = useInput('');
   const scrollbarRef = useRef<Scrollbars>(null);
+
+  const isEmpty = chatData?.[0]?.length === 0;
+  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
 
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
       console.log(chat);
-      if (chat?.trim()) {
+      if (chat?.trim() && chatData) {
         axios
           .post(`/api/workspace/${workspace}/dm/${id}/chat`, {
             content: chat,
           })
           .then(() => {
             setChat('');
-            revalidateChat().then(() => {
+            mutateChat((prevChatData) => {
+              prevChatData[0].unshift({
+                id: chatData[0][0].id + 1,
+                content: chat,
+                SenderId: myData.id,
+                Sender: myData,
+                ReceiverId: userData.id,
+                Receiver: userData,
+                createdAt: new Date(),
+              });
+              return prevChatData;
+            }, false).then(() => {
               if (scrollbarRef.current) {
                 scrollbarRef.current.scrollToBottom();
               }
@@ -70,7 +87,7 @@ const DirectMessage: FC<Props> = ({ socket }) => {
           .catch(console.error);
       }
     },
-    [chat, workspace, id, scrollbarRef],
+    [chat, workspace, id, scrollbarRef, userData, chatData],
   );
 
   useEffect(() => {
@@ -78,13 +95,15 @@ const DirectMessage: FC<Props> = ({ socket }) => {
   }, [chat]);
 
   useEffect(() => {
-    socket?.on('message', () => {
-      revalidateChat().then(() => {
-        console.log('onmessage revalidate');
+    socket?.on('message', (data: IDM) => {
+      mutateChat((chatData) => {
+        chatData[0].unshift(data);
+        return chatData;
+      }, false).then(() => {
         if (scrollbarRef.current) {
           if (
             scrollbarRef.current.getScrollHeight() <
-            scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 200
+            scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
           ) {
             scrollbarRef.current.scrollToBottom();
           } else {
@@ -103,7 +122,12 @@ const DirectMessage: FC<Props> = ({ socket }) => {
     };
   }, [scrollbarRef, socket]);
 
-  useEffect(() => {}, [id]);
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      console.log('toBottom', chatData);
+      scrollbarRef.current?.scrollToBottom();
+    }
+  }, [chatData, scrollbarRef]);
 
   const onKeydownChat = useCallback(
     (e) => {
@@ -117,19 +141,29 @@ const DirectMessage: FC<Props> = ({ socket }) => {
     [chat],
   );
 
+  const onScroll = useCallback(
+    (values) => {
+      if (values.scrollTop === 0 && !isReachingEnd && !isEmpty) {
+        setSize((size) => size + 1).then(() => {
+          scrollbarRef.current?.scrollTop(scrollbarRef.current?.getScrollHeight() - values.scrollHeight);
+        });
+      }
+    },
+    [isReachingEnd, isEmpty],
+  );
+
   if (!userData || !myData) {
     return null;
   }
 
-  const chatSections = makeSection(chatData || []);
-
+  const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', height: 'calc(100vh - 38px)', flexFlow: 'column' }}>
       <Header>
         <span>{userData.nickname}</span>
       </Header>
       <ChatZone>
-        <Scrollbars autoHide ref={scrollbarRef}>
+        <Scrollbars autoHide ref={scrollbarRef} onScrollFrame={onScroll}>
           {Object.entries(chatSections).map(([date, chats]) => {
             return (
               <Section className={`section-${date}`} key={date}>

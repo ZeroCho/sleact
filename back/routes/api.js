@@ -257,7 +257,9 @@ router.get(
               attributes: ["email", "nickname", "id"],
             },
           ],
-          order: [["createdAt", "ASC"]],
+          order: [["createdAt", "DESC"]],
+          limit: parseInt(req.query.perPage, 10),
+          offset: req.query.perPage * (req.query.page - 1),
         })
       );
     } catch (error) {
@@ -282,11 +284,20 @@ router.post(
       }
       const SenderId = req.user.id;
       const ReceiverId = req.params.id;
-      await DM.create({
+      const dm = await DM.create({
         SenderId,
         ReceiverId,
         WorkspaceId: workspace.id,
         content: req.body.content,
+      });
+      const dmWithSender = await DM.findOne({
+        where: { id: dm.id },
+        include: [
+          {
+            model: User,
+            as: "Sender",
+          },
+        ],
       });
       const io = req.app.get("io");
       const onlineMap = req.app.get("onlineMap");
@@ -294,8 +305,9 @@ router.post(
         onlineMap[`/ws-${workspace.url}`],
         Number(ReceiverId)
       );
-      console.log(`/ws-${workspace.url}`, onlineMap, receiverSocket);
-      io.of(`/ws-${workspace.url}`).to(receiverSocket).emit("message");
+      io.of(`/ws-${workspace.url}`)
+        .to(receiverSocket)
+        .emit("message", dmWithSender);
       res.send("ok");
     } catch (error) {
       next(error);
