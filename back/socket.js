@@ -14,12 +14,15 @@ module.exports = (server, app) => {
     }
     // broadcast to all clients in the given sub-namespace
     socket.emit("hello", socket.nsp.name);
-    socket.on("login", (id) => {
+    socket.on("login", ({ id, channels }) => {
       onlineMap[socket.nsp.name][socket.id] = id;
       newNamespace.emit(
         "onlineList",
         Object.values(onlineMap[socket.nsp.name])
       );
+      channels.forEach((channel) => {
+        socket.join(`${socket.nsp.name}-${channel}`);
+      });
       console.log("login", onlineMap);
     });
     socket.on("disconnect", () => {

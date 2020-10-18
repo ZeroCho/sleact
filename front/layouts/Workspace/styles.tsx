@@ -77,7 +77,31 @@ export const Channels = styled.nav`
     text-decoration: none;
     height: 28px;
     line-height: 28px;
-    display: block;
+    display: flex;
+    align-items: center;
+
+    &.selected {
+      color: white;
+    }
+  }
+
+  & .bold {
+    color: white;
+    font-weight: bold;
+  }
+
+  & .count {
+    margin-left: auto;
+    background: #cd2553;
+    border-radius: 16px;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 9px;
+    color: white;
+    margin-right: 16px;
   }
 
   & h2 {
@@ -109,6 +133,7 @@ export const WorkspaceName = styled.button`
   padding-left: 16px;
   margin: 0;
   color: white;
+  cursor: pointer;
 `;
 
 export const WorkspaceModal = styled.div`
@@ -148,6 +173,7 @@ export const AddButton = styled.button`
   height: 40px;
   background: transparent;
   border: none;
+  cursor: pointer;
 `;
 
 export const WorkspaceButton = styled.button`
@@ -161,6 +187,7 @@ export const WorkspaceButton = styled.button`
   font-size: 18px;
   font-weight: 700;
   color: black;
+  cursor: pointer;
 `;
 
 export const CollapseButton = styled.button<{ collapse: boolean }>`
@@ -173,6 +200,7 @@ export const CollapseButton = styled.button<{ collapse: boolean }>`
   align-items: center;
   color: white;
   margin-left: 10px;
+  cursor: pointer;
 
   ${({ collapse }) =>
     collapse &&

@@ -1,59 +1,43 @@
-import Chat from '@components/Chat';
+import ChatBox from '@components/ChatBox';
+import ChatList from '@components/ChatList';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
-import {
-  ChatArea,
-  ChatZone,
-  Form,
-  Header,
-  MentionsTextarea,
-  Section,
-  SendButton,
-  StickyHeader,
-  Toolbox,
-  EachMention,
-} from '@pages/Channel/styles';
+import { Header } from '@pages/Channel/styles';
 import { Button, Input, Label } from '@pages/SignUp/styles';
+import { IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import autosize from 'autosize';
+import makeSection from '@utils/makeSection';
 import axios from 'axios';
-import dayjs from 'dayjs';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { useParams } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
-import useSWR from 'swr';
-import { Scrollbars } from 'react-custom-scrollbars';
-import gravatar from 'gravatar';
-import { Mention, SuggestionDataItem } from 'react-mentions';
-import { IChat } from '@typings/db';
+import useSWR, { useSWRInfinite } from 'swr';
 
-const makeSection = (chatList: IChat[]) => {
-  const sections: { [key: string]: IChat[] } = {};
-  chatList.forEach((chat) => {
-    const monthDate = dayjs(chat.createdAt).format('YYYY-MM-DD');
-    if (Array.isArray(sections[monthDate])) {
-      sections[monthDate].push(chat);
-    } else {
-      sections[monthDate] = [chat];
-    }
-  });
-  return sections;
-};
+interface Props {
+  socket?: SocketIOClient.Socket;
+}
 
-const Channel = () => {
+const PAGE_SIZE = 15;
+const Channel: FC<Props> = ({ socket }) => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const { data: userData, revalidate } = useSWR('/api/user', fetcher);
-  const { data: chatData } = useSWR<IChat[]>(
-    userData ? `/api/workspace/${workspace}/channel/${channel}/chats` : null,
+  const { data: channelData } = useSWR(`/api/workspace/${workspace}/channel/${channel}`, fetcher);
+  const { data: chatData, revalidate: revalidateChat, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
+    (index) => `/api/workspace/${workspace}/channel/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
-  const { data: channelMembersData, revalidate: revalidateMembers } = useSWR<
-    Array<{ id: number; email: string; nickname: string }>
-  >(userData ? `/api/workspace/${workspace}/channel/${channel}/members` : null, fetcher);
+  const { data: channelMembersData, revalidate: revalidateMembers } = useSWR<IUser[]>(
+    userData ? `/api/workspace/${workspace}/channel/${channel}/members` : null,
+    fetcher,
+  );
   const [chat, onChangeChat, setChat] = useInput('');
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const scrollbarRef = useRef<Scrollbars>(null);
+
+  const isEmpty = chatData?.[0]?.length === 0;
+  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
 
   const onInviteMember = useCallback(
     (e) => {
@@ -79,61 +63,82 @@ const Channel = () => {
     setShowInviteChannelModal(false);
   }, []);
 
-  const onSubmitForm = useCallback(() => {
-    console.log(chat);
-    if (chat?.trim()) {
-      // axios
-      //   .post(`/api/channel/${channel}/chat`)
-      //   .then(() => {})
-      //   .catch(console.error);
+  const onSubmitForm = useCallback(
+    (e) => {
+      e.preventDefault();
+      console.log(chat);
+      if (chat?.trim() && chatData && channelData) {
+        axios
+          .post(`/api/workspace/${workspace}/channel/${channel}/chat`, {
+            content: chat,
+          })
+          .then(() => {
+            setChat('');
+            mutateChat((prevChatData) => {
+              prevChatData[0].unshift({
+                id: chatData[0][0].id + 1,
+                content: chat,
+                UserId: userData.id,
+                User: userData,
+                createdAt: new Date(),
+                ChannelId: channelData.id,
+                Channel: channelData,
+              });
+              return prevChatData;
+            }, false).then(() => {
+              if (scrollbarRef.current) {
+                scrollbarRef.current.scrollToBottom();
+              }
+            });
+          })
+          .catch(console.error);
+      }
+    },
+    [chat, workspace, channel, channelData, scrollbarRef, userData, chatData],
+  );
+
+  useEffect(() => {
+    socket?.on('message', (data: IChat) => {
+      if (data.Channel.name === channel) {
+        mutateChat((chatData) => {
+          chatData[0].unshift(data);
+          return chatData;
+        }, false).then(() => {
+          if (scrollbarRef.current) {
+            if (
+              scrollbarRef.current.getScrollHeight() <
+              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+            ) {
+              scrollbarRef.current.scrollToBottom();
+            } else {
+              toast.success('새 메시지가 도착했습니다.', {
+                onClick() {
+                  scrollbarRef.current?.scrollToBottom();
+                },
+                closeOnClick: true,
+              });
+            }
+          }
+        });
+      }
+    });
+    return () => {
+      socket?.off('message');
+    };
+  }, [scrollbarRef, socket]);
+
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      console.log('toBottom', chatData);
+      scrollbarRef.current?.scrollToBottom();
     }
-  }, [chat]);
+  }, [chatData, scrollbarRef]);
 
   const onClickInviteChannel = useCallback(() => {
     setShowInviteChannelModal(true);
   }, []);
 
-  useEffect(() => {
-    autosize(document.querySelector('#editor-chat')!);
-  }, [chat]);
-
-  const onKeydownChat = useCallback(
-    (e) => {
-      if (e.key === 'Enter') {
-        if (!e.shiftKey) {
-          e.preventDefault();
-          onSubmitForm();
-        }
-      }
-    },
-    [chat],
-  );
-
-  const renderUserSuggestion: (
-    suggestion: SuggestionDataItem,
-    search: string,
-    highlightedDisplay: React.ReactNode,
-    index: number,
-    focused: boolean,
-  ) => React.ReactNode = useCallback(
-    (member, search, highlightedDisplay, index, focus) => {
-      if (!channelMembersData) {
-        return null;
-      }
-      return (
-        <EachMention focus={focus}>
-          <img
-            src={gravatar.url(channelMembersData[index].email, { s: '20px' })}
-            alt={channelMembersData[index].nickname}
-          />
-          <span>{channelMembersData[index].nickname}</span>
-        </EachMention>
-      );
-    },
-    [channelMembersData],
-  );
-
-  const chatSections = makeSection(chatData || []);
+  const chatSections = makeSection(chatData ? ([] as IChat[]).concat(...chatData).reverse() : []);
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', height: 'calc(100vh - 38px)', flexFlow: 'column' }}>
@@ -152,56 +157,20 @@ const Channel = () => {
           </button>
         </div>
       </Header>
-      <ChatZone>
-        <Scrollbars autoHide>
-          {Object.entries(chatSections).map(([date, chats]) => {
-            return (
-              <Section className={`section-${date}`} key={date}>
-                <StickyHeader>
-                  <button>{date}</button>
-                </StickyHeader>
-                {chats.map((chat) => (
-                  <Chat key={chat.id} data={chat} />
-                ))}
-              </Section>
-            );
-          })}
-        </Scrollbars>
-      </ChatZone>
-      <ChatArea>
-        <Form onSubmit={onSubmitForm}>
-          <MentionsTextarea
-            id="editor-chat"
-            value={chat}
-            onChange={onChangeChat}
-            onKeyDown={onKeydownChat}
-            placeholder={`Message #${channel}`}
-          >
-            <Mention
-              appendSpaceOnAdd
-              style={{ background: 'rgba(29, 155, 209, .1)', color: 'rgb(18, 100, 163)' }}
-              trigger="@"
-              data={channelMembersData?.map((v) => ({ id: v.id, display: v.nickname })) || []}
-              renderSuggestion={renderUserSuggestion}
-            />
-          </MentionsTextarea>
-          <Toolbox>
-            <SendButton
-              className={
-                'c-button-unstyled c-icon_button c-icon_button--light c-icon_button--size_medium c-texty_input__button c-texty_input__button--send' +
-                (chat?.trim() ? '' : ' c-texty_input__button--disabled')
-              }
-              data-qa="texty_send_button"
-              aria-label="Send message"
-              data-sk="tooltip_parent"
-              type="submit"
-              disabled={!chat?.trim()}
-            >
-              <i className="c-icon c-icon--paperplane-filled" aria-hidden="true" />
-            </SendButton>
-          </Toolbox>
-        </Form>
-      </ChatArea>
+      <ChatList
+        scrollbarRef={scrollbarRef}
+        isReachingEnd={isReachingEnd}
+        isEmpty={isEmpty}
+        chatSections={chatSections}
+        setSize={setSize}
+      />
+      <ChatBox
+        onSubmitForm={onSubmitForm}
+        chat={chat}
+        onChangeChat={onChangeChat}
+        placeholder={`Message #${channel}`}
+        data={channelMembersData}
+      />
       <Modal show={showInviteChannelModal} onCloseModal={onCloseModal}>
         <form onSubmit={onInviteMember}>
           <Label id="member-label">

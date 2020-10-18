@@ -4,13 +4,13 @@ import useInput from '@hooks/useInput';
 import Channel from '@pages/Channel';
 import DirectMessage from '@pages/DirectMessage';
 import { Button, Input, Label } from '@pages/SignUp/styles';
-import { IUserWithOnline } from '@typings/db';
+import { IChat, IDM, IUserWithOnline } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import gravatar from 'gravatar';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router';
-import { Link, Redirect, Route, Switch } from 'react-router-dom';
+import { useParams, useRouteMatch, useHistory, useLocation } from 'react-router';
+import { Link, NavLink, Redirect, Route, Switch } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import io from 'socket.io-client';
@@ -33,7 +33,12 @@ import {
 } from './styles';
 
 const Workspace = () => {
-  const { workspace } = useParams<{ workspace?: string }>();
+  const params = useParams<{ workspace?: string }>();
+  const location = useLocation();
+  const routeMatch = useRouteMatch();
+  const history = useHistory();
+  // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
+  const { workspace } = params;
   const { data: userData, revalidate } = useSWR('/api/user', fetcher);
   const { data: workspaceData, revalidate: revalidateWorkspace } = useSWR<
     Array<{ id: number; name: string; url: string }>
@@ -51,6 +56,7 @@ const Workspace = () => {
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [onlineList, setOnlineList] = useState<number[]>([]);
+  const [countList, setCountList] = useState<{ [key: string]: number }>({});
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [dmCollapse, setDMCollapse] = useState(false);
@@ -185,7 +191,22 @@ const Workspace = () => {
           return list.filter((v) => v !== data);
         });
       });
-      socket.emit('login', userData.id);
+      socket.on('dm', (data: IDM) => {
+        setCountList((list) => {
+          return {
+            ...list,
+            [data.SenderId]: list[data.SenderId] ? list[data.SenderId] + 1 : 1,
+          };
+        });
+      });
+      socket.on('message', (data: IChat) => {
+        setCountList((list) => {
+          return {
+            ...list,
+            [`c-${data.ChannelId}`]: 1,
+          };
+        });
+      });
       socketRef.current = socket;
     }
     return () => {
@@ -195,6 +216,24 @@ const Workspace = () => {
       setOnlineList([]);
     };
   }, [workspace, workspaceData, userData]);
+
+  useEffect(() => {
+    if (channelData) {
+      socketRef.current?.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
+    }
+  }, [channelData]);
+
+  const resetCount = useCallback(
+    (id) => () => {
+      setCountList((list) => {
+        return {
+          ...list,
+          [id]: 0,
+        };
+      });
+    },
+    [],
+  );
 
   if (userData === false) {
     return <Redirect to="/login" />;
@@ -226,7 +265,7 @@ const Workspace = () => {
       <Workspaces>
         {workspaceData?.map((ws) => {
           return (
-            <Link key={ws.id} to={`/workspace/${ws.url}`}>
+            <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
               <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
             </Link>
           );
@@ -258,10 +297,16 @@ const Workspace = () => {
         <div>
           {!channelCollapse &&
             channelData?.map((channel) => {
+              const count = countList[`c-${channel.id}`] || 0;
               return (
-                <Link key={channel.name} to={`/workspace/${workspace}/channel/${channel.name}`}>
-                  # {channel.name}
-                </Link>
+                <NavLink
+                  key={channel.name}
+                  activeClassName="selected"
+                  to={`/workspace/${workspace}/channel/${channel.name}`}
+                  onClick={resetCount(`c-${channel.id}`)}
+                >
+                  <span className={count > 0 ? 'bold' : undefined}># {channel.name}</span>
+                </NavLink>
               );
             })}
         </div>
@@ -279,8 +324,14 @@ const Workspace = () => {
           {!dmCollapse &&
             memberData?.map((member) => {
               const isOnline = onlineList.includes(member.id);
+              const count = countList[member.id] || 0;
               return (
-                <Link key={member.id} to={`/workspace/${workspace}/dm/${member.id}`}>
+                <NavLink
+                  key={member.id}
+                  activeClassName="selected"
+                  to={`/workspace/${workspace}/dm/${member.id}`}
+                  onClick={resetCount(member.id)}
+                >
                   <i
                     className={`c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence ${
                       isOnline ? 'c-presence--active c-icon--presence-online' : 'c-icon--presence-offline'
@@ -291,16 +342,20 @@ const Workspace = () => {
                     data-qa-presence-active="false"
                     data-qa-presence-dnd="false"
                   />
-                  <span>{member.nickname}</span>
+                  <span className={count > 0 ? 'bold' : undefined}>{member.nickname}</span>
                   {member.id === userData.id && <span> (나)</span>}
-                </Link>
+                  {count > 0 && <span className="count">{count}</span>}
+                </NavLink>
               );
             })}
         </div>
       </Channels>
       <Chats>
         <Switch>
-          <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
+          <Route
+            path="/workspace/:workspace/channel/:channel"
+            render={(props) => <Channel {...props} socket={socketRef.current} />}
+          />
           <Route
             path="/workspace/:workspace/dm/:id"
             render={(props) => <DirectMessage {...props} socket={socketRef.current} />}
