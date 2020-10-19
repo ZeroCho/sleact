@@ -13,7 +13,6 @@ dotenv.config();
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
 const apiRouter = require("./routes/api");
-const indexRouter = require("./routes");
 const webSocket = require("./socket");
 
 const app = express();
@@ -62,7 +61,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/api", apiRouter);
-app.use("/", indexRouter);
+app.get("*", (req, res, next) => {
+  res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+});
 
 const server = app.listen(app.get("PORT"), () => {
   console.log(`listening on port ${app.get("PORT")}`);
