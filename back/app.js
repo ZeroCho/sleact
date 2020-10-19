@@ -62,7 +62,7 @@ app.use(passport.session());
 
 app.use("/api", apiRouter);
 app.get("*", (req, res, next) => {
-  res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 const server = app.listen(app.get("PORT"), () => {
