@@ -140,7 +140,8 @@ const Workspace = () => {
   const socketRef = useRef<SocketIOClient.Socket>();
   useEffect(() => {
     if (workspaceData) {
-      const socket = io(`http://localhost:3095/ws-${workspace}`, {
+      const backUrl = process.env.NODE_ENV === 'production' ? 'https://sleact.nodebird.com' : 'http://localhost:3095';
+      const socket = io(`${backUrl}/ws-${workspace}`, {
         transports: ['websocket'],
       });
       socket.on('hello', (data: string) => {
