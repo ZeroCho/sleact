@@ -602,11 +602,15 @@ router.post("/user", isNotLoggedIn, async (req, res, next) => {
       return res.status(403).send("이미 사용 중인 아이디입니다.");
     }
     const hashedPassword = await bcrypt.hash(req.body.password, 12);
-    await User.create({
+    const user = await User.create({
       email: req.body.email,
       nickname: req.body.nickname,
       password: hashedPassword,
     });
+    const sleact = await Workspace.findOne({ where: { id: 1 } });
+    const channel = await Channel.findOne({ where: { id: 1 } });
+    await sleact.addMembers(user);
+    await channel.addMembers(user);
     res.status(201).send("ok");
   } catch (error) {
     console.error(error);
