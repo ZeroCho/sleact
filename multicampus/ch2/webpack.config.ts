@@ -64,7 +64,6 @@ const config: webpack.Configuration = {
       //   files: "./src/**/*",
       // },
     }),
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
   ],
   output: {
     path: path.join(__dirname, 'dist'),
