@@ -68,26 +68,28 @@ const DirectMessage: FC<Props> = ({ socket }) => {
 
   useEffect(() => {
     socket?.on('dm', (data: IDM) => {
-      mutateChat((chatData) => {
-        chatData[0].unshift(data);
-        return chatData;
-      }, false).then(() => {
-        if (scrollbarRef.current) {
-          if (
-            scrollbarRef.current.getScrollHeight() <
-            scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
-          ) {
-            scrollbarRef.current.scrollToBottom();
-          } else {
-            toast.success('새 메시지가 도착했습니다.', {
-              onClick() {
-                scrollbarRef.current?.scrollToBottom();
-              },
-              closeOnClick: true,
-            });
+      if (data.SenderId === Number(id)) {
+        mutateChat((chatData) => {
+          chatData[0].unshift(data);
+          return chatData;
+        }, false).then(() => {
+          if (scrollbarRef.current) {
+            if (
+              scrollbarRef.current.getScrollHeight() <
+              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+            ) {
+              scrollbarRef.current.scrollToBottom();
+            } else {
+              toast.success('새 메시지가 도착했습니다.', {
+                onClick() {
+                  scrollbarRef.current?.scrollToBottom();
+                },
+                closeOnClick: true,
+              });
+            }
           }
-        }
-      });
+        });
+      }
     });
     return () => {
       socket?.off('dm');

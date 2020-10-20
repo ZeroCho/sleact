@@ -99,7 +99,7 @@ const Channel: FC<Props> = ({ socket }) => {
 
   useEffect(() => {
     socket?.on('message', (data: IChat) => {
-      if (data.Channel.name === channel) {
+      if (data.Channel.name === channel && data.UserId !== userData.id) {
         mutateChat((chatData) => {
           chatData[0].unshift(data);
           return chatData;
@@ -125,7 +125,7 @@ const Channel: FC<Props> = ({ socket }) => {
     return () => {
       socket?.off('message');
     };
-  }, [scrollbarRef, socket]);
+  }, [scrollbarRef, socket, userData]);
 
   useEffect(() => {
     if (chatData?.length === 1) {
