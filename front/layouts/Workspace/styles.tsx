@@ -65,7 +65,8 @@ export const Workspaces = styled.div`
 
 export const Channels = styled.nav`
   width: 260px;
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
   background: #3f0e40;
   color: rgb(188, 171, 188);
   height: calc(100% - 38px);
@@ -134,6 +135,11 @@ export const WorkspaceName = styled.button`
   margin: 0;
   color: white;
   cursor: pointer;
+`;
+
+export const MenuScroll = styled.div`
+  flex: 1;
+  overflow-y: auto;
 `;
 
 export const WorkspaceModal = styled.div`

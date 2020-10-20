@@ -9,7 +9,7 @@ import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import gravatar from 'gravatar';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams, useRouteMatch, useHistory, useLocation } from 'react-router';
+import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router';
 import { Link, NavLink, Redirect, Route, Switch } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,6 +23,7 @@ import {
   CollapseButton,
   Header,
   LogOutButton,
+  MenuScroll,
   ProfileImg,
   ProfileModal,
   RightMenu,
@@ -277,79 +278,81 @@ const Workspace = () => {
         <WorkspaceName onClick={toggleWorkspaceModal}>
           {workspaceData?.find((v) => v.url === workspace)?.name}
         </WorkspaceName>
-        <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
-          <WorkspaceModal>
-            <h2>{workspaceData?.find((v) => v.url === workspace)?.name}</h2>
-            <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
-            <button onClick={onClickAddChannel}>채널 만들기</button>
-            <button onClick={onLogOut}>로그아웃</button>
-          </WorkspaceModal>
-        </Menu>
-        <h2>
-          <CollapseButton collapse={channelCollapse} onClick={toggleChannelCollapse}>
-            <i
-              className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
-              data-qa="channel-section-collapse"
-              aria-hidden="true"
-            />
-          </CollapseButton>
-          <span>Channels</span>
-        </h2>
-        <div>
-          {!channelCollapse &&
-            channelData?.map((channel) => {
-              const count = countList[`c-${channel.id}`] || 0;
-              return (
-                <NavLink
-                  key={channel.name}
-                  activeClassName="selected"
-                  to={`/workspace/${workspace}/channel/${channel.name}`}
-                  onClick={resetCount(`c-${channel.id}`)}
-                >
-                  <span className={count > 0 ? 'bold' : undefined}># {channel.name}</span>
-                </NavLink>
-              );
-            })}
-        </div>
-        <h2>
-          <CollapseButton collapse={dmCollapse} onClick={toggleDMCollapse}>
-            <i
-              className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
-              data-qa="channel-section-collapse"
-              aria-hidden="true"
-            />
-          </CollapseButton>
-          <span>Direct Messages</span>
-        </h2>
-        <div>
-          {!dmCollapse &&
-            memberData?.map((member) => {
-              const isOnline = onlineList.includes(member.id);
-              const count = countList[member.id] || 0;
-              return (
-                <NavLink
-                  key={member.id}
-                  activeClassName="selected"
-                  to={`/workspace/${workspace}/dm/${member.id}`}
-                  onClick={resetCount(member.id)}
-                >
-                  <i
-                    className={`c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence ${
-                      isOnline ? 'c-presence--active c-icon--presence-online' : 'c-icon--presence-offline'
-                    }`}
-                    aria-hidden="true"
-                    data-qa="presence_indicator"
-                    data-qa-presence-self="false"
-                    data-qa-presence-active="false"
-                    data-qa-presence-dnd="false"
-                  />
-                  <span className={count > 0 ? 'bold' : undefined}>{member.nickname}</span>
-                  {member.id === userData.id && <span> (나)</span>}
-                  {count > 0 && <span className="count">{count}</span>}
-                </NavLink>
-              );
-            })}
-        </div>
+        <MenuScroll>
+          <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
+            <WorkspaceModal>
+              <h2>{workspaceData?.find((v) => v.url === workspace)?.name}</h2>
+              <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
+              <button onClick={onClickAddChannel}>채널 만들기</button>
+              <button onClick={onLogOut}>로그아웃</button>
+            </WorkspaceModal>
+          </Menu>
+          <h2>
+            <CollapseButton collapse={channelCollapse} onClick={toggleChannelCollapse}>
+              <i
+                className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
+                data-qa="channel-section-collapse"
+                aria-hidden="true"
+              />
+            </CollapseButton>
+            <span>Channels</span>
+          </h2>
+          <div>
+            {!channelCollapse &&
+              channelData?.map((channel) => {
+                const count = countList[`c-${channel.id}`] || 0;
+                return (
+                  <NavLink
+                    key={channel.name}
+                    activeClassName="selected"
+                    to={`/workspace/${workspace}/channel/${channel.name}`}
+                    onClick={resetCount(`c-${channel.id}`)}
+                  >
+                    <span className={count > 0 ? 'bold' : undefined}># {channel.name}</span>
+                  </NavLink>
+                );
+              })}
+          </div>
+          <h2>
+            <CollapseButton collapse={dmCollapse} onClick={toggleDMCollapse}>
+              <i
+                className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
+                data-qa="channel-section-collapse"
+                aria-hidden="true"
+              />
+            </CollapseButton>
+            <span>Direct Messages</span>
+          </h2>
+          <div>
+            {!dmCollapse &&
+              memberData?.map((member) => {
+                const isOnline = onlineList.includes(member.id);
+                const count = countList[member.id] || 0;
+                return (
+                  <NavLink
+                    key={member.id}
+                    activeClassName="selected"
+                    to={`/workspace/${workspace}/dm/${member.id}`}
+                    onClick={resetCount(member.id)}
+                  >
+                    <i
+                      className={`c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence ${
+                        isOnline ? 'c-presence--active c-icon--presence-online' : 'c-icon--presence-offline'
+                      }`}
+                      aria-hidden="true"
+                      data-qa="presence_indicator"
+                      data-qa-presence-self="false"
+                      data-qa-presence-active="false"
+                      data-qa-presence-dnd="false"
+                    />
+                    <span className={count > 0 ? 'bold' : undefined}>{member.nickname}</span>
+                    {member.id === userData.id && <span> (나)</span>}
+                    {count > 0 && <span className="count">{count}</span>}
+                  </NavLink>
+                );
+              })}
+          </div>
+        </MenuScroll>
       </Channels>
       <Chats>
         <Switch>
