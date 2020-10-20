@@ -39,7 +39,7 @@ const DirectMessage: FC<Props> = ({ socket }) => {
       if (chat?.trim() && chatData) {
         mutateChat((prevChatData) => {
           prevChatData[0].unshift({
-            id: chatData[0][0].id + 1,
+            id: (chatData[0][0]?.id || 0) + 1,
             content: chat,
             SenderId: myData.id,
             Sender: myData,

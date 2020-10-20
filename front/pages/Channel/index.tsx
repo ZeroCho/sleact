@@ -76,7 +76,7 @@ const Channel: FC<Props> = ({ socket }) => {
             setChat('');
             mutateChat((prevChatData) => {
               prevChatData[0].unshift({
-                id: chatData[0][0].id + 1,
+                id: (chatData[0][0]?.id || 0) + 1,
                 content: chat,
                 UserId: userData.id,
                 User: userData,

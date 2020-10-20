@@ -12,8 +12,10 @@
   "dependencies": {
     "@emotion/core": "^10.0.35",
     "@emotion/styled": "^10.0.27",
+    "@loadable/component": "^5.14.0",
     "@types/autosize": "^3.0.7",
     "@types/gravatar": "^1.8.1",
+    "@types/loadable__component": "^5.13.1",
     "@types/react": "^16.9.51",
     "@types/react-custom-scrollbars": "^4.0.7",
     "@types/react-dom": "^16.9.8",
@@ -44,6 +46,7 @@
     "@types/fork-ts-checker-webpack-plugin": "^0.4.5",
     "@types/node": "^14.11.8",
     "@types/webpack": "^4.41.22",
+    "@types/webpack-bundle-analyzer": "^3.8.0",
     "@types/webpack-dev-server": "^3.11.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-emotion": "^10.0.33",
@@ -59,6 +62,7 @@
     "tsconfig-paths": "^3.9.0",
     "type-fest": "^0.17.0",
     "webpack": "^5.0.0",
+    "webpack-bundle-analyzer": "^3.9.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   }

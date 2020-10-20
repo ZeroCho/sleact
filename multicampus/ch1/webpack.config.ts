@@ -86,5 +86,8 @@ if (isDevelopment && config.plugins) {
   config.plugins.push(new webpack.HotModuleReplacementPlugin());
   config.plugins.push(new ReactRefreshWebpackPlugin());
 }
+if (!isDevelopment && config.plugins) {
+  config.plugins.push(new webpack.LoaderOptionsPlugin({ minimize: true }));
+}
 
 export default config;
