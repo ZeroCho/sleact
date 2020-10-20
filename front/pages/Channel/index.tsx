@@ -42,6 +42,9 @@ const Channel: FC<Props> = ({ socket }) => {
   const onInviteMember = useCallback(
     (e) => {
       e.preventDefault();
+      if (!newMember || !newMember.trim()) {
+        return;
+      }
       axios
         .post(`/api/workspace/${workspace}/channel/${channel}/member`, {
           email: newMember,

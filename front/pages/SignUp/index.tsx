@@ -27,6 +27,10 @@ const SignUp = () => {
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();
+      if (!nickname || !nickname.trim()) {
+        setSignUpError('닉네임을 입력해주세요');
+        return;
+      }
       if (!mismatchError) {
         setSignUpError('');
         setSignUpSuccess(false);

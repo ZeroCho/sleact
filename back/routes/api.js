@@ -205,7 +205,7 @@ router.get(
           include: [
             {
               model: User,
-              attributes: ["id", "nickname", "email"],
+              attributes: ["id", "nickname"],
             },
             {
               model: Channel,
@@ -300,12 +300,12 @@ router.get(
             {
               model: User,
               as: "Sender",
-              attributes: ["email", "nickname", "id"],
+              attributes: ["nickname", "id"],
             },
             {
               model: User,
               as: "Receiver",
-              attributes: ["email", "nickname", "id"],
+              attributes: ["nickname", "id"],
             },
           ],
           order: [["createdAt", "DESC"]],
@@ -379,7 +379,7 @@ router.get(
       }
       return res.json(
         await workspace.getMembers({
-          attributes: ["id", "nickname", "email"],
+          attributes: ["id", "nickname"],
         })
       );
     } catch (error) {
@@ -440,7 +440,7 @@ router.delete(
       }
       return res.json(
         await workspace.getMembers({
-          attributes: ["id", "nickname", "email"],
+          attributes: ["id", "nickname"],
         })
       );
     } catch (error) {
@@ -474,7 +474,7 @@ router.get(
       }
       return res.json(
         await channel.getMembers({
-          attributes: ["id", "nickname", "email"],
+          attributes: ["id", "nickname"],
         })
       );
     } catch (error) {
@@ -546,7 +546,7 @@ router.delete(
       }
       return res.json(
         await workspace.getMembers({
-          attributes: ["id", "nickname", "email"],
+          attributes: ["id", "nickname"],
         })
       );
     } catch (error) {
@@ -632,7 +632,12 @@ router.post("/login", isNotLoggedIn, (req, res, next) => {
         console.error(loginErr);
         return next(loginErr);
       }
-      return res.status(200).json(user);
+      return res.status(200).json(
+        await User.findOne({
+          where: { id: user.id },
+          attributes: ["id", "nickname"],
+        })
+      );
     });
   })(req, res, next);
 });

@@ -41,7 +41,7 @@ const Workspace = () => {
   // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
   const { workspace } = params;
   const { data: userData, revalidate } = useSWR('/api/user', fetcher);
-  const { data: workspaceData, revalidate: revalidateWorkspace } = useSWR<
+  const { data: workspaceData, revalidate: revalidateWorkspace, error: workspaceError } = useSWR<
     Array<{ id: number; name: string; url: string }>
   >(userData ? `/api/workspaces` : null, fetcher);
   const { data: channelData, revalidate: revalidateChannel } = useSWR<Array<{ id: number; name: string }>>(
@@ -90,6 +90,12 @@ const Workspace = () => {
   const onCreateWorkspace = useCallback(
     (e) => {
       e.preventDefault();
+      if (!newWorkspace || !newWorkspace.trim()) {
+        return;
+      }
+      if (!newUrl || !newUrl.trim()) {
+        return;
+      }
       axios
         .post('/api/workspace', {
           workspace: newWorkspace,
@@ -111,6 +117,9 @@ const Workspace = () => {
   const onCreateChannel = useCallback(
     (e) => {
       e.preventDefault();
+      if (!newChannel || !newChannel.trim()) {
+        return;
+      }
       axios
         .post(`/api/workspace/${workspace}/channel`, {
           name: newChannel,
@@ -130,6 +139,9 @@ const Workspace = () => {
   const onInviteMember = useCallback(
     (e) => {
       e.preventDefault();
+      if (!newMember || !newMember.trim()) {
+        return;
+      }
       axios
         .post(`/api/workspace/${workspace}/member`, {
           email: newMember,
