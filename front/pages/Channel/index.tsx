@@ -87,6 +87,7 @@ const Channel: FC<Props> = ({ socket }) => {
               return prevChatData;
             }, false).then(() => {
               if (scrollbarRef.current) {
+                console.log('scrollToBottom!');
                 scrollbarRef.current.scrollToBottom();
               }
             });
@@ -94,7 +95,7 @@ const Channel: FC<Props> = ({ socket }) => {
           .catch(console.error);
       }
     },
-    [chat, workspace, channel, channelData, scrollbarRef, userData, chatData],
+    [chat, workspace, channel, channelData, scrollbarRef.current, userData, chatData],
   );
 
   useEffect(() => {
@@ -105,10 +106,15 @@ const Channel: FC<Props> = ({ socket }) => {
           return chatData;
         }, false).then(() => {
           if (scrollbarRef.current) {
+            console.log(
+              scrollbarRef.current.getScrollHeight(),
+              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop(),
+            );
             if (
               scrollbarRef.current.getScrollHeight() <
               scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
             ) {
+              console.log('scrollToBottom!');
               scrollbarRef.current.scrollToBottom();
             } else {
               toast.success('새 메시지가 도착했습니다.', {
@@ -125,14 +131,14 @@ const Channel: FC<Props> = ({ socket }) => {
     return () => {
       socket?.off('message');
     };
-  }, [scrollbarRef, socket, userData]);
+  }, [scrollbarRef.current, socket, userData]);
 
   useEffect(() => {
     if (chatData?.length === 1) {
       console.log('toBottom', chatData);
       scrollbarRef.current?.scrollToBottom();
     }
-  }, [chatData, scrollbarRef]);
+  }, [chatData, scrollbarRef.current]);
 
   const onClickInviteChannel = useCallback(() => {
     setShowInviteChannelModal(true);
