@@ -252,6 +252,7 @@ const Workspace = () => {
   if (userData === false) {
     return <Redirect to="/login" />;
   }
+  // TODO: workspace 검사
 
   return (
     <div>
@@ -414,4 +415,4 @@ const Workspace = () => {
   );
 };
 
-export default Workspace;
+export default Workspaces;

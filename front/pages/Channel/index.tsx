@@ -146,6 +146,8 @@ const Channel: FC<Props> = ({ socket }) => {
     setShowInviteChannelModal(true);
   }, []);
 
+  // TODO: channel 검사
+
   const chatSections = makeSection(chatData ? ([] as IChat[]).concat(...chatData).reverse() : []);
 
   return (

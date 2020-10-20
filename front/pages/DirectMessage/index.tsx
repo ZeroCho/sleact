@@ -112,6 +112,8 @@ const DirectMessage: FC<Props> = ({ socket }) => {
     return null;
   }
 
+  // TODO: DM User 검사
+
   const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
 
   return (
