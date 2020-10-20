@@ -68,29 +68,28 @@ const Channel: FC<Props> = ({ socket }) => {
       e.preventDefault();
       console.log(chat);
       if (chat?.trim() && chatData && channelData) {
+        const savedChat = chat;
+        mutateChat((prevChatData) => {
+          prevChatData[0].unshift({
+            id: (chatData[0][0]?.id || 0) + 1,
+            content: savedChat,
+            UserId: userData.id,
+            User: userData,
+            createdAt: new Date(),
+            ChannelId: channelData.id,
+            Channel: channelData,
+          });
+          return prevChatData;
+        }, false).then(() => {
+          setChat('');
+          if (scrollbarRef.current) {
+            console.log('scrollToBottom!');
+            scrollbarRef.current.scrollToBottom();
+          }
+        });
         axios
           .post(`/api/workspace/${workspace}/channel/${channel}/chat`, {
-            content: chat,
-          })
-          .then(() => {
-            setChat('');
-            mutateChat((prevChatData) => {
-              prevChatData[0].unshift({
-                id: (chatData[0][0]?.id || 0) + 1,
-                content: chat,
-                UserId: userData.id,
-                User: userData,
-                createdAt: new Date(),
-                ChannelId: channelData.id,
-                Channel: channelData,
-              });
-              return prevChatData;
-            }, false).then(() => {
-              if (scrollbarRef.current) {
-                console.log('scrollToBottom!');
-                scrollbarRef.current.scrollToBottom();
-              }
-            });
+            content: savedChat,
           })
           .catch(console.error);
       }

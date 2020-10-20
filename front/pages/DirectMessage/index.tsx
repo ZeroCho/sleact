@@ -37,10 +37,11 @@ const DirectMessage: FC<Props> = ({ socket }) => {
       e.preventDefault();
       console.log(chat);
       if (chat?.trim() && chatData) {
+        const savedChat = chat;
         mutateChat((prevChatData) => {
           prevChatData[0].unshift({
             id: (chatData[0][0]?.id || 0) + 1,
-            content: chat,
+            content: savedChat,
             SenderId: myData.id,
             Sender: myData,
             ReceiverId: userData.id,
@@ -49,6 +50,7 @@ const DirectMessage: FC<Props> = ({ socket }) => {
           });
           return prevChatData;
         }, false).then(() => {
+          setChat('');
           if (scrollbarRef.current) {
             console.log('scrollToBottom!');
             scrollbarRef.current.scrollToBottom();
@@ -58,9 +60,6 @@ const DirectMessage: FC<Props> = ({ socket }) => {
           .post(`/api/workspace/${workspace}/dm/${id}/chat`, {
             content: chat,
           })
-          .then(() => {
-            setChat('');
-          })
           .catch(console.error);
       }
     },
@@ -69,7 +68,7 @@ const DirectMessage: FC<Props> = ({ socket }) => {
 
   useEffect(() => {
     socket?.on('dm', (data: IDM) => {
-      if (data.SenderId === Number(id)) {
+      if (data.SenderId === Number(id) && myData.id !== Number(id)) {
         mutateChat((chatData) => {
           chatData[0].unshift(data);
           return chatData;
