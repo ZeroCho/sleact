@@ -13,7 +13,7 @@ module.exports = () => {
     try {
       const user = await User.findOne({
         where: { id },
-        attributes: ["id", "nickname"],
+        attributes: ["id", "nickname", "email"],
         include: [
           {
             model: Workspace,

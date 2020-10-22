@@ -205,7 +205,7 @@ router.get(
           include: [
             {
               model: User,
-              attributes: ["id", "nickname"],
+              attributes: ["id", "nickname", "email"],
             },
             {
               model: Channel,
@@ -300,12 +300,12 @@ router.get(
             {
               model: User,
               as: "Sender",
-              attributes: ["nickname", "id"],
+              attributes: ["nickname", "id", "email"],
             },
             {
               model: User,
               as: "Receiver",
-              attributes: ["nickname", "id"],
+              attributes: ["nickname", "id", "email"],
             },
           ],
           order: [["createdAt", "DESC"]],
@@ -379,7 +379,7 @@ router.get(
       }
       return res.json(
         await workspace.getMembers({
-          attributes: ["id", "nickname"],
+          attributes: ["id", "nickname", "email"],
         })
       );
     } catch (error) {
@@ -440,7 +440,7 @@ router.delete(
       }
       return res.json(
         await workspace.getMembers({
-          attributes: ["id", "nickname"],
+          attributes: ["id", "nickname", "email"],
         })
       );
     } catch (error) {
@@ -474,7 +474,7 @@ router.get(
       }
       return res.json(
         await channel.getMembers({
-          attributes: ["id", "nickname"],
+          attributes: ["id", "nickname", "email"],
         })
       );
     } catch (error) {
@@ -546,7 +546,7 @@ router.delete(
       }
       return res.json(
         await workspace.getMembers({
-          attributes: ["id", "nickname"],
+          attributes: ["id", "nickname", "email"],
         })
       );
     } catch (error) {
@@ -635,7 +635,7 @@ router.post("/login", isNotLoggedIn, (req, res, next) => {
       return res.status(200).json(
         await User.findOne({
           where: { id: user.id },
-          attributes: ["id", "nickname"],
+          attributes: ["id", "nickname", "email"],
         })
       );
     });
