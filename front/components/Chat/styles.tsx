@@ -23,4 +23,9 @@ export const ChatWrapper = styled.div`
     display: flex;
     flex: 1;
   }
+
+  & a {
+    text-decoration: none;
+    color: deepskyblue;
+  }
 `;

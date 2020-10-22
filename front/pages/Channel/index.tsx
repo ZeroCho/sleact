@@ -15,7 +15,7 @@ import { useParams } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
 import useSWR, { useSWRInfinite } from 'swr';
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 20;
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [socket] = useSocket(workspace);

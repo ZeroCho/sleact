@@ -3,13 +3,30 @@ import { IChat, IDM, IUser } from '@typings/db';
 import dayjs from 'dayjs';
 import gravatar from 'gravatar';
 import React, { FC } from 'react';
+import { useParams } from 'react-router';
+import { Link } from 'react-router-dom';
+import regexifyString from 'regexify-string';
 
 interface Props {
   data: IDM | IChat;
 }
 
 const Chat: FC<Props> = ({ data }) => {
+  const { workspace } = useParams<{ workspace: string; channel: string }>();
   const user: IUser = 'Sender' in data ? data.Sender : data.User;
+
+  const result = regexifyString({
+    pattern: /@\[(.+?)\]\((\d)\)/g,
+    decorator(match, index) {
+      const arr: string[] = match.match(/@\[(.+?)\]\((\d)\)/)!;
+      return (
+        <Link key={match + index} to={`/workspace/${workspace}/dm/${arr[2]}`}>
+          @{arr[1]}
+        </Link>
+      );
+    },
+    input: data.content,
+  });
   return (
     <ChatWrapper>
       <div>
@@ -20,7 +37,7 @@ const Chat: FC<Props> = ({ data }) => {
           <b style={{ marginRight: 5 }}>{user.nickname}</b>
           <span style={{ fontSize: 12 }}>{dayjs(data.createdAt).format('h:mm A')}</span>
         </div>
-        <p style={{ flex: '0 0 100%', margin: 0 }}>{data.content}</p>
+        <p style={{ flex: '0 0 100%', margin: 0 }}>{result}</p>
       </div>
     </ChatWrapper>
   );

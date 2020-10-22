@@ -237,7 +237,7 @@ const Workspace = () => {
                 <button onClick={onLogOut}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
-            <ChannelList channelData={channelData} />
+            <ChannelList userData={userData} channelData={channelData} />
             <DMList userData={userData} />
           </MenuScroll>
         </Channels>

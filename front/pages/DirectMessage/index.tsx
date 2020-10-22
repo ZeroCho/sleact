@@ -14,7 +14,7 @@ import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import useSWR, { useSWRInfinite } from 'swr';
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 20;
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
   const [socket] = useSocket(workspace);

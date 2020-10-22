@@ -1,19 +1,20 @@
 import useSocket from '@hooks/useSocket';
 import { CollapseButton } from '@layouts/Workspace/styles';
-import { IChannel, IChat } from '@typings/db';
+import { IChannel, IChat, IUser } from '@typings/db';
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
 
 interface Props {
   channelData?: IChannel[];
+  userData?: IUser;
 }
 
-const ChannelList: FC<Props> = ({ channelData }) => {
+const ChannelList: FC<Props> = ({ userData, channelData }) => {
   const { workspace } = useParams<{ workspace?: string }>();
   const [socket] = useSocket(workspace);
   const [channelCollapse, setChannelCollapse] = useState(false);
-  const [countList, setCountList] = useState<{ [key: string]: number }>({});
+  const [countList, setCountList] = useState<{ [key: string]: number | undefined }>({});
 
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse((prev) => !prev);
@@ -24,7 +25,7 @@ const ChannelList: FC<Props> = ({ channelData }) => {
       setCountList((list) => {
         return {
           ...list,
-          [id]: 0,
+          [id]: undefined,
         };
       });
     },
@@ -39,17 +40,26 @@ const ChannelList: FC<Props> = ({ channelData }) => {
   useEffect(() => {
     socket?.on('message', (data: IChat) => {
       console.log('message왔다', data);
+      const mentions: string[] | null = data.content.match(/@\[(.+?)\]\((\d)\)/g);
+      if (mentions?.find((v) => v.match(/@\[(.+?)\]\((\d)\)/)![2] === userData?.id.toString())) {
+        return setCountList((list) => {
+          return {
+            ...list,
+            [`c-${data.ChannelId}`]: (list[`c-${data.ChannelId}`] || 0) + 1,
+          };
+        });
+      }
       setCountList((list) => {
         return {
           ...list,
-          [`c-${data.ChannelId}`]: 1,
+          [`c-${data.ChannelId}`]: list[`c-${data.ChannelId}`] || 0,
         };
       });
     });
     return () => {
       socket?.off('message');
     };
-  }, [socket]);
+  }, [socket, userData]);
 
   return (
     <>
@@ -66,8 +76,7 @@ const ChannelList: FC<Props> = ({ channelData }) => {
       <div>
         {!channelCollapse &&
           channelData?.map((channel) => {
-            console.log('channel', channel);
-            const count = countList[`c-${channel.id}`] || 0;
+            const count = countList[`c-${channel.id}`];
             return (
               <NavLink
                 key={channel.name}
@@ -75,7 +84,8 @@ const ChannelList: FC<Props> = ({ channelData }) => {
                 to={`/workspace/${workspace}/channel/${channel.name}`}
                 onClick={resetCount(`c-${channel.id}`)}
               >
-                <span className={count > 0 ? 'bold' : undefined}># {channel.name}</span>
+                <span className={count !== undefined && count >= 0 ? 'bold' : undefined}># {channel.name}</span>
+                {count !== undefined && count > 0 && <span className="count">{count}</span>}
               </NavLink>
             );
           })}
