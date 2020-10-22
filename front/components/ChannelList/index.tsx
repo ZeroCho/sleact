@@ -37,9 +37,8 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
     setCountList({});
   }, [workspace]);
 
-  useEffect(() => {
-    console.log('socket on message');
-    socket?.on('message', (data: IChat) => {
+  const onMessage = useCallback(
+    (data: IChat) => {
       console.log('message왔다', data);
       const mentions: string[] | null = data.content.match(/@\[(.+?)\]\((\d)\)/g);
       if (mentions?.find((v) => v.match(/@\[(.+?)\]\((\d)\)/)![2] === userData?.id.toString())) {
@@ -56,10 +55,16 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
           [`c-${data.ChannelId}`]: list[`c-${data.ChannelId}`] || 0,
         };
       });
-    });
+    },
+    [userData],
+  );
+
+  useEffect(() => {
+    socket?.on('message', onMessage);
+    console.log('socket on message', socket?.hasListeners('message'), socket);
     return () => {
-      console.log('socket off message');
-      socket?.off('message');
+      socket?.off('message', onMessage);
+      console.log('socket off message', socket?.hasListeners('message'));
     };
   }, [socket, userData]);
 

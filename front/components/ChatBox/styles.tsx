@@ -36,8 +36,13 @@ export const MentionsTextarea = styled(MentionsInput)`
   }
 
   & ul {
-    left: 20px;
-    top: 5px;
+    border: 1px solid lightgray;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 9px 10px;
+    background: white;
+    border-radius: 4px;
+    width: 150px;
   }
 `;
 
@@ -58,8 +63,7 @@ export const SendButton = styled.button`
 `;
 
 export const EachMention = styled.button<{ focus: boolean }>`
-  padding: 4px 0;
-  padding-left: 8px;
+  padding: 4px 20px;
   background: transparent;
   border: none;
   display: flex;

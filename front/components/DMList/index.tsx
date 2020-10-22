@@ -44,23 +44,25 @@ const DMList: FC<Props> = ({ userData }) => {
     setCountList({});
   }, [workspace]);
 
+  const onMessage = useCallback((data: IDM) => {
+    console.log('dm왔다', data);
+    setCountList((list) => {
+      return {
+        ...list,
+        [data.SenderId]: list[data.SenderId] ? list[data.SenderId] + 1 : 1,
+      };
+    });
+  }, []);
+
   useEffect(() => {
     socket?.on('onlineList', (data: number[]) => {
       setOnlineList(data);
     });
-    console.log('socket on dm');
-    socket?.on('dm', (data: IDM) => {
-      console.log('dm왔다', data);
-      setCountList((list) => {
-        return {
-          ...list,
-          [data.SenderId]: list[data.SenderId] ? list[data.SenderId] + 1 : 1,
-        };
-      });
-    });
+    socket?.on('dm', onMessage);
+    console.log('socket on dm', socket?.hasListeners('dm'), socket);
     return () => {
-      console.log('socket off dm');
-      socket?.off('dm');
+      socket?.off('dm', onMessage);
+      console.log('socket off dm', socket?.hasListeners('dm'));
       socket?.off('onlineList');
     };
   }, [socket]);

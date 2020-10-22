@@ -67,7 +67,6 @@ const Channel = () => {
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
-      console.log('submit chat', chat);
       if (chat?.trim() && chatData && channelData && userData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
@@ -98,18 +97,14 @@ const Channel = () => {
     [chat, workspace, channel, channelData, scrollbarRef.current, userData, chatData],
   );
 
-  useEffect(() => {
-    socket?.on('message', (data: IChat) => {
+  const onMessage = useCallback(
+    (data: IChat) => {
       if (data.Channel.name === channel && data.UserId !== userData?.id) {
         mutateChat((chatData) => {
           chatData[0].unshift(data);
           return chatData;
         }, false).then(() => {
           if (scrollbarRef.current) {
-            console.log(
-              scrollbarRef.current.getScrollHeight(),
-              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop(),
-            );
             if (
               scrollbarRef.current.getScrollHeight() <
               scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
@@ -127,9 +122,14 @@ const Channel = () => {
           }
         });
       }
-    });
+    },
+    [scrollbarRef.current, userData],
+  );
+
+  useEffect(() => {
+    socket?.on('message', onMessage);
     return () => {
-      socket?.off('message');
+      socket?.off('message', onMessage);
     };
   }, [scrollbarRef.current, socket, userData]);
 

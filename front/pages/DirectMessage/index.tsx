@@ -33,7 +33,6 @@ const DirectMessage = () => {
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
-      console.log(chat);
       if (chat?.trim() && chatData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
@@ -64,18 +63,14 @@ const DirectMessage = () => {
     [chat, workspace, id, scrollbarRef.current, userData, chatData],
   );
 
-  useEffect(() => {
-    socket?.on('dm', (data: IDM) => {
+  const onMessage = useCallback(
+    (data: IDM) => {
       if (data.SenderId === Number(id) && myData.id !== Number(id)) {
         mutateChat((chatData) => {
           chatData[0].unshift(data);
           return chatData;
         }, false).then(() => {
           if (scrollbarRef.current) {
-            console.log(
-              scrollbarRef.current.getScrollHeight(),
-              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop(),
-            );
             if (
               scrollbarRef.current.getScrollHeight() <
               scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
@@ -93,9 +88,14 @@ const DirectMessage = () => {
           }
         });
       }
-    });
+    },
+    [scrollbarRef.current, id],
+  );
+
+  useEffect(() => {
+    socket?.on('dm', onMessage);
     return () => {
-      socket?.off('dm');
+      socket?.off('dm', onMessage);
     };
   }, [scrollbarRef.current, socket, id]);
 
@@ -109,8 +109,6 @@ const DirectMessage = () => {
   if (!userData || !myData) {
     return null;
   }
-
-  // TODO: DM User 검사
 
   const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
 
