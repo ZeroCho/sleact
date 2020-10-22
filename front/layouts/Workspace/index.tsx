@@ -179,6 +179,7 @@ const Workspace = () => {
   }, [workspace]);
   useEffect(() => {
     if (channelData && userData) {
+      console.info('로그인하자');
       socket?.emit('login', { id: userData?.id, channels: channelData.map((v) => v.id) });
     }
   }, [userData, channelData]);

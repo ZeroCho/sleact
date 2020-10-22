@@ -48,6 +48,7 @@ const DMList: FC<Props> = ({ userData }) => {
     socket?.on('onlineList', (data: number[]) => {
       setOnlineList(data);
     });
+    console.log('socket on dm');
     socket?.on('dm', (data: IDM) => {
       console.log('dm왔다', data);
       setCountList((list) => {
@@ -58,9 +59,9 @@ const DMList: FC<Props> = ({ userData }) => {
       });
     });
     return () => {
+      console.log('socket off dm');
       socket?.off('dm');
       socket?.off('onlineList');
-      socket?.off('offline');
     };
   }, [socket]);
 

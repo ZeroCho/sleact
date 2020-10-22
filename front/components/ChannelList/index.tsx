@@ -38,6 +38,7 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
   }, [workspace]);
 
   useEffect(() => {
+    console.log('socket on message');
     socket?.on('message', (data: IChat) => {
       console.log('message왔다', data);
       const mentions: string[] | null = data.content.match(/@\[(.+?)\]\((\d)\)/g);
@@ -57,6 +58,7 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
       });
     });
     return () => {
+      console.log('socket off message');
       socket?.off('message');
     };
   }, [socket, userData]);
