@@ -12,6 +12,7 @@ import axios from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { useParams } from 'react-router';
+import { Redirect } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import useSWR, { useSWRInfinite } from 'swr';
 
@@ -20,7 +21,8 @@ const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [socket] = useSocket(workspace);
   const { data: userData, revalidate } = useSWR<IUser>('/api/user', fetcher);
-  const { data: channelData } = useSWR<IChannel>(`/api/workspace/${workspace}/channel/${channel}`, fetcher);
+  const { data: channelsData } = useSWR<IChannel[]>(`/api/workspace/${workspace}/channels`, fetcher);
+  const channelData = channelsData?.find((v) => v.name === channel);
   const { data: chatData, revalidate: revalidateChat, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
     (index) => `/api/workspace/${workspace}/channel/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
@@ -144,7 +146,9 @@ const Channel = () => {
     setShowInviteChannelModal(true);
   }, []);
 
-  // TODO: channel 검사
+  if (channelsData && !channelData) {
+    return <Redirect to={`/workspace/${workspace}/channel/일반`} />;
+  }
 
   const chatSections = makeSection(chatData ? ([] as IChat[]).concat(...chatData).reverse() : []);
 
