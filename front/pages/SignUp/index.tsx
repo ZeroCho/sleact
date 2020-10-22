@@ -13,8 +13,16 @@ const SignUp = () => {
   const [mismatchError, setMismatchError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
-  const [password, onChangePassword] = useInput('');
-  const [passwordCheck, _, setPasswordCheck] = useInput('');
+  const [password, _1, setPassword] = useInput('');
+  const [passwordCheck, _2, setPasswordCheck] = useInput('');
+
+  const onChangePassword = useCallback(
+    (e) => {
+      setPassword(e.target.value);
+      setMismatchError(passwordCheck !== e.target.value);
+    },
+    [passwordCheck],
+  );
 
   const onChangePasswordCheck = useCallback(
     (e) => {

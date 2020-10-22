@@ -1,10 +1,13 @@
+import ChannelList from '@components/ChannelList';
+import DMList from '@components/DMList';
 import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
+import useSocket from '@hooks/useSocket';
 import Channel from '@pages/Channel';
 import DirectMessage from '@pages/DirectMessage';
 import { Button, Input, Label } from '@pages/SignUp/styles';
-import { IChat, IDM, IUserWithOnline } from '@typings/db';
+import { IChannel, IChat, IDM, IUser, IUserWithOnline } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import gravatar from 'gravatar';
@@ -31,6 +34,7 @@ import {
   WorkspaceModal,
   WorkspaceName,
   Workspaces,
+  WorkspaceWrapper,
 } from './styles';
 
 const Workspace = () => {
@@ -40,46 +44,28 @@ const Workspace = () => {
   const history = useHistory();
   // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
   const { workspace } = params;
-  const { data: userData, revalidate } = useSWR('/api/user', fetcher);
-  const { data: workspaceData, revalidate: revalidateWorkspace, error: workspaceError } = useSWR<
-    Array<{ id: number; name: string; url: string }>
-  >(userData ? `/api/workspaces` : null, fetcher);
-  const { data: channelData, revalidate: revalidateChannel } = useSWR<Array<{ id: number; name: string }>>(
+  const [socket, disconnectSocket] = useSocket(workspace);
+  const { data: userData, revalidate: revalidateUser } = useSWR<IUser | false>('/api/user', fetcher);
+  const { data: channelData, revalidate: revalidateChannel } = useSWR<IChannel[]>(
     userData ? `/api/workspace/${workspace}/channels` : null,
     fetcher,
   );
-  const { data: memberData, revalidate: revalidateMembers, mutate: mutateMember } = useSWR<IUserWithOnline[]>(
-    userData ? `/api/workspace/${workspace}/members` : null,
-    fetcher,
-  );
-  console.log('rerender', memberData);
+  console.log('rerender', 'userData', userData, 'channelData', channelData);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
-  const [onlineList, setOnlineList] = useState<number[]>([]);
-  const [countList, setCountList] = useState<{ [key: string]: number }>({});
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
-  const [dmCollapse, setDMCollapse] = useState(false);
-  const [channelCollapse, setChannelCollapse] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput('');
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
 
-  const toggleChannelCollapse = useCallback(() => {
-    setChannelCollapse((prev) => !prev);
-  }, []);
-
-  const toggleDMCollapse = useCallback(() => {
-    setDMCollapse((prev) => !prev);
-  }, []);
-
   const onLogOut = useCallback(() => {
     axios
       .post('/api/logout')
       .then(() => {
-        revalidate();
+        revalidateUser();
       })
       .catch((error) => {
         console.dir(error);
@@ -102,7 +88,7 @@ const Workspace = () => {
           url: newUrl,
         })
         .then(() => {
-          revalidateWorkspace();
+          revalidateUser();
           setShowCreateWorkspaceModal(false);
           setNewWorkspace('');
           setNewUrl('');
@@ -147,7 +133,6 @@ const Workspace = () => {
           email: newMember,
         })
         .then(() => {
-          revalidateMembers();
           revalidateChannel();
           setShowInviteWorkspaceModal(false);
           setNewMember('');
@@ -186,73 +171,24 @@ const Workspace = () => {
     setShowWorkspaceModal((prev) => !prev);
   }, []);
 
-  const socketRef = useRef<SocketIOClient.Socket>();
   useEffect(() => {
-    if (workspaceData) {
-      const backUrl = process.env.NODE_ENV === 'production' ? 'https://sleact.nodebird.com' : 'http://localhost:3095';
-      const socket = io(`${backUrl}/ws-${workspace}`, {
-        transports: ['websocket'],
-      });
-      socket.on('hello', (data: string) => {
-        console.log(`${data} connected`);
-      });
-      socket.on('onlineList', (data: number[]) => {
-        setOnlineList(data);
-      });
-      socket.on('offline', (data: number) => {
-        console.log('offline', workspace, data);
-        setOnlineList((list) => {
-          return list.filter((v) => v !== data);
-        });
-      });
-      socket.on('dm', (data: IDM) => {
-        setCountList((list) => {
-          return {
-            ...list,
-            [data.SenderId]: list[data.SenderId] ? list[data.SenderId] + 1 : 1,
-          };
-        });
-      });
-      socket.on('message', (data: IChat) => {
-        setCountList((list) => {
-          return {
-            ...list,
-            [`c-${data.ChannelId}`]: 1,
-          };
-        });
-      });
-      socketRef.current = socket;
-    }
     return () => {
-      console.log('clear', workspace);
-      socketRef.current?.disconnect();
-      socketRef.current = undefined;
-      setOnlineList([]);
+      console.info('disconnect socket', workspace);
+      disconnectSocket();
     };
-  }, [workspace, workspaceData, userData]);
-
+  }, [workspace]);
   useEffect(() => {
-    if (channelData) {
-      socketRef.current?.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
+    if (channelData && userData) {
+      socket?.emit('login', { id: userData?.id, channels: channelData.map((v) => v.id) });
     }
-  }, [channelData]);
-
-  const resetCount = useCallback(
-    (id) => () => {
-      setCountList((list) => {
-        return {
-          ...list,
-          [id]: 0,
-        };
-      });
-    },
-    [],
-  );
+  }, [userData, channelData]);
 
   if (userData === false) {
     return <Redirect to="/login" />;
   }
-  // TODO: workspace 검사
+  if (userData && !userData.Workspaces.find((v) => v.url === workspace)) {
+    return <Redirect to="/workspace/sleact/channel/일반" />;
+  }
 
   return (
     <div>
@@ -277,108 +213,41 @@ const Workspace = () => {
           </RightMenu>
         )}
       </Header>
-      <Workspaces>
-        {workspaceData?.map((ws) => {
-          return (
-            <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
-              <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
-            </Link>
-          );
-        })}
-        <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
-      </Workspaces>
-      <Channels>
-        <WorkspaceName onClick={toggleWorkspaceModal}>
-          {workspaceData?.find((v) => v.url === workspace)?.name}
-        </WorkspaceName>
-        <MenuScroll>
-          <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
-            <WorkspaceModal>
-              <h2>{workspaceData?.find((v) => v.url === workspace)?.name}</h2>
-              <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
-              <button onClick={onClickAddChannel}>채널 만들기</button>
-              <button onClick={onLogOut}>로그아웃</button>
-            </WorkspaceModal>
-          </Menu>
-          <h2>
-            <CollapseButton collapse={channelCollapse} onClick={toggleChannelCollapse}>
-              <i
-                className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
-                data-qa="channel-section-collapse"
-                aria-hidden="true"
-              />
-            </CollapseButton>
-            <span>Channels</span>
-          </h2>
-          <div>
-            {!channelCollapse &&
-              channelData?.map((channel) => {
-                const count = countList[`c-${channel.id}`] || 0;
-                return (
-                  <NavLink
-                    key={channel.name}
-                    activeClassName="selected"
-                    to={`/workspace/${workspace}/channel/${channel.name}`}
-                    onClick={resetCount(`c-${channel.id}`)}
-                  >
-                    <span className={count > 0 ? 'bold' : undefined}># {channel.name}</span>
-                  </NavLink>
-                );
-              })}
-          </div>
-          <h2>
-            <CollapseButton collapse={dmCollapse} onClick={toggleDMCollapse}>
-              <i
-                className="c-icon p-channel_sidebar__section_heading_expand p-channel_sidebar__section_heading_expand--show_more_feature c-icon--caret-right c-icon--inherit c-icon--inline"
-                data-qa="channel-section-collapse"
-                aria-hidden="true"
-              />
-            </CollapseButton>
-            <span>Direct Messages</span>
-          </h2>
-          <div>
-            {!dmCollapse &&
-              memberData?.map((member) => {
-                const isOnline = onlineList.includes(member.id);
-                const count = countList[member.id] || 0;
-                return (
-                  <NavLink
-                    key={member.id}
-                    activeClassName="selected"
-                    to={`/workspace/${workspace}/dm/${member.id}`}
-                    onClick={resetCount(member.id)}
-                  >
-                    <i
-                      className={`c-icon p-channel_sidebar__presence_icon p-channel_sidebar__presence_icon--dim_enabled c-presence ${
-                        isOnline ? 'c-presence--active c-icon--presence-online' : 'c-icon--presence-offline'
-                      }`}
-                      aria-hidden="true"
-                      data-qa="presence_indicator"
-                      data-qa-presence-self="false"
-                      data-qa-presence-active="false"
-                      data-qa-presence-dnd="false"
-                    />
-                    <span className={count > 0 ? 'bold' : undefined}>{member.nickname}</span>
-                    {member.id === userData.id && <span> (나)</span>}
-                    {count > 0 && <span className="count">{count}</span>}
-                  </NavLink>
-                );
-              })}
-          </div>
-        </MenuScroll>
-      </Channels>
-      <Chats>
-        <Switch>
-          <Route
-            path="/workspace/:workspace/channel/:channel"
-            render={(props) => <Channel {...props} socket={socketRef.current} />}
-          />
-          <Route
-            path="/workspace/:workspace/dm/:id"
-            render={(props) => <DirectMessage {...props} socket={socketRef.current} />}
-          />
-        </Switch>
-      </Chats>
+      <WorkspaceWrapper>
+        <Workspaces>
+          {userData?.Workspaces.map((ws) => {
+            return (
+              <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
+                <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
+              </Link>
+            );
+          })}
+          <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
+        </Workspaces>
+        <Channels>
+          <WorkspaceName onClick={toggleWorkspaceModal}>
+            {userData?.Workspaces.find((v) => v.url === workspace)?.name}
+          </WorkspaceName>
+          <MenuScroll>
+            <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
+              <WorkspaceModal>
+                <h2>{userData?.Workspaces.find((v) => v.url === workspace)?.name}</h2>
+                <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
+                <button onClick={onClickAddChannel}>채널 만들기</button>
+                <button onClick={onLogOut}>로그아웃</button>
+              </WorkspaceModal>
+            </Menu>
+            <ChannelList channelData={channelData} />
+            <DMList userData={userData} />
+          </MenuScroll>
+        </Channels>
+        <Chats>
+          <Switch>
+            <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
+            <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
+          </Switch>
+        </Chats>
+      </WorkspaceWrapper>
       <Modal show={showCreateWorkspaceModal} onCloseModal={onCloseModal}>
         <form onSubmit={onCreateWorkspace}>
           <Label id="workspace-label">
@@ -415,4 +284,4 @@ const Workspace = () => {
   );
 };
 
-export default Workspaces;
+export default Workspace;

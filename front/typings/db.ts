@@ -2,6 +2,7 @@ export interface IUser {
   id: number;
   nickname: string;
   email: string;
+  Workspaces: IWorkspace[];
 }
 
 export interface IUserWithOnline extends IUser {
@@ -9,6 +10,7 @@ export interface IUserWithOnline extends IUser {
 }
 
 export interface IChannel {
+  id: number;
   name: string;
   private: boolean;
   WorkspaceId: number;
@@ -32,4 +34,11 @@ export interface IDM {
   Receiver: IUser;
   content: string;
   createdAt: Date;
+}
+
+export interface IWorkspace {
+  id: number;
+  name: string;
+  url: string;
+  OwnerId: number;
 }

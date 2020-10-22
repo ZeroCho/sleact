@@ -51,11 +51,17 @@ export const LogOutButton = styled.button`
   cursor: pointer;
 `;
 
+export const WorkspaceWrapper = styled.div`
+  display: flex;
+  flex: 1;
+`;
+
 export const Workspaces = styled.div`
   width: 65px;
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
   background: #3f0e40;
-  height: calc(100% - 38px);
   border-top: 1px solid rgb(82, 38, 83);
   border-right: 1px solid rgb(82, 38, 83);
   vertical-align: top;
@@ -69,7 +75,6 @@ export const Channels = styled.nav`
   flex-direction: column;
   background: #3f0e40;
   color: rgb(188, 171, 188);
-  height: calc(100% - 38px);
   vertical-align: top;
 
   & a {
@@ -165,10 +170,7 @@ export const WorkspaceModal = styled.div`
 `;
 
 export const Chats = styled.div`
-  display: inline-block;
-  height: calc(100% - 160px);
-  vertical-align: top;
-  width: calc(100% - 325px);
+  flex: 1;
 `;
 
 export const AddButton = styled.button`

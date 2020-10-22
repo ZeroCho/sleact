@@ -1,7 +1,0 @@
-/*!
-	autosize 4.0.2
-	license: MIT
-	http://www.jacklmoore.com/autosize
-*/
-
-/*! https://mths.be/utf8js v2.1.2 by @mathias */

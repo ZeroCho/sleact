@@ -2,27 +2,25 @@ import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
+import useSocket from '@hooks/useSocket';
 import { Header } from '@pages/Channel/styles';
 import { Button, Input, Label } from '@pages/SignUp/styles';
-import { IChat, IUser } from '@typings/db';
+import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
 import axios from 'axios';
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { useParams } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
 import useSWR, { useSWRInfinite } from 'swr';
 
-interface Props {
-  socket?: SocketIOClient.Socket;
-}
-
 const PAGE_SIZE = 15;
-const Channel: FC<Props> = ({ socket }) => {
+const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
-  const { data: userData, revalidate } = useSWR('/api/user', fetcher);
-  const { data: channelData } = useSWR(`/api/workspace/${workspace}/channel/${channel}`, fetcher);
+  const [socket] = useSocket(workspace);
+  const { data: userData, revalidate } = useSWR<IUser>('/api/user', fetcher);
+  const { data: channelData } = useSWR<IChannel>(`/api/workspace/${workspace}/channel/${channel}`, fetcher);
   const { data: chatData, revalidate: revalidateChat, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
     (index) => `/api/workspace/${workspace}/channel/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
@@ -69,8 +67,8 @@ const Channel: FC<Props> = ({ socket }) => {
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
-      console.log(chat);
-      if (chat?.trim() && chatData && channelData) {
+      console.log('submit chat', chat);
+      if (chat?.trim() && chatData && channelData && userData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
           prevChatData[0].unshift({
@@ -102,7 +100,7 @@ const Channel: FC<Props> = ({ socket }) => {
 
   useEffect(() => {
     socket?.on('message', (data: IChat) => {
-      if (data.Channel.name === channel && data.UserId !== userData.id) {
+      if (data.Channel.name === channel && data.UserId !== userData?.id) {
         mutateChat((chatData) => {
           chatData[0].unshift(data);
           return chatData;

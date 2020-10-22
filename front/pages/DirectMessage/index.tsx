@@ -1,25 +1,23 @@
 import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
+import useSocket from '@hooks/useSocket';
 import { Header } from '@pages/DirectMessage/styles';
 import { IDM } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
 import axios from 'axios';
-import React, { FC, useCallback, useEffect, useRef } from 'react';
+import gravatar from 'gravatar';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import useSWR, { useSWRInfinite } from 'swr';
-import gravatar from 'gravatar';
-
-interface Props {
-  socket?: SocketIOClient.Socket;
-}
 
 const PAGE_SIZE = 15;
-const DirectMessage: FC<Props> = ({ socket }) => {
+const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
+  const [socket] = useSocket(workspace);
   const { data: myData } = useSWR('/api/user', fetcher);
   const { data: userData } = useSWR(`/api/workspace/${workspace}/user/${id}`, fetcher);
   const { data: chatData, revalidate: revalidateChat, mutate: mutateChat, setSize } = useSWRInfinite<IDM[]>(

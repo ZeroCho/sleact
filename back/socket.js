@@ -23,13 +23,13 @@ module.exports = (server, app) => {
       channels.forEach((channel) => {
         socket.join(`${socket.nsp.name}-${channel}`);
       });
-      console.log("login", onlineMap);
     });
     socket.on("disconnect", () => {
-      const id = onlineMap[socket.nsp.name][socket.id];
       delete onlineMap[socket.nsp.name][socket.id];
-      newNamespace.emit("offline", id);
-      console.log("disconnect", onlineMap);
+      newNamespace.emit(
+        "onlineList",
+        Object.values(onlineMap[socket.nsp.name])
+      );
     });
   });
 };
