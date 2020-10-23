@@ -21,6 +21,10 @@ export const MentionsTextarea = styled(MentionsInput)`
   font-size: 15px;
   padding: 8px 9px;
 
+  & strong {
+    background: skyblue;
+  }
+
   & textarea {
     height: 44px;
     padding: 9px 10px !important;

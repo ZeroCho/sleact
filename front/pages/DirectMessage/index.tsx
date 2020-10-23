@@ -26,14 +26,14 @@ const DirectMessage = () => {
   );
   const [chat, onChangeChat, setChat] = useInput('');
   const scrollbarRef = useRef<Scrollbars>(null);
-
+  const submitThrottleRef = useRef(false);
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
 
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
-      if (chat?.trim() && chatData) {
+      if (!submitThrottleRef.current && chat?.trim() && chatData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
           prevChatData[0].unshift({
@@ -58,9 +58,13 @@ const DirectMessage = () => {
             content: chat,
           })
           .catch(console.error);
+        submitThrottleRef.current = true;
+        setTimeout(() => {
+          submitThrottleRef.current = false;
+        }, 500);
       }
     },
-    [chat, workspace, id, scrollbarRef.current, userData, chatData],
+    [submitThrottleRef.current, chat, workspace, id, scrollbarRef.current, userData, chatData],
   );
 
   const onMessage = useCallback(

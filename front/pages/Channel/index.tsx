@@ -35,7 +35,7 @@ const Channel = () => {
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const scrollbarRef = useRef<Scrollbars>(null);
-
+  const submitThrottleRef = useRef(false);
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
 
@@ -69,7 +69,7 @@ const Channel = () => {
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
-      if (chat?.trim() && chatData && channelData && userData) {
+      if (!submitThrottleRef.current && chat?.trim() && chatData && channelData && userData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
           prevChatData[0].unshift({
@@ -94,9 +94,13 @@ const Channel = () => {
             content: savedChat,
           })
           .catch(console.error);
+        submitThrottleRef.current = true;
+        setTimeout(() => {
+          submitThrottleRef.current = false;
+        }, 500);
       }
     },
-    [chat, workspace, channel, channelData, scrollbarRef.current, userData, chatData],
+    [submitThrottleRef.current, chat, workspace, channel, channelData, scrollbarRef.current, userData, chatData],
   );
 
   const onMessage = useCallback(

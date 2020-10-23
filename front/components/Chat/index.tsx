@@ -6,7 +6,6 @@ import React, { FC } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 import regexifyString from 'regexify-string';
-import String2JSX from 'string2jsx';
 
 interface Props {
   data: IDM | IChat;
@@ -19,7 +18,6 @@ const Chat: FC<Props> = ({ data }) => {
   const result = regexifyString({
     pattern: /@\[(.+?)\]\((\d)\)|\n/g,
     decorator(match, index) {
-      console.log(match, index);
       const arr: string[] | null = match.match(/@\[(.+?)\]\((\d)\)/)!;
       if (arr) {
         return (
@@ -28,7 +26,7 @@ const Chat: FC<Props> = ({ data }) => {
           </Link>
         );
       }
-      return <br />;
+      return <br key={index} />;
     },
     input: data.content,
   });
