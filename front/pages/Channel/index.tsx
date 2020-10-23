@@ -35,7 +35,7 @@ const Channel = () => {
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const scrollbarRef = useRef<Scrollbars>(null);
-  const submitThrottleRef = useRef(false);
+
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
 
@@ -69,7 +69,7 @@ const Channel = () => {
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
-      if (!submitThrottleRef.current && chat?.trim() && chatData && channelData && userData) {
+      if (chat?.trim() && chatData && channelData && userData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
           prevChatData[0].unshift({
@@ -94,43 +94,36 @@ const Channel = () => {
             content: savedChat,
           })
           .catch(console.error);
-        submitThrottleRef.current = true;
-        setTimeout(() => {
-          submitThrottleRef.current = false;
-        }, 500);
       }
     },
-    [submitThrottleRef.current, chat, workspace, channel, channelData, scrollbarRef.current, userData, chatData],
+    [chat, workspace, channel, channelData, scrollbarRef.current, userData, chatData],
   );
 
-  const onMessage = useCallback(
-    (data: IChat) => {
-      if (data.Channel.name === channel && data.UserId !== userData?.id) {
-        mutateChat((chatData) => {
-          chatData[0].unshift(data);
-          return chatData;
-        }, false).then(() => {
-          if (scrollbarRef.current) {
-            if (
-              scrollbarRef.current.getScrollHeight() <
-              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
-            ) {
-              console.log('scrollToBottom!');
-              scrollbarRef.current.scrollToBottom();
-            } else {
-              toast.success('새 메시지가 도착했습니다.', {
-                onClick() {
-                  scrollbarRef.current?.scrollToBottom();
-                },
-                closeOnClick: true,
-              });
-            }
+  const onMessage = (data: IChat) => {
+    if (data.Channel.name === channel && data.UserId !== userData?.id) {
+      mutateChat((chatData) => {
+        chatData[0].unshift(data);
+        return chatData;
+      }, false).then(() => {
+        if (scrollbarRef.current) {
+          if (
+            scrollbarRef.current.getScrollHeight() <
+            scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+          ) {
+            console.log('scrollToBottom!');
+            scrollbarRef.current.scrollToBottom();
+          } else {
+            toast.success('새 메시지가 도착했습니다.', {
+              onClick() {
+                scrollbarRef.current?.scrollToBottom();
+              },
+              closeOnClick: true,
+            });
           }
-        });
-      }
-    },
-    [scrollbarRef.current, userData],
-  );
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     socket?.on('message', onMessage);
