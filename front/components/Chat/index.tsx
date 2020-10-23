@@ -6,6 +6,7 @@ import React, { FC } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 import regexifyString from 'regexify-string';
+import String2JSX from 'string2jsx';
 
 interface Props {
   data: IDM | IChat;
@@ -16,14 +17,18 @@ const Chat: FC<Props> = ({ data }) => {
   const user: IUser = 'Sender' in data ? data.Sender : data.User;
 
   const result = regexifyString({
-    pattern: /@\[(.+?)\]\((\d)\)/g,
+    pattern: /@\[(.+?)\]\((\d)\)|\n/g,
     decorator(match, index) {
-      const arr: string[] = match.match(/@\[(.+?)\]\((\d)\)/)!;
-      return (
-        <Link key={match + index} to={`/workspace/${workspace}/dm/${arr[2]}`}>
-          @{arr[1]}
-        </Link>
-      );
+      console.log(match, index);
+      const arr: string[] | null = match.match(/@\[(.+?)\]\((\d)\)/)!;
+      if (arr) {
+        return (
+          <Link key={match + index} to={`/workspace/${workspace}/dm/${arr[2]}`}>
+            @{arr[1]}
+          </Link>
+        );
+      }
+      return <br />;
     },
     input: data.content,
   });

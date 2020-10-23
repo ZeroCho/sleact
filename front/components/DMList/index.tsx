@@ -38,12 +38,6 @@ const DMList: FC<Props> = ({ userData }) => {
     [],
   );
 
-  useEffect(() => {
-    console.log('workspace 바꼈다', workspace);
-    setOnlineList([]);
-    setCountList({});
-  }, [workspace]);
-
   const onMessage = useCallback((data: IDM) => {
     console.log('dm왔다', data);
     setCountList((list) => {
@@ -53,6 +47,12 @@ const DMList: FC<Props> = ({ userData }) => {
       };
     });
   }, []);
+
+  useEffect(() => {
+    console.log('workspace 바꼈다', workspace);
+    setOnlineList([]);
+    setCountList({});
+  }, [workspace]);
 
   useEffect(() => {
     socket?.on('onlineList', (data: number[]) => {

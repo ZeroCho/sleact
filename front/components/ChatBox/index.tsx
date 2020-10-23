@@ -2,7 +2,7 @@ import { ChatArea, Form, MentionsTextarea, SendButton, Toolbox, EachMention } fr
 import { IUser } from '@typings/db';
 import autosize from 'autosize';
 import gravatar from 'gravatar';
-import React, { FC, useCallback, useEffect } from 'react';
+import React, { FC, useCallback, useEffect, useRef } from 'react';
 import { Mention, SuggestionDataItem } from 'react-mentions';
 
 interface Props {
@@ -13,9 +13,12 @@ interface Props {
   data?: IUser[];
 }
 const ChatBox: FC<Props> = ({ onSubmitForm, chat, onChangeChat, placeholder, data }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
-    autosize(document.querySelector('#editor-chat')!);
-  }, [chat]);
+    if (textareaRef.current) {
+      autosize(textareaRef.current);
+    }
+  }, [textareaRef.current]);
 
   const onKeydownChat = useCallback(
     (e) => {
@@ -43,7 +46,7 @@ const ChatBox: FC<Props> = ({ onSubmitForm, chat, onChangeChat, placeholder, dat
       return (
         <EachMention focus={focus}>
           <img src={gravatar.url(data[index].email, { s: '20px' })} alt={data[index].nickname} />
-          <span>{data[index].nickname}</span>
+          <span>{highlightedDisplay}</span>
         </EachMention>
       );
     },
@@ -59,10 +62,11 @@ const ChatBox: FC<Props> = ({ onSubmitForm, chat, onChangeChat, placeholder, dat
           onChange={onChangeChat}
           onKeyDown={onKeydownChat}
           placeholder={placeholder}
+          inputRef={textareaRef}
+          allowSuggestionsAboveCursor
         >
           <Mention
             appendSpaceOnAdd
-            style={{ background: 'rgba(29, 155, 209, .1)', color: 'rgb(18, 100, 163)' }}
             trigger="@"
             data={data?.map((v) => ({ id: v.id, display: v.nickname })) || []}
             renderSuggestion={renderUserSuggestion}
