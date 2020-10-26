@@ -428,7 +428,7 @@ router.post(
 );
 
 router.delete(
-  "/workspace/:workspace/member/:member",
+  "/workspace/:workspace/member/:id",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -438,11 +438,10 @@ router.delete(
       if (!workspace) {
         return res.status(404).send("존재하지 않는 워크스페이스입니다.");
       }
-      return res.json(
-        await workspace.getMembers({
-          attributes: ["id", "nickname", "email"],
-        })
-      );
+      await workspace.removeMembers({
+        where: { id: req.params.id },
+      });
+      return res.send("ok");
     } catch (error) {
       next(error);
     }
@@ -534,21 +533,35 @@ router.post(
 );
 
 router.delete(
-  "/workspace/:workspace/channel/:channel/member/:member",
+  "/workspace/:workspace/channel/:channel/member/:id",
   isLoggedIn,
   async (req, res, next) => {
     try {
       const workspace = await Workspace.findOne({
         where: { url: req.params.workspace },
+        include: [
+          {
+            model: Channel,
+            attributes: ["id", "name"],
+          },
+        ],
       });
       if (!workspace) {
         return res.status(404).send("존재하지 않는 워크스페이스입니다.");
       }
-      return res.json(
-        await workspace.getMembers({
-          attributes: ["id", "nickname", "email"],
-        })
+      if (!workspace) {
+        return res.status(404).send("존재하지 않는 워크스페이스입니다.");
+      }
+      const channel = workspace.Channels.find(
+        (v) => v.name === decodeURIComponent(req.params.channel)
       );
+      if (!channel) {
+        return res.status(404).send("존재하지 않는 채널입니다.");
+      }
+      await channel.removeMembers({
+        where: { id: req.params.id },
+      });
+      return res.send("ok");
     } catch (error) {
       next(error);
     }
