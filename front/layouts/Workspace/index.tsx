@@ -7,23 +7,21 @@ import useSocket from '@hooks/useSocket';
 import Channel from '@pages/Channel';
 import DirectMessage from '@pages/DirectMessage';
 import { Button, Input, Label } from '@pages/SignUp/styles';
-import { IChannel, IChat, IDM, IUser, IUserWithOnline } from '@typings/db';
+import { IChannel, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import gravatar from 'gravatar';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router';
-import { Link, NavLink, Redirect, Route, Switch } from 'react-router-dom';
+import { Link, Redirect, Route, Switch } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import io from 'socket.io-client';
 import useSWR from 'swr';
 
 import {
   AddButton,
   Channels,
   Chats,
-  CollapseButton,
   Header,
   LogOutButton,
   MenuScroll,

@@ -1,5 +1,5 @@
 import useSocket from '@hooks/useSocket';
-import { CollapseButton } from '@layouts/Workspace/styles';
+import { CollapseButton } from '@components/DMList/styles';
 import { IDM, IUser, IUserWithOnline } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import React, { FC, useCallback, useEffect, useState } from 'react';
