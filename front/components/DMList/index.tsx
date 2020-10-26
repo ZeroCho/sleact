@@ -38,7 +38,7 @@ const DMList: FC<Props> = ({ userData }) => {
     [],
   );
 
-  const onMessage = useCallback((data: IDM) => {
+  const onMessage = (data: IDM) => {
     console.log('dm왔다', data);
     setCountList((list) => {
       return {
@@ -46,7 +46,7 @@ const DMList: FC<Props> = ({ userData }) => {
         [data.SenderId]: list[data.SenderId] ? list[data.SenderId] + 1 : 1,
       };
     });
-  }, []);
+  };
 
   useEffect(() => {
     console.log('workspace 바꼈다', workspace);

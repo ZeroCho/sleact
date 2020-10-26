@@ -37,27 +37,24 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
     setCountList({});
   }, [workspace]);
 
-  const onMessage = useCallback(
-    (data: IChat) => {
-      console.log('message왔다', data);
-      const mentions: string[] | null = data.content.match(/@\[(.+?)\]\((\d)\)/g);
-      if (mentions?.find((v) => v.match(/@\[(.+?)\]\((\d)\)/)![2] === userData?.id.toString())) {
-        return setCountList((list) => {
-          return {
-            ...list,
-            [`c-${data.ChannelId}`]: (list[`c-${data.ChannelId}`] || 0) + 1,
-          };
-        });
-      }
-      setCountList((list) => {
+  const onMessage = (data: IChat) => {
+    console.log('message왔다', data);
+    const mentions: string[] | null = data.content.match(/@\[(.+?)\]\((\d)\)/g);
+    if (mentions?.find((v) => v.match(/@\[(.+?)\]\((\d)\)/)![2] === userData?.id.toString())) {
+      return setCountList((list) => {
         return {
           ...list,
-          [`c-${data.ChannelId}`]: list[`c-${data.ChannelId}`] || 0,
+          [`c-${data.ChannelId}`]: (list[`c-${data.ChannelId}`] || 0) + 1,
         };
       });
-    },
-    [userData],
-  );
+    }
+    setCountList((list) => {
+      return {
+        ...list,
+        [`c-${data.ChannelId}`]: list[`c-${data.ChannelId}`] || 0,
+      };
+    });
+  };
 
   useEffect(() => {
     socket?.on('message', onMessage);
