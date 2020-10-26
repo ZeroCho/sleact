@@ -22,10 +22,17 @@ export const ProfileImg = styled.img`
 `;
 
 export const ProfileModal = styled.div`
+  display: flex;
   padding: 20px;
 
   & img {
     display: flex;
+  }
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
   }
 
   & #profile-name {

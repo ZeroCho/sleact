@@ -201,9 +201,9 @@ const Workspace = () => {
             </span>
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onClickUserProfile}>
-                <ProfileModal style={{ display: 'flex' }}>
+                <ProfileModal>
                   <img src={gravatar.url(userData.email, { s: '36px' })} alt={userData.nickname} />
-                  <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 10 }}>
+                  <div>
                     <span id="profile-name">{userData.nickname}</span>
                     <span id="profile-active">Active</span>
                   </div>
