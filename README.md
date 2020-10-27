@@ -10,6 +10,7 @@
 7. npx sequelize db:seed:all(기초 데이터 넣기)
 8. npm run dev
 9. localhost:3095에서 서버 돌아가는 중
+10. 백엔드 개발자가 API.md와 typings/db.ts를 남겨둔 상황
 
 # 강좌 순서
 ## 1일차
@@ -29,6 +30,8 @@
 4. tsconfig.json
   - 타입스크립트 설정
   - 언어 문법과 자바스크립트 결과물이 어떻게 나와야하는지 설정하는 파일
+  - lib은 ES2020, DOM(브라우저), module은 esnext처럼 최신 설정이지만 target은 es5로 IE 브라우저에서도 돌아갈 수 있게 변환
+  - strict: true를 켜놓아야 타입 체킹을 해줘서 의미가 있음.
 5. webpack.config.ts
   - 웹팩 설정
   - ts, css, json, 최신 문법 js 파일들을 하나로 합쳐줌.
@@ -37,12 +40,14 @@
   - ts는 babel-loader로, css는 style-loader와 css-loader를 통해 js로 변환
   - babel에서는 @babel/preset-env(최신문법 변환) @babel/preset-react(리액트 jsx 변환), @babel/preset-typescript(타입스크립트 변환)
   - npm i -D css-loader style-loader @babel/core babel-loader @babel/preset-env @babel/preset-react @babel/preset-typescript
+  - publicPath가 /dist/고 [name].js에서 [name]이 entry에 적힌대로 app으로 바뀌어 /dist/app.js가 결과물이 됨.
 6. index.html 작성
   - /dist/app.js로 웹팩이 만들어낸 js파일 불러옴
   - 아이콘, 폰트, 파비콘같은 것은 슬랙에서 그대로 사용
   - #app 태그에 리액트가 렌더링됨.
-7. client.tsx에 간단한 jsx 작성
+7. client.tsx에 간단한 tsx 작성
 8. tsconfig-for-webpack-config.json
+  - 개발용 서버인 devServer 옵션 추가(port는 3090, publicPath는 /dist/로
   - webpack serve할 때 webpack.config.ts를 인식 못하는 문제
   - npm i -D ts-node webpack-dev-server @types/webpack-dev-server webpack-cli
   - npm i cross-env
@@ -74,15 +79,18 @@
 14. @pages/SignUp 작성
 
 ## 2일차
-14. @loadable/component
-15. force-ts-checker-webpack-plugin
-16. 회원가입 axios로 진행(proxy 설정 필요)
-13. @pages/LogIn 작성
-14. @layouts/Workspace 작성
-15. react-router와 swr 설명
-16. WorkspaceModal 작성
-17. @components/DMList 작성
-18. @pages/DirectMessage 작성
-19. ChatBox 먼저 작성
-20. ChatList 작성
-21. DM 보내보기
+15. @loadable/component
+16. force-ts-checker-webpack-plugin
+17. 회원가입 axios로 진행(devServer proxy 설정 필요)
+18. useInput 커스텀 훅 만들기
+19. @pages/LogIn 작성
+20. @layouts/Workspace 작성
+21. swr 설명
+22. WorkspaceModal 작성
+23. @components/DMList 작성
+24. @pages/DirectMessage 작성
+25. ChatBox 먼저 작성
+26. ChatList 작성
+27. DM 보내보기
+28. @pages/ChannelMessage 작성
+29. Channel Chat 보내보기
