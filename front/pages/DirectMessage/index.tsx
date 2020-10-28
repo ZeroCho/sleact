@@ -63,32 +63,31 @@ const DirectMessage = () => {
     [chat, workspace, id, scrollbarRef.current, userData, chatData],
   );
 
-  const onMessage =
-    (data: IDM) => {
-      if (data.SenderId === Number(id) && myData.id !== Number(id)) {
-        mutateChat((chatData) => {
-          chatData[0].unshift(data);
-          return chatData;
-        }, false).then(() => {
-          if (scrollbarRef.current) {
-            if (
-              scrollbarRef.current.getScrollHeight() <
-              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
-            ) {
-              console.log('scrollToBottom!');
-              scrollbarRef.current.scrollToBottom();
-            } else {
-              toast.success('새 메시지가 도착했습니다.', {
-                onClick() {
-                  scrollbarRef.current?.scrollToBottom();
-                },
-                closeOnClick: true,
-              });
-            }
+  const onMessage = (data: IDM) => {
+    if (data.SenderId === Number(id) && myData.id !== Number(id)) {
+      mutateChat((chatData) => {
+        chatData[0].unshift(data);
+        return chatData;
+      }, false).then(() => {
+        if (scrollbarRef.current) {
+          if (
+            scrollbarRef.current.getScrollHeight() <
+            scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+          ) {
+            console.log('scrollToBottom!');
+            scrollbarRef.current.scrollToBottom();
+          } else {
+            toast.success('새 메시지가 도착했습니다.', {
+              onClick() {
+                scrollbarRef.current?.scrollToBottom();
+              },
+              closeOnClick: true,
+            });
           }
-        });
-      }
-    };
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     socket?.on('dm', onMessage);
@@ -113,7 +112,7 @@ const DirectMessage = () => {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', height: 'calc(100vh - 38px)', flexFlow: 'column' }}>
       <Header>
-        <img src={gravatar.url(userData.email, { s: '24px' })} alt={userData.nickname} />
+        <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname}</span>
       </Header>
       <ChatList

@@ -195,12 +195,12 @@ const Workspace = () => {
         {userData && (
           <RightMenu>
             <span onClick={onClickUserProfile}>
-              <ProfileImg src={gravatar.url(userData.email, { s: '28px' })} alt={userData.nickname} />
+              <ProfileImg src={gravatar.url(userData.email, { s: '28px', d: 'retro' })} alt={userData.nickname} />
             </span>
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onClickUserProfile}>
                 <ProfileModal>
-                  <img src={gravatar.url(userData.email, { s: '36px' })} alt={userData.nickname} />
+                  <img src={gravatar.url(userData.email, { s: '36px', d: 'retro' })} alt={userData.nickname} />
                   <div>
                     <span id="profile-name">{userData.nickname}</span>
                     <span id="profile-active">Active</span>
