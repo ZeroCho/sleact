@@ -30,7 +30,7 @@ HTTP 요청 리스트(ajax)
 - :workspace 내부의 :id와 나눈 dm을 가져옴
 - query: { perPage: number(한 페이지 당 몇 개), page: number(페이지) }
 - return: IDM[]
-### POST /workspace/:workspace/channel/:channel/chat
+### POST /workspace/:workspace/dm/:id/chat
 - :workspace 내부의 :id와 나눈 dm을 저장
 - body: { content: string(내용) }
 - return: 'ok'
