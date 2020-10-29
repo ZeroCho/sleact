@@ -1,6 +1,7 @@
 # 라이브강좌 핵심 내용 정리해서 여기(README.md)에 올려두었습니다~ 다시보기하면서 같이 읽고 복습하시면 됩니다!
 
 # 백그라운드 세팅
+0. node 14버전(12나 15도 괜찮음)과 MySQL을 미리 설치하기
 1. cd back
 2. npm i
 3. .env 작성하기(COOKIET_SECRET과 MYSQL_PASSWORD 비밀번호 설정)

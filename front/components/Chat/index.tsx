@@ -37,7 +37,7 @@ const Chat: FC<Props> = memo(({ data }) => {
   return (
     <ChatWrapper>
       <div>
-        <img src={gravatar.url(user.email, { s: '36px' })} alt={user.nickname} />
+        <img src={gravatar.url(user.email, { s: '36px', d: 'retro' })} alt={user.nickname} />
       </div>
       <div style={{ flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', flex: '0 0 100%', alignItems: 'center' }}>
