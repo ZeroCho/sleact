@@ -12,7 +12,7 @@ import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import gravatar from 'gravatar';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router';
+import { useParams } from 'react-router';
 import { Link, Redirect, Route, Switch } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -37,9 +37,6 @@ import {
 
 const Workspace = () => {
   const params = useParams<{ workspace?: string }>();
-  const location = useLocation();
-  const routeMatch = useRouteMatch();
-  const history = useHistory();
   // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
   const { workspace } = params;
   const [socket, disconnectSocket] = useSocket(workspace);
@@ -140,7 +137,7 @@ const Workspace = () => {
           toast.error(error.response?.data, { position: 'bottom-center' });
         });
     },
-    [newMember],
+    [workspace, newMember],
   );
 
   const onClickCreateWorkspace = useCallback(() => {
@@ -174,13 +171,13 @@ const Workspace = () => {
       console.info('disconnect socket', workspace);
       disconnectSocket();
     };
-  }, [workspace]);
+  }, [disconnectSocket, workspace]);
   useEffect(() => {
     if (channelData && userData) {
       console.info('로그인하자');
       socket?.emit('login', { id: userData?.id, channels: channelData.map((v) => v.id) });
     }
-  }, [userData, channelData]);
+  }, [socket, userData, channelData]);
 
   if (userData === false) {
     return <Redirect to="/login" />;

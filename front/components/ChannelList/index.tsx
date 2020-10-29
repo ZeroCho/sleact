@@ -38,9 +38,9 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
   }, [workspace]);
 
   const onMessage = (data: IChat) => {
-    console.log('message왔다', data);
-    const mentions: string[] | null = data.content.match(/@\[(.+?)\]\((\d)\)/g);
-    if (mentions?.find((v) => v.match(/@\[(.+?)\]\((\d)\)/)![2] === userData?.id.toString())) {
+    console.log('message 왔다', data);
+    const mentions: string[] | null = data.content.match(/@\[(.+?)]\((\d)\)/g);
+    if (mentions?.find((v) => v.match(/@\[(.+?)]\((\d)\)/)![2] === userData?.id.toString())) {
       return setCountList((list) => {
         return {
           ...list,

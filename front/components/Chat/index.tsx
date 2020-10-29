@@ -18,9 +18,9 @@ const Chat: FC<Props> = memo(({ data }) => {
   const result = useMemo<(string | JSX.Element)[]>(
     () =>
       regexifyString({
-        pattern: /@\[(.+?)\]\((\d+?)\)|\n/g,
+        pattern: /@\[(.+?)]\((\d+?)\)|\n/g,
         decorator(match, index) {
-          const arr: string[] | null = match.match(/@\[(.+?)\]\((\d+?)\)/)!;
+          const arr: string[] | null = match.match(/@\[(.+?)]\((\d+?)\)/)!;
           if (arr) {
             return (
               <Link key={match + index} to={`/workspace/${workspace}/dm/${arr[2]}`}>
@@ -36,15 +36,15 @@ const Chat: FC<Props> = memo(({ data }) => {
   );
   return (
     <ChatWrapper>
-      <div>
+      <div className="chat-img">
         <img src={gravatar.url(user.email, { s: '36px', d: 'retro' })} alt={user.nickname} />
       </div>
-      <div style={{ flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', flex: '0 0 100%', alignItems: 'center' }}>
-          <b style={{ marginRight: 5 }}>{user.nickname}</b>
-          <span style={{ fontSize: 12 }}>{dayjs(data.createdAt).format('h:mm A')}</span>
+      <div className="chat-text">
+        <div className="chat-user">
+          <b>{user.nickname}</b>
+          <span>{dayjs(data.createdAt).format('h:mm A')}</span>
         </div>
-        <p style={{ flex: '0 0 100%', margin: 0 }}>{result}</p>
+        <p>{result}</p>
       </div>
     </ChatWrapper>
   );

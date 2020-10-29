@@ -20,7 +20,7 @@ const DirectMessage = () => {
   const [socket] = useSocket(workspace);
   const { data: myData } = useSWR('/api/user', fetcher);
   const { data: userData } = useSWR(`/api/workspace/${workspace}/user/${id}`, fetcher);
-  const { data: chatData, revalidate: revalidateChat, mutate: mutateChat, setSize } = useSWRInfinite<IDM[]>(
+  const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IDM[]>(
     (index) => `/api/workspace/${workspace}/dm/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
@@ -60,7 +60,7 @@ const DirectMessage = () => {
           .catch(console.error);
       }
     },
-    [chat, workspace, id, scrollbarRef.current, userData, chatData],
+    [chat, workspace, id, myData, userData, chatData],
   );
 
   const onMessage = (data: IDM) => {
@@ -94,14 +94,14 @@ const DirectMessage = () => {
     return () => {
       socket?.off('dm', onMessage);
     };
-  }, [scrollbarRef.current, socket, id]);
+  }, [socket, id]);
 
   useEffect(() => {
     if (chatData?.length === 1) {
       console.log('toBottom', chatData);
       scrollbarRef.current?.scrollToBottom();
     }
-  }, [chatData, scrollbarRef.current]);
+  }, [chatData]);
 
   if (!userData || !myData) {
     return null;

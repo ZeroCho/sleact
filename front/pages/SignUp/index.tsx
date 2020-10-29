@@ -7,14 +7,14 @@ import { Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 
 const SignUp = () => {
-  const { data: userData, revalidate } = useSWR('/api/user', fetcher);
+  const { data: userData } = useSWR('/api/user', fetcher);
   const [signUpError, setSignUpError] = useState('');
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [mismatchError, setMismatchError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
-  const [password, _1, setPassword] = useInput('');
-  const [passwordCheck, _2, setPasswordCheck] = useInput('');
+  const [password, , setPassword] = useInput('');
+  const [passwordCheck, , setPasswordCheck] = useInput('');
 
   const onChangePassword = useCallback(
     (e) => {
