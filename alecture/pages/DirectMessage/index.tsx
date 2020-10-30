@@ -1,7 +1,7 @@
 import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
-import { Header } from '@pages/DirectMessage/styles';
+import { Header, Container } from '@pages/DirectMessage/styles';
 import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import { useParams } from 'react-router-dom';
@@ -58,7 +58,7 @@ const DirectMessage = () => {
   );
 
   return (
-    <div>
+    <Container>
       <Header>
         {userData && (
           <>
@@ -77,7 +77,7 @@ const DirectMessage = () => {
           chat={chat}
         />
       )}
-    </div>
+    </Container>
   );
 };
 

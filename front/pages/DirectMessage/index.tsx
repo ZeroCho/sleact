@@ -2,7 +2,7 @@ import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
-import { Header } from '@pages/DirectMessage/styles';
+import { Header, Container } from '@pages/DirectMessage/styles';
 import { IDM } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
@@ -110,7 +110,7 @@ const DirectMessage = () => {
   const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', height: 'calc(100vh - 38px)', flexFlow: 'column' }}>
+    <Container>
       <Header>
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname}</span>
@@ -129,7 +129,7 @@ const DirectMessage = () => {
         placeholder={`Message ${userData.nickname}`}
         data={[]}
       />
-    </div>
+    </Container>
   );
 };
 

@@ -3,7 +3,7 @@ import ChatList from '@components/ChatList';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
-import { Header } from '@pages/Channel/styles';
+import { Header, Container } from '@pages/Channel/styles';
 import { Button, Input, Label } from '@pages/SignUp/styles';
 import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
@@ -150,7 +150,7 @@ const Channel = () => {
   const chatSections = makeSection(chatData ? ([] as IChat[]).concat(...chatData).reverse() : []);
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', height: 'calc(100vh - 38px)', flexFlow: 'column' }}>
+    <Container>
       <Header>
         <span>#{channel}</span>
         <div style={{ display: 'flex', flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
@@ -190,7 +190,7 @@ const Channel = () => {
         </form>
       </Modal>
       <ToastContainer position="bottom-center" />
-    </div>
+    </Container>
   );
 };
 
