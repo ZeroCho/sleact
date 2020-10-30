@@ -45,7 +45,14 @@ const Workspace = () => {
     userData ? `/api/workspace/${workspace}/channels` : null,
     fetcher,
   );
-  console.log('rerender', 'userData', userData, 'channelData', channelData);
+  console.log(
+    'rerender',
+    'userData',
+    userData,
+    'channelData',
+    channelData,
+    userData && channelData ? '로딩 완료' : '로딩중...',
+  );
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);

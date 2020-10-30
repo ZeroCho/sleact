@@ -49,7 +49,7 @@ const DMList: FC<Props> = ({ userData }) => {
   };
 
   useEffect(() => {
-    console.log('workspace 바꼈다', workspace);
+    console.log('DMList: workspace 바꼈다', workspace);
     setOnlineList([]);
     setCountList({});
   }, [workspace]);

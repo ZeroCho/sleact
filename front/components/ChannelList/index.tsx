@@ -2,7 +2,7 @@ import useSocket from '@hooks/useSocket';
 import { CollapseButton } from '@components/DMList/styles';
 import { IChannel, IChat, IUser } from '@typings/db';
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 
 const ChannelList: FC<Props> = ({ userData, channelData }) => {
   const { workspace } = useParams<{ workspace?: string }>();
+  const location = useLocation();
   const [socket] = useSocket(workspace);
   const [channelCollapse, setChannelCollapse] = useState(false);
   const [countList, setCountList] = useState<{ [key: string]: number | undefined }>({});
@@ -33,9 +34,9 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
   );
 
   useEffect(() => {
-    console.log('workspace 바꼈다', workspace);
+    console.log('ChannelList: workspace 바꼈다', workspace, location.pathname);
     setCountList({});
-  }, [workspace]);
+  }, [workspace, location]);
 
   const onMessage = (data: IChat) => {
     console.log('message 왔다', data);
@@ -58,12 +59,12 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
 
   useEffect(() => {
     socket?.on('message', onMessage);
-    console.log('socket on message', socket?.hasListeners('message'), socket);
+    console.log('socket on message', socket?.hasListeners('message'));
     return () => {
       socket?.off('message', onMessage);
       console.log('socket off message', socket?.hasListeners('message'));
     };
-  }, [socket, userData]);
+  }, [socket]);
 
   return (
     <>

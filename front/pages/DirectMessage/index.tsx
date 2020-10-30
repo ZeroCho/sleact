@@ -49,7 +49,7 @@ const DirectMessage = () => {
         }, false).then(() => {
           setChat('');
           if (scrollbarRef.current) {
-            console.log('scrollToBottom!');
+            console.log('scrollToBottom!', scrollbarRef.current?.getValues());
             scrollbarRef.current.scrollToBottom();
           }
         });
@@ -74,7 +74,7 @@ const DirectMessage = () => {
             scrollbarRef.current.getScrollHeight() <
             scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
           ) {
-            console.log('scrollToBottom!');
+            console.log('scrollToBottom!', scrollbarRef.current?.getValues());
             scrollbarRef.current.scrollToBottom();
           } else {
             toast.success('새 메시지가 도착했습니다.', {
@@ -98,7 +98,7 @@ const DirectMessage = () => {
 
   useEffect(() => {
     if (chatData?.length === 1) {
-      console.log('toBottom', chatData);
+      console.log('toBottomWhenLoaded', chatData, scrollbarRef.current?.getValues());
       scrollbarRef.current?.scrollToBottom();
     }
   }, [chatData]);

@@ -45,7 +45,7 @@ const ChatBox: FC<Props> = ({ onSubmitForm, chat, onChangeChat, placeholder, dat
       }
       return (
         <EachMention focus={focus}>
-          <img src={gravatar.url(data[index].email, { s: '20px' })} alt={data[index].nickname} />
+          <img src={gravatar.url(data[index].email, { s: '20px', d: 'retro' })} alt={data[index].nickname} />
           <span>{highlightedDisplay}</span>
         </EachMention>
       );
