@@ -19,15 +19,15 @@ const PAGE_SIZE = 20;
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [socket] = useSocket(workspace);
-  const { data: userData } = useSWR<IUser>('/api/user', fetcher);
-  const { data: channelsData } = useSWR<IChannel[]>(`/api/workspace/${workspace}/channels`, fetcher);
+  const { data: userData } = useSWR<IUser>('/api/users', fetcher);
+  const { data: channelsData } = useSWR<IChannel[]>(`/api/workspaces/${workspace}/channels`, fetcher);
   const channelData = channelsData?.find((v) => v.name === channel);
   const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
-    (index) => `/api/workspace/${workspace}/channel/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
+    (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
-  const { data: channelMembersData, revalidate: revalidateMembers } = useSWR<IUser[]>(
-    userData ? `/api/workspace/${workspace}/channel/${channel}/members` : null,
+  const { data: channelMembersData } = useSWR<IUser[]>(
+    userData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
     fetcher,
   );
   const [chat, onChangeChat, setChat] = useInput('');
@@ -50,11 +50,11 @@ const Channel = () => {
           prevChatData?.[0].unshift({
             id: (chatData[0][0]?.id || 0) + 1,
             content: savedChat,
-            UserId: userData.id,
-            User: userData,
+            userId: userData.id,
+            user: userData,
             createdAt: new Date(),
-            ChannelId: channelData.id,
-            Channel: channelData,
+            channelId: channelData.id,
+            channel: channelData,
           });
           return prevChatData;
         }, false).then(() => {
@@ -65,7 +65,7 @@ const Channel = () => {
           }
         });
         axios
-          .post(`/api/workspace/${workspace}/channel/${channel}/chat`, {
+          .post(`/api/workspaces/${workspace}/channels/${channel}/chats`, {
             content: savedChat,
           })
           .catch(console.error);
@@ -75,7 +75,7 @@ const Channel = () => {
   );
 
   const onMessage = (data: IChat) => {
-    if (data.Channel.name === channel && data.UserId !== userData?.id) {
+    if (data.channel.name === channel && data.userId !== userData?.id) {
       mutateChat((chatData) => {
         chatData?.[0].unshift(data);
         return chatData;

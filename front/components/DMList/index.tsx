@@ -14,7 +14,7 @@ interface Props {
 const DMList: FC<Props> = ({ userData }) => {
   const { workspace } = useParams<{ workspace?: string }>();
   const { data: memberData } = useSWR<IUserWithOnline[]>(
-    userData ? `/api/workspace/${workspace}/members` : null,
+    userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
   const [socket] = useSocket(workspace);
@@ -43,7 +43,7 @@ const DMList: FC<Props> = ({ userData }) => {
     setCountList((list) => {
       return {
         ...list,
-        [data.SenderId]: list[data.SenderId] ? list[data.SenderId] + 1 : 1,
+        [data.senderId]: list[data.senderId] ? list[data.senderId] + 1 : 1,
       };
     });
   };

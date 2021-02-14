@@ -42,8 +42,8 @@ const Workspace = () => {
   // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
   const { workspace } = params;
   const [socket, disconnectSocket] = useSocket(workspace);
-  const { data: userData, revalidate: revalidateUser } = useSWR<IUser | false>('/api/user', fetcher);
-  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspace/${workspace}/channels` : null, fetcher);
+  const { data: userData, error: loginError, revalidate: revalidateUser } = useSWR<IUser>('/api/users', fetcher);
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   console.log(
     'rerender',
     'userData',
@@ -62,7 +62,7 @@ const Workspace = () => {
 
   const onLogOut = useCallback(() => {
     axios
-      .post('/api/logout')
+      .post('/api/users/logout')
       .then(() => {
         revalidateUser();
       })
@@ -82,7 +82,7 @@ const Workspace = () => {
         return;
       }
       axios
-        .post('/api/workspace', {
+        .post('/api/workspaces', {
           workspace: newWorkspace,
           url: newUrl,
         })
@@ -139,10 +139,10 @@ const Workspace = () => {
     }
   }, [socket, userData, channelData]);
 
-  if (userData === false) {
+  if (loginError) {
     return <Redirect to="/login" />;
   }
-  if (userData && !userData.Workspaces.find((v) => v.url === workspace)) {
+  if (userData && !userData.workspaces.find((v) => v.url === workspace)) {
     return <Redirect to="/workspace/sleact/channel/일반" />;
   }
 
@@ -171,7 +171,7 @@ const Workspace = () => {
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
-          {userData?.Workspaces.map((ws) => {
+          {userData?.workspaces.map((ws) => {
             return (
               <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
@@ -182,12 +182,12 @@ const Workspace = () => {
         </Workspaces>
         <Channels>
           <WorkspaceName onClick={toggleWorkspaceModal}>
-            {userData?.Workspaces.find((v) => v.url === workspace)?.name}
+            {userData?.workspaces.find((v) => v.url === workspace)?.name}
           </WorkspaceName>
           <MenuScroll>
             <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
               <WorkspaceModal>
-                <h2>{userData?.Workspaces.find((v) => v.url === workspace)?.name}</h2>
+                <h2>{userData?.workspaces.find((v) => v.url === workspace)?.name}</h2>
                 <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
                 <button onClick={onClickAddChannel}>채널 만들기</button>
                 <button onClick={onLogOut}>로그아웃</button>

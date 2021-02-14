@@ -20,7 +20,7 @@ const ChatList: FC<Props> = ({ scrollbarRef, isReachingEnd, isEmpty, chatSection
         });
       }
     },
-    [scrollbarRef, isReachingEnd, isEmpty],
+    [setSize, scrollbarRef, isReachingEnd, isEmpty],
   );
 
   return (

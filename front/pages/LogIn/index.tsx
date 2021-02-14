@@ -7,7 +7,7 @@ import { Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data: userData, revalidate } = useSWR('/api/users', fetcher);
+  const { data: userData, error, revalidate } = useSWR('/api/users', fetcher);
   const [logInError, setLogInError] = useState('');
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -34,7 +34,9 @@ const LogIn = () => {
     [email, password],
   );
 
-  if (userData) {
+  console.log(error, userData);
+  if (!error && userData) {
+    console.log('로그인됨', userData);
     return <Redirect to="/workspace/sleact/channel/일반" />;
   }
 
