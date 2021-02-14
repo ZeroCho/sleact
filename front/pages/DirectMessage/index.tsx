@@ -36,7 +36,7 @@ const DirectMessage = () => {
       if (chat?.trim() && chatData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
-          prevChatData[0].unshift({
+          prevChatData?.[0].unshift({
             id: (chatData[0][0]?.id || 0) + 1,
             content: savedChat,
             SenderId: myData.id,
@@ -66,7 +66,7 @@ const DirectMessage = () => {
   const onMessage = (data: IDM) => {
     if (data.SenderId === Number(id) && myData.id !== Number(id)) {
       mutateChat((chatData) => {
-        chatData[0].unshift(data);
+        chatData?.[0].unshift(data);
         return chatData;
       }, false).then(() => {
         if (scrollbarRef.current) {
@@ -94,7 +94,7 @@ const DirectMessage = () => {
     return () => {
       socket?.off('dm', onMessage);
     };
-  }, [socket, id]);
+  }, [socket, id, myData]);
 
   useEffect(() => {
     if (chatData?.length === 1) {

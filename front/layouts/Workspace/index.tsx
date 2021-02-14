@@ -1,5 +1,7 @@
 import ChannelList from '@components/ChannelList';
+import CreateChannelModal from '@components/CreateChannelModal';
 import DMList from '@components/DMList';
+import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
@@ -41,10 +43,7 @@ const Workspace = () => {
   const { workspace } = params;
   const [socket, disconnectSocket] = useSocket(workspace);
   const { data: userData, revalidate: revalidateUser } = useSWR<IUser | false>('/api/user', fetcher);
-  const { data: channelData, revalidate: revalidateChannel } = useSWR<IChannel[]>(
-    userData ? `/api/workspace/${workspace}/channels` : null,
-    fetcher,
-  );
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspace/${workspace}/channels` : null, fetcher);
   console.log(
     'rerender',
     'userData',
@@ -60,8 +59,6 @@ const Workspace = () => {
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
-  const [newChannel, onChangeNewChannel, setNewChannel] = useInput('');
-  const [newMember, onChangeNewMember, setNewMember] = useInput('');
 
   const onLogOut = useCallback(() => {
     axios
@@ -101,50 +98,6 @@ const Workspace = () => {
         });
     },
     [newWorkspace, newUrl],
-  );
-  const onCreateChannel = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!newChannel || !newChannel.trim()) {
-        return;
-      }
-      axios
-        .post(`/api/workspace/${workspace}/channel`, {
-          name: newChannel,
-        })
-        .then(() => {
-          revalidateChannel();
-          setShowCreateChannelModal(false);
-          setNewChannel('');
-        })
-        .catch((error) => {
-          console.dir(error);
-          toast.error(error.response?.data, { position: 'bottom-center' });
-        });
-    },
-    [newChannel],
-  );
-  const onInviteMember = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!newMember || !newMember.trim()) {
-        return;
-      }
-      axios
-        .post(`/api/workspace/${workspace}/member`, {
-          email: newMember,
-        })
-        .then(() => {
-          revalidateChannel();
-          setShowInviteWorkspaceModal(false);
-          setNewMember('');
-        })
-        .catch((error) => {
-          console.dir(error);
-          toast.error(error.response?.data, { position: 'bottom-center' });
-        });
-    },
-    [workspace, newMember],
   );
 
   const onClickCreateWorkspace = useCallback(() => {
@@ -264,24 +217,16 @@ const Workspace = () => {
           <Button type="submit">생성하기</Button>
         </form>
       </Modal>
-      <Modal show={showCreateChannelModal} onCloseModal={onCloseModal}>
-        <form onSubmit={onCreateChannel}>
-          <Label id="channel-label">
-            <span>채널 이름</span>
-            <Input id="channel" value={newChannel} onChange={onChangeNewChannel} />
-          </Label>
-          <Button>생성하기</Button>
-        </form>
-      </Modal>
-      <Modal show={showInviteWorkspaceModal} onCloseModal={onCloseModal}>
-        <form onSubmit={onInviteMember}>
-          <Label id="member-label">
-            <span>이메일</span>
-            <Input id="member" type="email" value={newMember} onChange={onChangeNewMember} />
-          </Label>
-          <Button type="submit">초대하기</Button>
-        </form>
-      </Modal>
+      <CreateChannelModal
+        show={showCreateChannelModal}
+        onCloseModal={onCloseModal}
+        setShowCreateChannelModal={setShowCreateChannelModal}
+      />
+      <InviteWorkspaceModal
+        show={showInviteWorkspaceModal}
+        onCloseModal={onCloseModal}
+        setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
+      />
       <ToastContainer position="bottom-center" />
     </div>
   );

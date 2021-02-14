@@ -1,10 +1,9 @@
 import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
-import Modal from '@components/Modal';
+import InviteChannelModal from '@components/InviteChannelModal';
 import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
 import { Header, Container } from '@pages/Channel/styles';
-import { Button, Input, Label } from '@pages/SignUp/styles';
 import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
@@ -32,35 +31,11 @@ const Channel = () => {
     fetcher,
   );
   const [chat, onChangeChat, setChat] = useInput('');
-  const [newMember, onChangeNewMember, setNewMember] = useInput('');
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const scrollbarRef = useRef<Scrollbars>(null);
 
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
-
-  const onInviteMember = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!newMember || !newMember.trim()) {
-        return;
-      }
-      axios
-        .post(`/api/workspace/${workspace}/channel/${channel}/member`, {
-          email: newMember,
-        })
-        .then(() => {
-          revalidateMembers();
-          setShowInviteChannelModal(false);
-          setNewMember('');
-        })
-        .catch((error) => {
-          console.dir(error);
-          toast.error(error.response?.data, { position: 'bottom-center' });
-        });
-    },
-    [newMember],
-  );
 
   const onCloseModal = useCallback(() => {
     setShowInviteChannelModal(false);
@@ -72,7 +47,7 @@ const Channel = () => {
       if (chat?.trim() && chatData && channelData && userData) {
         const savedChat = chat;
         mutateChat((prevChatData) => {
-          prevChatData[0].unshift({
+          prevChatData?.[0].unshift({
             id: (chatData[0][0]?.id || 0) + 1,
             content: savedChat,
             UserId: userData.id,
@@ -102,7 +77,7 @@ const Channel = () => {
   const onMessage = (data: IChat) => {
     if (data.Channel.name === channel && data.UserId !== userData?.id) {
       mutateChat((chatData) => {
-        chatData[0].unshift(data);
+        chatData?.[0].unshift(data);
         return chatData;
       }, false).then(() => {
         if (scrollbarRef.current) {
@@ -180,15 +155,11 @@ const Channel = () => {
         placeholder={`Message #${channel}`}
         data={channelMembersData}
       />
-      <Modal show={showInviteChannelModal} onCloseModal={onCloseModal}>
-        <form onSubmit={onInviteMember}>
-          <Label id="member-label">
-            <span>채널 멤버 초대</span>
-            <Input id="member" value={newMember} onChange={onChangeNewMember} />
-          </Label>
-          <Button type="submit">생성하기</Button>
-        </form>
-      </Modal>
+      <InviteChannelModal
+        show={showInviteChannelModal}
+        onCloseModal={onCloseModal}
+        setShowInviteChannelModal={setShowInviteChannelModal}
+      />
       <ToastContainer position="bottom-center" />
     </Container>
   );
