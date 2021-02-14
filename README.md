@@ -135,12 +135,17 @@
   - 이 함수의 매개변수로 페이지가 들어있어서 현재 몇 페이지인지 알 수 있음.
 
 ## 3일차
-28. @components/ChatList 작성 및 @compoments/Chat 구현
-29. socket 연결해서 실시간으로 데이터 받
-30. @components/ChannelList 작성
-31. @pages/ChannelMessage 작성
-32. Channel Chat 보내보기
-33. Chat에 memo 적용하기
-34. 인피니트 스크롤링 구현
-35. makeSection 구현
-36. 시간 남으면 모달들 구현
+28. Workspace에 소켓 연결하기
+  - socket.emit이 클라이언트에서 서버로, socket.on이 서버에서 클라이언트로
+29. DMList에 onlineList, dm 이벤트 연결
+30. @components/ChatList 작성 및 @components/Chat 구현
+  - npm i react-custom-scrollbars @types/react-custom-scrollbars
+31. makeSection 구현
+  - npm i dayjs
+32. 프로파일링 하면서 Chat에 memo 적용하기
+33. 인피니트 스크롤링 구현
+34. @components/ChannelList 작성
+35. @pages/ChannelMessage 작성
+36. Channel Chat 보내보기
+37. 빌드 설정
+38. 빌드 결과물인 JS와 html을 서버개발자에게 전달하

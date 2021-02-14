@@ -1,18 +1,31 @@
+import useSocket from '@hooks/useSocket';
 import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import React, { useCallback, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import useSWR from 'swr';
 import { CollapseButton } from '../../../front/components/DMList/styles';
 
-const DMList = () => {
+interface Props {
+  userData?: IUser;
+}
+
+const DMList: FC<Props> = ({ userData }) => {
   const { workspace } = useParams<{ workspace: string }>();
   const [channelCollapse, setChannelCollapse] = useState(false);
   const { data: memberData } = useSWR<IUser[]>(`/api/workspace/${workspace}/members`, fetcher);
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse((prev) => !prev);
   }, []);
+  const [socket, disconnect] = useSocket(workspace);
+  const [onlineList, setOnlineList] = useState<number[]>([]);
+
+  useEffect(() => {
+    socket?.on('onlineList', (data: number[]) => {
+      setOnlineList(data);
+    });
+  }, [socket]);
 
   return (
     <div>
@@ -29,7 +42,7 @@ const DMList = () => {
       <div>
         {!channelCollapse &&
           memberData?.map((member) => {
-            const isOnline = false;
+            const isOnline = onlineList.includes(member.id);
             return (
               <NavLink key={member.id} activeClassName="selected" to={`/workspace/${workspace}/dm/${member.id}`}>
                 <i
@@ -43,6 +56,7 @@ const DMList = () => {
                   data-qa-presence-dnd="false"
                 />
                 <span>{member.nickname}</span>
+                {member.id === userData?.id && <span> (나)</span>}
               </NavLink>
             );
           })}

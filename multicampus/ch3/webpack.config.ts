@@ -62,8 +62,6 @@ const config: webpack.Configuration = {
     new ForkTsCheckerWebpackPlugin({
       async: false,
     }),
-    new webpack.HotModuleReplacementPlugin(),
-    new ReactRefreshWebpackPlugin(),
   ],
   output: {
     path: path.join(__dirname, 'dist'),
@@ -82,21 +80,17 @@ const config: webpack.Configuration = {
     },
   },
 };
-//
-
 // devServer: {
 //     historyApiFallback: true,
 //     port: 3090,
 //     publicPath: '/dist/',
 //   },
-// if (isDevelopment && config.plugins) {
-//   config.plugins.push(new webpack.HotModuleReplacementPlugin());
-//   config.plugins.push(new ReactRefreshWebpackPlugin());
-//   config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'server', openAnalyzer: false }));
-// }
-// if (!isDevelopment && config.plugins) {
-//   config.plugins.push(new webpack.LoaderOptionsPlugin({ minimize: true }));
-//   config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
-// }
+if (isDevelopment && config.plugins) {
+  config.plugins.push(new webpack.HotModuleReplacementPlugin());
+  config.plugins.push(new ReactRefreshWebpackPlugin());
+}
+if (!isDevelopment && config.plugins) {
+  config.plugins.push(new webpack.LoaderOptionsPlugin({ minimize: true }));
+}
 
 export default config;

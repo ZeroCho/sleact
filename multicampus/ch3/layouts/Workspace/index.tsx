@@ -1,3 +1,4 @@
+import ChannelList from '@components/ChannelList';
 import DMList from '@components/DMList';
 import useSocket from '@hooks/useSocket';
 import {
@@ -13,8 +14,9 @@ import {
   Workspaces,
   WorkspaceWrapper,
 } from '@layouts/Workspace/styles';
+import Channel from '@pages/Channel';
 import DirectMessage from '@pages/DirectMessage';
-import { IUser } from '@typings/db';
+import { IChannel, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import React, { useEffect } from 'react';
 import { Link, Route, Switch, useParams } from 'react-router-dom';
@@ -22,8 +24,9 @@ import useSWR from 'swr';
 import gravatar from 'gravatar';
 
 const Workspace = () => {
-  const { data: userData } = useSWR<IUser>('/api/user', fetcher);
   const { workspace } = useParams<{ workspace: string }>();
+  const { data: userData } = useSWR<IUser>('/api/user', fetcher);
+  const { data: channelData } = useSWR<IChannel[]>(`/api/workspace/${workspace}/channels`, fetcher);
   const [socket, disconnectSocket] = useSocket(workspace);
 
   useEffect(() => {
@@ -65,13 +68,14 @@ const Workspace = () => {
         <Channels>
           <WorkspaceName>{userData?.Workspaces.find((v) => v.url === workspace)?.name}</WorkspaceName>
           <MenuScroll>
-            <DMList />
+            <ChannelList userData={userData} channelData={channelData} />
+            <DMList userData={userData} />
           </MenuScroll>
         </Channels>
 
         <Chats>
           <Switch>
-            <Route path="/workspace/:workspace/channel/:channel" />
+            <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
             <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
           </Switch>
         </Chats>
