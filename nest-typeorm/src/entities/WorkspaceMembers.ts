@@ -1,14 +1,25 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Workspaces } from './Workspaces';
 import { Users } from './Users';
 
 @Index('UserId', ['userId'], {})
 @Entity('workspaceMembers', { schema: 'sleact', name: 'workspacemembers' })
 export class WorkspaceMembers {
-  @Column('datetime', { name: 'createdAt' })
+  @CreateDateColumn({ default: () => 'NOW()' })
   createdAt: Date;
 
-  @Column('datetime', { name: 'updatedAt' })
+  @UpdateDateColumn({
+    onUpdate: 'NOW()',
+    default: () => 'NOW()',
+  })
   updatedAt: Date;
 
   @Column('int', { primary: true, name: 'WorkspaceId' })

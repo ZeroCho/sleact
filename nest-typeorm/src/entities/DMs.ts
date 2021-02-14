@@ -1,10 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Workspaces } from './Workspaces';
 import { Users } from './Users';
@@ -20,10 +22,13 @@ export class DMs {
   @Column('text', { name: 'content' })
   content: string;
 
-  @Column('datetime', { name: 'createdAt' })
+  @CreateDateColumn({ default: () => 'NOW()' })
   createdAt: Date;
 
-  @Column('datetime', { name: 'updatedAt' })
+  @UpdateDateColumn({
+    onUpdate: 'NOW()',
+    default: () => 'NOW()',
+  })
   updatedAt: Date;
 
   @Column('int', { name: 'WorkspaceId', nullable: true })

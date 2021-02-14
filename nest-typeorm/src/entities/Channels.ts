@@ -1,11 +1,13 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ChannelChats } from './Channelchats';
 import { ChannelMembers } from './Channelmembers';
@@ -28,10 +30,13 @@ export class Channels {
   })
   private: boolean | null;
 
-  @Column('datetime', { name: 'createdAt' })
+  @CreateDateColumn({ default: () => 'NOW()' })
   createdAt: Date;
 
-  @Column('datetime', { name: 'updatedAt' })
+  @UpdateDateColumn({
+    onUpdate: 'NOW()',
+    default: () => 'NOW()',
+  })
   updatedAt: Date;
 
   @Column('int', { name: 'WorkspaceId', nullable: true })

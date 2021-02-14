@@ -8,13 +8,13 @@ import useSWR from 'swr';
 
 const LogIn = () => {
   const { data: userData, error, revalidate } = useSWR('/api/users', fetcher);
-  const [logInError, setLogInError] = useState('');
+  const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();
-      setLogInError('');
+      setLogInError(false);
       axios
         .post(
           '/api/users/login',
@@ -27,8 +27,7 @@ const LogIn = () => {
           revalidate();
         })
         .catch((error) => {
-          console.error(error.response);
-          setLogInError(error.response?.data);
+          setLogInError(error.response?.data?.statusCode === 401);
         });
     },
     [email, password],
@@ -55,7 +54,7 @@ const LogIn = () => {
           <div>
             <Input type="password" id="password" name="password" value={password} onChange={onChangePassword} />
           </div>
-          {logInError && <Error>{logInError}</Error>}
+          {logInError && <Error>이메일과 비밀번호 조합이 일치하지 않습니다.</Error>}
         </Label>
         <Button type="submit">로그인</Button>
       </Form>

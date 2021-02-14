@@ -44,14 +44,6 @@ const Workspace = () => {
   const [socket, disconnectSocket] = useSocket(workspace);
   const { data: userData, error: loginError, revalidate: revalidateUser } = useSWR<IUser>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
-  console.log(
-    'rerender',
-    'userData',
-    userData,
-    'channelData',
-    channelData,
-    userData && channelData ? '로딩 완료' : '로딩중...',
-  );
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
@@ -141,9 +133,6 @@ const Workspace = () => {
 
   if (loginError) {
     return <Redirect to="/login" />;
-  }
-  if (userData && !userData.workspaces.find((v) => v.url === workspace)) {
-    return <Redirect to="/workspace/sleact/channel/일반" />;
   }
 
   return (

@@ -1,10 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Users } from './Users';
 import { Channels } from './Channels';
@@ -19,10 +21,13 @@ export class ChannelChats {
   @Column('text', { name: 'content' })
   content: string;
 
-  @Column('datetime', { name: 'createdAt' })
+  @CreateDateColumn({ default: () => 'NOW()' })
   createdAt: Date;
 
-  @Column('datetime', { name: 'updatedAt' })
+  @UpdateDateColumn({
+    onUpdate: 'NOW()',
+    default: () => 'NOW()',
+  })
   updatedAt: Date;
 
   @Column('int', { name: 'UserId', nullable: true })

@@ -8,7 +8,7 @@ import useSWR from 'swr';
 
 const SignUp = () => {
   const { data: userData } = useSWR('/api/users', fetcher);
-  const [signUpError, setSignUpError] = useState('');
+  const [signUpError, setSignUpError] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [mismatchError, setMismatchError] = useState(false);
   const [email, onChangeEmail] = useInput('');
@@ -36,20 +36,18 @@ const SignUp = () => {
     (e) => {
       e.preventDefault();
       if (!nickname || !nickname.trim()) {
-        setSignUpError('닉네임을 입력해주세요');
         return;
       }
       if (!mismatchError) {
-        setSignUpError('');
+        setSignUpError(false);
         setSignUpSuccess(false);
         axios
-          .post('/api/user', { email, nickname, password })
+          .post('/api/users', { email, nickname, password })
           .then(() => {
             setSignUpSuccess(true);
           })
           .catch((error) => {
-            console.error(error.response);
-            setSignUpError(error.response?.data);
+            setSignUpError(error.response?.data?.statusCode === 403);
           });
       }
     },
@@ -94,7 +92,8 @@ const SignUp = () => {
             />
           </div>
           {mismatchError && <Error>비밀번호가 일치하지 않습니다.</Error>}
-          {signUpError && <Error>{signUpError}</Error>}
+          {!nickname && <Error>닉네임을 입력해주세요.</Error>}
+          {signUpError && <Error>이미 가입된 이메일입니다.</Error>}
           {signUpSuccess && <Success>회원가입되었습니다! 로그인해주세요.</Success>}
         </Label>
         <Button type="submit">회원가입</Button>

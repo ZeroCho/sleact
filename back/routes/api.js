@@ -34,7 +34,7 @@ router.get("/workspaces", isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post("/workspace", isLoggedIn, async (req, res, next) => {
+router.post("/workspaces", isLoggedIn, async (req, res, next) => {
   const t = await sequelize.transaction();
   try {
     const exWorkspace = await Workspace.findOne({
@@ -74,7 +74,7 @@ router.post("/workspace", isLoggedIn, async (req, res, next) => {
 });
 
 router.get(
-  "/workspace/:workspace/channels",
+  "/workspaces/:workspace/channels",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -108,7 +108,7 @@ router.get(
 );
 
 router.post(
-  "/workspace/:workspace/channel",
+  "/workspaces/:workspace/channels",
   isLoggedIn,
   async (req, res, next) => {
     const t = await sequelize.transaction();
@@ -150,7 +150,7 @@ router.post(
 );
 
 router.get(
-  "/workspace/:workspace/channel/:channel",
+  "/workspaces/:workspace/channels/:channel",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -179,7 +179,7 @@ router.get(
 );
 
 router.get(
-  "/workspace/:workspace/channel/:channel/chats",
+  "/workspaces/:workspace/channels/:channel/chats",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -223,7 +223,7 @@ router.get(
 );
 
 router.post(
-  "/workspace/:workspace/channel/:channel/chat",
+  "/workspaces/:workspace/channels/:channel/chats",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -272,7 +272,7 @@ router.post(
 );
 
 router.get(
-  "/workspace/:workspace/dm/:id/chats",
+  "/workspaces/:workspace/dms/:id/chats",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -323,7 +323,7 @@ function getKeyByValue(object, value) {
   return Object.keys(object).find((key) => object[key] === value);
 }
 router.post(
-  "/workspace/:workspace/dm/:id/chat",
+  "/workspaces/:workspace/dms/:id/chats",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -367,7 +367,7 @@ router.post(
 );
 
 router.get(
-  "/workspace/:workspace/members",
+  "/workspaces/:workspace/members",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -389,7 +389,7 @@ router.get(
 );
 
 router.post(
-  "/workspace/:workspace/member",
+  "/workspaces/:workspace/members",
   isLoggedIn,
   async (req, res, next) => {
     const t = await sequelize.transaction();
@@ -428,7 +428,7 @@ router.post(
 );
 
 router.delete(
-  "/workspace/:workspace/member/:id",
+  "/workspaces/:workspace/members/:id",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -449,7 +449,7 @@ router.delete(
 );
 
 router.get(
-  "/workspace/:workspace/channel/:channel/members",
+  "/workspaces/:workspace/channels/:channel/members",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -483,7 +483,7 @@ router.get(
 );
 
 router.post(
-  "/workspace/:workspace/channel/:channel/member",
+  "/workspaces/:workspace/channels/:channel/members",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -533,7 +533,7 @@ router.post(
 );
 
 router.delete(
-  "/workspace/:workspace/channel/:channel/member/:id",
+  "/workspaces/:workspace/channels/:channel/members/:id",
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -568,11 +568,7 @@ router.delete(
   }
 );
 
-router.get("/user", (req, res, next) => {
-  return res.json(req.user || false);
-});
-
-router.get("/workspace/:workspace/user/:id", async (req, res, next) => {
+router.get("/workspaces/:workspace/users/:id", async (req, res, next) => {
   try {
     const workspace = await Workspace.findOne({
       where: { url: req.params.workspace },
@@ -604,7 +600,11 @@ router.get("/workspace/:workspace/user/:id", async (req, res, next) => {
   }
 });
 
-router.post("/user", isNotLoggedIn, async (req, res, next) => {
+router.get("/users", (req, res, next) => {
+  return res.json(req.user || false);
+});
+
+router.post("/users", isNotLoggedIn, async (req, res, next) => {
   try {
     const exUser = await User.findOne({
       where: {
@@ -631,7 +631,7 @@ router.post("/user", isNotLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post("/login", isNotLoggedIn, (req, res, next) => {
+router.post("/users/login", isNotLoggedIn, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       console.error(err);
@@ -655,7 +655,7 @@ router.post("/login", isNotLoggedIn, (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/logout", isLoggedIn, (req, res) => {
+router.post("/users/logout", isLoggedIn, (req, res) => {
   req.logout();
   req.session.destroy();
   res.send("ok");

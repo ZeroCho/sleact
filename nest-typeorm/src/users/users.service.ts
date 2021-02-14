@@ -7,7 +7,9 @@ import { Users } from '../entities/Users';
 
 @Injectable()
 export class UsersService {
-  @InjectRepository(Users) private usersRepository: Repository<Users>;
+  constructor(
+    @InjectRepository(Users) private usersRepository: Repository<Users>,
+  ) {}
 
   async findByEmail(email: string) {
     return this.usersRepository.findOne({ where: { email } });
@@ -15,12 +17,15 @@ export class UsersService {
 
   async join(email: string, nickname: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 12);
-    const user = new Users();
-    user.email = email;
-    user.nickname = nickname;
-    user.password = password;
-    user.workspaceMembers = [{ workspaceId: 1 }];
-    user.channelMembers = [{ channelId: 1 }];
-    this.usersRepository.save(user);
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (user) {
+      return false;
+    }
+    await this.usersRepository.save({
+      email,
+      nickname,
+      password: hashedPassword,
+    });
+    return true;
   }
 }

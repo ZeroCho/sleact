@@ -1,11 +1,13 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Channels } from './Channels';
 import { DMs } from './Dms';
@@ -27,10 +29,13 @@ export class Workspaces {
   @Column('varchar', { name: 'url', unique: true, length: 30 })
   url: string;
 
-  @Column('datetime', { name: 'createdAt' })
+  @CreateDateColumn({ default: () => 'NOW()' })
   createdAt: Date;
 
-  @Column('datetime', { name: 'updatedAt' })
+  @UpdateDateColumn({
+    onUpdate: 'NOW()',
+    default: () => 'NOW()',
+  })
   updatedAt: Date;
 
   @Column('datetime', { name: 'deletedAt', nullable: true })

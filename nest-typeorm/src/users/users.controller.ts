@@ -7,6 +7,7 @@ import {
   UseGuards,
   Get,
   Response,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from '../auth/local-auth.guard';
@@ -19,7 +20,7 @@ import { UsersService } from './users.service';
 @ApiTags('USERS')
 @Controller('api/users')
 export class UsersController {
-  private usersService: UsersService;
+  constructor(private usersService: UsersService) {}
 
   @ApiCookieAuth('connect.sid')
   @ApiOperation({ summary: '내 정보 가져오기' })
@@ -44,7 +45,16 @@ export class UsersController {
     if (!user) {
       throw new NotFoundException();
     }
-    await this.usersService.join(data.email, data.nickname, data.password);
+    const result = await this.usersService.join(
+      data.email,
+      data.nickname,
+      data.password,
+    );
+    if (result) {
+      return 'ok';
+    } else {
+      throw new ForbiddenException();
+    }
   }
 
   @ApiCookieAuth('connect.sid')

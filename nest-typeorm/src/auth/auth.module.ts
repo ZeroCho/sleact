@@ -12,7 +12,6 @@ import { LocalStrategy } from './local.strategy';
   imports: [
     PassportModule.register({ session: true }),
     UsersModule,
-    PassportModule,
     TypeOrmModule.forFeature([Users]),
   ],
   providers: [AuthService, LocalStrategy, LocalSerializer],
