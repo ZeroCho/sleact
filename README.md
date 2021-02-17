@@ -43,7 +43,7 @@
   - npm i -D css-loader style-loader @babel/core babel-loader @babel/preset-env @babel/preset-react @babel/preset-typescript
   - publicPath가 /dist/고 [name].js에서 [name]이 entry에 적힌대로 app으로 바뀌어 /dist/app.js가 결과물이 됨.
 6. index.html 작성
-  - /dist/app.js로 웹팩이 만들어낸 js파일 불러옴
+  - ./dist/app.js로 웹팩이 만들어낸 js파일 불러옴
   - 아이콘, 폰트, 파비콘같은 것은 슬랙에서 그대로 사용
   - #app 태그에 리액트가 렌더링됨.
 7. client.tsx에 간단한 tsx 작성
@@ -57,38 +57,38 @@
 9. hot reloading 설정
   - npm i -D @pmmmwh/react-refresh-webpack-plugin react-refresh
   - webpack의 babel-loader 안에 설정(env) 및 plugin으로 추가
-10. 폴더 구조 세팅
+10. fork-ts-checker-webpack-plugin
+- webpack은 ts체크 후 eslint체크 후 빌드 시작
+- ts랑 eslint는 동시에 체크하면 더 효율적
+- 이 플러그인이 동시에 진행하게 해줌.
+11. 폴더 구조 세팅
   - 페이지들은 pages
   - 페이지간 공통되는 틀은 layouts
   - 개별 컴포넌트는 components
   - 각 컴포넌트는 컴포넌트 폴더 아래 index.tsx(JSX)와 styles.tsx(스타일링)
-11. ts와 webpack에서 alias 지정
+12. ts와 webpack에서 alias 지정
   - npm i -D tsconfig-paths
   - tsconfig에서 baseUrl와 paths 설정
   - webpack에서는 resolve안에 alias 설정
   - ../layouts/App같은 것을 @layouts/App으로 접근 가능
-12. emotion 세팅
+13. emotion 세팅
   - styled components와 비슷하지만 설정이 간단함.
   - npm i @emotion/core @emotion/styled
   - npm i -D babel-plugin-emotion (웹팩에 babel 설정 추가)
   - 스타일드 컴포넌트로 만들 때 변수를 많이 만드는 셈이므로 & 같은 선택자 적극 활용해야 변수 이름짓기를 최소화할 수 있음.
-13. @layouts/App 작성
+14. @layouts/App 작성
   - 리액트 라우터 적용하기
   - npm i react-router react-router-dom @types/react-router @types/react-router-dom
   - client.tsx에서 App을 BrowserRouter로 감싸기
   - @layouts/App에 Switch, Redirect, Route 넣기
-14. @pages/SignUp 작성
+15. @loadable/component
+- 라우터를 코드스플리팅 해줌
+- 회원가입 페이지에 접근한 사람은 회원가입 페이지에 필요한 JS만 받음
+- 3초 룰 기억하자!
+- npm i @loadable/component @types/loadable__component
+16. @pages/SignUp 작성
 
 ## 2일차
-15. @loadable/component
-  - 라우터를 코드스플리팅 해줌
-  - 회원가입 페이지에 접근한 사람은 회원가입 페이지에 필요한 JS만 받음
-  - 3초 룰 기억하자!
-  - npm i @loadable/component @types/loadable__component
-16. fork-ts-checker-webpack-plugin
-  - webpack은 ts체크 후 eslint체크 후 빌드 시작
-  - ts랑 eslint는 동시에 체크하면 더 효율적
-  - 이 플러그인이 동시에 진행하게 해줌.
 17. 회원가입 axios로 진행
   - npm i axios
   - CORS 문제를 피하기 위해서 devServer에 proxy 세팅
@@ -142,10 +142,11 @@
   - npm i react-custom-scrollbars @types/react-custom-scrollbars
 31. makeSection 구현
   - npm i dayjs
+  - dayjs는 moment를 대체함
 32. 프로파일링 하면서 Chat에 memo 적용하기
 33. 인피니트 스크롤링 구현
 34. @components/ChannelList 작성
 35. @pages/ChannelMessage 작성
 36. Channel Chat 보내보기
 37. 빌드 설정
-38. 빌드 결과물인 JS와 html을 서버개발자에게 전달하
+38. 빌드 결과물인 JS와 html을 서버개발자에게 전달하기
