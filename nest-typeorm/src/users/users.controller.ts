@@ -33,7 +33,7 @@ export class UsersController {
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req, @Body() loginData: LoginRequestDto) {
+  async login(@Request() req) {
     return req.user;
   }
 

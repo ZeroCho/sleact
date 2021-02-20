@@ -45,7 +45,9 @@ export class Channels {
   @OneToMany(() => ChannelChats, (channelchats) => channelchats.channel)
   channelChats: ChannelChats[];
 
-  @OneToMany(() => ChannelMembers, (channelMembers) => channelMembers.channel)
+  @OneToMany(() => ChannelMembers, (channelMembers) => channelMembers.channel, {
+    cascade: ['insert'],
+  })
   channelMembers: ChannelMembers[];
 
   @ManyToOne(() => Workspaces, (workspaces) => workspaces.channels, {

@@ -19,6 +19,7 @@ import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
 import { EventsModule } from './events/events.module';
+import { DmsModule } from './dms/dms.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { EventsModule } from './events/events.module';
     WorkspacesModule,
     ChannelsModule,
     EventsModule,
+    DmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

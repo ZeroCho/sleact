@@ -30,39 +30,4 @@ export class WorkspacesService {
     workspace.ownerId = myId;
     return this.workspacesRepository.save(workspace);
   }
-
-  async getWorkspaceChannels(url: string, myId: number) {
-    return this.channelsRepository
-      .createQueryBuilder('channels')
-      .innerJoinAndSelect(
-        'channels.channelMembers',
-        'channelMembers',
-        'channelMembers.userId = :myId',
-        { myId },
-      )
-      .innerJoinAndSelect(
-        'channels.workspace',
-        'workspace',
-        'workspace.url = :url',
-        { url },
-      )
-      .getMany();
-  }
-
-  async getWorkspaceChannel(id: number, channelId: number) {
-    return this.channelsRepository.findOne({
-      where: {
-        workspaceId: id,
-        id: channelId,
-      },
-    });
-  }
-
-  async createWorkspaceChannels(id: number, name: string, myId: number) {
-    const channel = new Channels();
-    channel.name = name;
-    channel.workspaceId = id;
-    channel.channelMembers = [{ userId: myId }];
-    return this.channelsRepository.save(channel);
-  }
 }
