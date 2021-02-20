@@ -2,7 +2,7 @@
 
 # 백그라운드 세팅
 0. node 14버전(12나 15도 괜찮음)과 MySQL을 미리 설치하기
-1. cd back
+1. cd back (멀티캠퍼스 강좌 수강자라면 cd multicampus-back)
 2. npm i
 3. .env 작성하기(COOKIET_SECRET과 MYSQL_PASSWORD 비밀번호 설정)
 4. config/config.json 설정(MYSQL 접속 설정)
@@ -17,8 +17,8 @@
 ## 1일차
 1. package.json
   - npm init으로 생성
-  - npm i react react-dom typescript
-  - npm i @types/react @types/react-dom
+  - npm i react react-dom
+  - npm i typescript @types/react @types/react-dom
   - 설치 후 package-lock.json과 node_modules 폴더가 생성됨
 2. .eslintrc
   - eslint 설정 파일
@@ -43,15 +43,20 @@
   - npm i -D css-loader style-loader @babel/core babel-loader @babel/preset-env @babel/preset-react @babel/preset-typescript
   - publicPath가 /dist/고 [name].js에서 [name]이 entry에 적힌대로 app으로 바뀌어 /dist/app.js가 결과물이 됨.
 6. index.html 작성
-  - ./dist/app.js로 웹팩이 만들어낸 js파일 불러옴
   - 아이콘, 폰트, 파비콘같은 것은 슬랙에서 그대로 사용
+  - client.tsx에 간단한 tsx 작성
   - #app 태그에 리액트가 렌더링됨.
-7. client.tsx에 간단한 tsx 작성
-8. tsconfig-for-webpack-config.json
-  - 개발용 서버인 devServer 옵션 추가(port는 3090, publicPath는 /dist/로
+  - ./dist/app.js로 웹팩이 만들어낸 js파일 불러옴
+7. tsconfig-for-webpack-config.json
+  - webpack할 때 webpack.config.ts를 인식 못하는 문제
+  - npm i cross-env
+  - package.json의 scripts의 build를 cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack
+  - npm run build
+  - index.html 실행해보기
+8. 웹팩 데브 서버 설치
+  - 개발용 서버인 devServer 옵션 추가(port는 3090, publicPath는 /dist/로)
   - webpack serve할 때 webpack.config.ts를 인식 못하는 문제
   - npm i -D ts-node webpack-dev-server @types/webpack-dev-server webpack-cli
-  - npm i cross-env
   - package.json의 scripts의 dev를 cross-env TS_NODE_PROJECT=\"tsconfig-for-webpack-config.json\" webpack serve --env development
   - npm run dev하면 localhost:3090에서 서버 실행됨.
 9. hot reloading 설정
@@ -65,6 +70,7 @@
   - 페이지들은 pages
   - 페이지간 공통되는 틀은 layouts
   - 개별 컴포넌트는 components
+  - 커스텀훅은 hooks, 기타 함수는 utils 
   - 각 컴포넌트는 컴포넌트 폴더 아래 index.tsx(JSX)와 styles.tsx(스타일링)
 12. ts와 webpack에서 alias 지정
   - npm i -D tsconfig-paths
@@ -73,12 +79,13 @@
   - ../layouts/App같은 것을 @layouts/App으로 접근 가능
 13. emotion 세팅
   - styled components와 비슷하지만 설정이 간단함.
-  - npm i @emotion/core @emotion/styled
-  - npm i -D babel-plugin-emotion (웹팩에 babel 설정 추가)
+  - npm i @emotion/react @emotion/styled
+  - npm i -D @emotion/babel-plugin (웹팩에 babel 설정 추가)
   - 스타일드 컴포넌트로 만들 때 변수를 많이 만드는 셈이므로 & 같은 선택자 적극 활용해야 변수 이름짓기를 최소화할 수 있음.
 14. @layouts/App 작성
   - 리액트 라우터 적용하기
-  - npm i react-router react-router-dom @types/react-router @types/react-router-dom
+  - npm i react-router react-router-dom
+  - npm i -D @types/react-router @types/react-router-dom
   - client.tsx에서 App을 BrowserRouter로 감싸기
   - @layouts/App에 Switch, Redirect, Route 넣기
 15. @loadable/component
