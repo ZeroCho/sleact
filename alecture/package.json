@@ -17,6 +17,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
+    "axios": "^0.21.1",
     "cross-env": "^7.0.3",
     "css-loader": "^5.0.2",
     "react": "^17.0.1",
@@ -25,6 +26,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "style-loader": "^2.0.0",
+    "swr": "^0.4.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.5",
     "webpack-cli": "^4.5.0"
