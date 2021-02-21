@@ -55,6 +55,7 @@ export class Workspaces {
   @OneToMany(
     () => WorkspaceMembers,
     (workspacemembers) => workspacemembers.workspace,
+    { cascade: ['insert'] },
   )
   workspaceMembers: WorkspaceMembers[];
 

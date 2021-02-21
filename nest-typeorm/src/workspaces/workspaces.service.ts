@@ -13,6 +13,10 @@ export class WorkspacesService {
   private workspacesRepository: Repository<Workspaces>;
   @InjectRepository(Channels)
   private channelsRepository: Repository<Channels>;
+  @InjectRepository(WorkspaceMembers)
+  private workspaceMembersRepository: Repository<WorkspaceMembers>;
+  @InjectRepository(ChannelMembers)
+  private channelMembersRepository: Repository<ChannelMembers>;
   @InjectRepository(Users)
   private usersRepository: Repository<Users>;
 
@@ -33,17 +37,19 @@ export class WorkspacesService {
     workspace.name = name;
     workspace.url = url;
     workspace.ownerId = myId;
+    const returned = await this.workspacesRepository.save(workspace);
     const workspaceMember = new WorkspaceMembers();
     workspaceMember.userId = myId;
-    workspace.workspaceMembers = [workspaceMember];
-    const returned = await this.workspacesRepository.save(workspace);
+    workspaceMember.workspaceId = returned.id;
+    await this.workspaceMembersRepository.save(workspaceMember);
     const channel = new Channels();
     channel.name = '일반';
     channel.workspaceId = returned.id;
+    const channelReturned = await this.channelsRepository.save(channel);
     const channelMember = new ChannelMembers();
     channelMember.userId = myId;
-    channel.channelMembers = [channelMember];
-    await this.channelsRepository.save(channel);
+    channelMember.channelId = channelReturned.id;
+    await this.channelMembersRepository.save(channelMember);
   }
 
   async getWorkspaceMembers(url: string) {
