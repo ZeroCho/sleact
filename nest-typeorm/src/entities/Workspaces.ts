@@ -1,9 +1,11 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   Index,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -18,7 +20,7 @@ import { Users } from './Users';
 @Index('name', ['name'], { unique: true })
 @Index('url', ['url'], { unique: true })
 @Index('OwnerId', ['ownerId'], {})
-@Entity('workspaces', { schema: 'sleact' })
+@Entity({ schema: 'sleact', name: 'workspaces' })
 export class Workspaces {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
@@ -29,16 +31,13 @@ export class Workspaces {
   @Column('varchar', { name: 'url', unique: true, length: 30 })
   url: string;
 
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column('datetime', { name: 'deletedAt', nullable: true })
+  @DeleteDateColumn()
   deletedAt: Date | null;
 
   @Column('int', { name: 'OwnerId', nullable: true })
@@ -65,4 +64,7 @@ export class Workspaces {
   })
   @JoinColumn([{ name: 'OwnerId', referencedColumnName: 'id' }])
   owner: Users;
+
+  @ManyToMany(() => Users, (users) => users.workspaces)
+  members: Users[];
 }

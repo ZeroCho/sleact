@@ -11,15 +11,12 @@ import { Channels } from './Channels';
 import { Users } from './Users';
 
 @Index('UserId', ['userId'], {})
-@Entity('channelMembers', { schema: 'sleact', name: 'channelmembers' })
+@Entity({ schema: 'sleact', name: 'channelmembers' })
 export class ChannelMembers {
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('int', { primary: true, name: 'ChannelId' })

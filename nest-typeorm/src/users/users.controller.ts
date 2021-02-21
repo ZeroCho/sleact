@@ -13,6 +13,8 @@ import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from '../auth/local-auth.guard';
 import { NotLoggedInGuard } from '../auth/not-logged-in.guard';
 import { LoggedInGuard } from '../auth/logged-in.guard';
+import { User } from '../decorators/user.decorator';
+import { Users } from '../entities/Users';
 import { JoinRequestDto } from './dto/join.request.dto';
 import { LoginRequestDto } from './dto/login.request.dto';
 import { UsersService } from './users.service';
@@ -26,15 +28,15 @@ export class UsersController {
   @ApiOperation({ summary: '내 정보 가져오기' })
   @UseGuards(LoggedInGuard)
   @Get()
-  async getProfile(@Request() req) {
-    return req.user;
+  async getProfile(@User() user: Users) {
+    return user;
   }
 
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
-    return req.user;
+  async login(@User() user: Users) {
+    return user;
   }
 
   @ApiOperation({ summary: '회원가입' })

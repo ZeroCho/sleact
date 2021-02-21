@@ -20,11 +20,17 @@ export class LocalSerializer extends PassportSerializer {
 
   async deserializeUser(userId: string, done: CallableFunction) {
     return await this.usersRepository
-      .findOneOrFail({
-        where: { id: Number(userId) },
-        relations: ['workspaces'],
-      })
+      .findOneOrFail(
+        {
+          id: +userId,
+        },
+        {
+          select: ['id', 'email', 'nickname'],
+          relations: ['workspaces'],
+        },
+      )
       .then((user) => {
+        console.log('user', user);
         done(null, user);
       })
       .catch((error) => done(error));

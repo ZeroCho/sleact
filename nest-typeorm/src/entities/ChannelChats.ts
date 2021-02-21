@@ -13,7 +13,7 @@ import { Channels } from './Channels';
 
 @Index('UserId', ['userId'], {})
 @Index('ChannelId', ['channelId'], {})
-@Entity('channelChats', { schema: 'sleact', name: 'channelchats' })
+@Entity({ schema: 'sleact', name: 'channelchats' })
 export class ChannelChats {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
@@ -21,13 +21,10 @@ export class ChannelChats {
   @Column('text', { name: 'content' })
   content: string;
 
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('int', { name: 'UserId', nullable: true })

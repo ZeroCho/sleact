@@ -11,15 +11,12 @@ import { Workspaces } from './Workspaces';
 import { Users } from './Users';
 
 @Index('UserId', ['userId'], {})
-@Entity('workspaceMembers', { schema: 'sleact', name: 'workspacemembers' })
+@Entity('workspacemembers', { schema: 'sleact' })
 export class WorkspaceMembers {
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('int', { primary: true, name: 'WorkspaceId' })

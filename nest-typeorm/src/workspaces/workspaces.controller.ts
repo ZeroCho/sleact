@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Post, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Post, Body, Param } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoggedInGuard } from '../auth/logged-in.guard';
 import { User } from '../decorators/user.decorator';
@@ -27,5 +27,11 @@ export class WorkspacesController {
       body.url,
       user.id,
     );
+  }
+
+  @ApiOperation({ summary: '워크스페이스 멤버 가져오기' })
+  @Get(':url/members')
+  async getWorkspaceMembers(@Param('name') url: string) {
+    return this.workspacesService.getWorkspaceMembers(url);
   }
 }

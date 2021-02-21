@@ -14,26 +14,26 @@ export class ChannelsController {
   constructor(private channelsService: ChannelsService) {}
 
   @ApiOperation({ summary: '워크스페이스 채널 모두 가져오기' })
-  @Get(':url/channels')
-  async getWorkspaceChannels(@Param() url, @User() user: Users) {
-    return this.channelsService.getWorkspaceChannels(url, user.id);
+  @Get(':name/channels')
+  async getWorkspaceChannels(@Param('name') name, @User() user: Users) {
+    return this.channelsService.getWorkspaceChannels(name, user.id);
   }
 
   @ApiOperation({ summary: '워크스페이스 특정 채널 가져오기' })
-  @Get(':url/channels/:channelId')
-  async getWorkspaceChannel(@Param() url, @Param() channelId) {
-    return this.channelsService.getWorkspaceChannel(url, +channelId);
+  @Get(':name/channels/:channelId')
+  async getWorkspaceChannel(@Param('name') name, @Param() channelId) {
+    return this.channelsService.getWorkspaceChannel(name, +channelId);
   }
 
   @ApiOperation({ summary: '워크스페이스 채널 만들기' })
-  @Post(':url/channels')
+  @Post(':name/channels')
   async createWorkspaceChannels(
-    @Param() url,
+    @Param('name') name,
     @Body() body: CreateChannelDto,
     @User() user: Users,
   ) {
     return this.channelsService.createWorkspaceChannels(
-      url,
+      name,
       body.name,
       user.id,
     );

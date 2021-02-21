@@ -14,7 +14,7 @@ import { ChannelMembers } from './Channelmembers';
 import { Workspaces } from './Workspaces';
 
 @Index('WorkspaceId', ['workspaceId'], {})
-@Entity('channels', { schema: 'sleact' })
+@Entity({ schema: 'sleact' })
 export class Channels {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
@@ -30,13 +30,10 @@ export class Channels {
   })
   private: boolean | null;
 
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('int', { name: 'WorkspaceId', nullable: true })

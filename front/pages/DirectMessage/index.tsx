@@ -18,10 +18,10 @@ const PAGE_SIZE = 20;
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
   const [socket] = useSocket(workspace);
-  const { data: myData } = useSWR('/api/user', fetcher);
-  const { data: userData } = useSWR(`/api/workspace/${workspace}/user/${id}`, fetcher);
+  const { data: myData } = useSWR('/api/users', fetcher);
+  const { data: userData } = useSWR(`/api/workspaces/${workspace}/members/${id}`, fetcher);
   const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IDM[]>(
-    (index) => `/api/workspace/${workspace}/dm/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
+    (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
   const [chat, onChangeChat, setChat] = useInput('');
@@ -54,7 +54,7 @@ const DirectMessage = () => {
           }
         });
         axios
-          .post(`/api/workspace/${workspace}/dm/${id}/chat`, {
+          .post(`/api/workspaces/${workspace}/dms/${id}/chats`, {
             content: chat,
           })
           .catch(console.error);

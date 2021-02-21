@@ -4,6 +4,8 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,7 +18,7 @@ import { WorkspaceMembers } from './Workspacemembers';
 import { Workspaces } from './Workspaces';
 
 @Index('email', ['email'], { unique: true })
-@Entity('users', { schema: 'sleact' })
+@Entity({ schema: 'sleact', name: 'users' })
 export class Users {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
@@ -27,19 +29,16 @@ export class Users {
   @Column('varchar', { name: 'nickname', length: 30 })
   nickname: string;
 
-  @Column('varchar', { name: 'password', length: 100 })
+  @Column('varchar', { name: 'password', length: 100, select: false })
   password: string;
 
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
-  @DeleteDateColumn({ name: 'deletedAt', nullable: true, default: null })
+  @DeleteDateColumn()
   deletedAt: Date | null;
 
   @OneToMany(() => ChannelChats, (channelchats) => channelchats.user)
@@ -67,5 +66,19 @@ export class Users {
   workspaceMembers: WorkspaceMembers[];
 
   @OneToMany(() => Workspaces, (workspaces) => workspaces.owner)
+  ownedWorkspaces: Workspaces[];
+
+  @ManyToMany(() => Workspaces, (workspaces) => workspaces.members)
+  @JoinTable({
+    name: 'workspacemembers',
+    joinColumn: {
+      name: 'UserId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'WorkspaceId',
+      referencedColumnName: 'id',
+    },
+  })
   workspaces: Workspaces[];
 }

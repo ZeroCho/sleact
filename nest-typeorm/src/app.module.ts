@@ -19,7 +19,7 @@ import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
 import { EventsModule } from './events/events.module';
-import { DmsModule } from './dms/dms.module';
+import { DMsModule } from './dms/dms.module';
 
 @Module({
   imports: [
@@ -41,6 +41,8 @@ import { DmsModule } from './dms/dms.module';
         WorkspaceMembers,
         Workspaces,
       ],
+      autoLoadEntities: true,
+      charset: 'utf8mb4',
       synchronize: false,
       logging: true,
       keepConnectionAlive: true,
@@ -50,7 +52,7 @@ import { DmsModule } from './dms/dms.module';
     WorkspacesModule,
     ChannelsModule,
     EventsModule,
-    DmsModule,
+    DMsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

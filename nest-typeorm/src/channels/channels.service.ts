@@ -30,19 +30,19 @@ export class ChannelsService {
       .getMany();
   }
 
-  async getWorkspaceChannel(id: number, channelId: number) {
+  async getWorkspaceChannel(url: string, channelId: number) {
     return this.channelsRepository.findOne({
       where: {
-        workspaceId: id,
+        // workspaceId: id,
         id: channelId,
       },
     });
   }
 
-  async createWorkspaceChannels(id: number, name: string, myId: number) {
+  async createWorkspaceChannels(url: string, name: string, myId: number) {
     const channel = new Channels();
     channel.name = name;
-    channel.workspaceId = id;
+    // channel.workspaceId = id;
     const channelMember = new ChannelMembers();
     channelMember.userId = myId;
     channel.channelMembers = [channelMember];

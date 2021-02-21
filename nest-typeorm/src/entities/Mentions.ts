@@ -14,7 +14,7 @@ import { Users } from './Users';
 @Index('WorkspaceId', ['workspaceId'], {})
 @Index('SenderId', ['senderId'], {})
 @Index('ReceiverId', ['receiverId'], {})
-@Entity('mentions', { schema: 'sleact' })
+@Entity({ schema: 'sleact', name: 'mentions' })
 export class Mentions {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
@@ -25,13 +25,10 @@ export class Mentions {
   @Column('int', { name: 'chatId', nullable: true })
   chatId: number | null;
 
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('int', { name: 'WorkspaceId', nullable: true })

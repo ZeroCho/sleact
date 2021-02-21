@@ -14,7 +14,7 @@ import { Users } from './Users';
 @Index('WorkspaceId', ['workspaceId'], {})
 @Index('dms_ibfk_2', ['senderId'], {})
 @Index('dms_ibfk_3', ['receiverId'], {})
-@Entity('dms', { schema: 'sleact' })
+@Entity({ schema: 'sleact', name: 'dms' })
 export class DMs {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
@@ -22,13 +22,10 @@ export class DMs {
   @Column('text', { name: 'content' })
   content: string;
 
-  @CreateDateColumn({ default: () => 'NOW()' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({
-    onUpdate: 'NOW()',
-    default: () => 'NOW()',
-  })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column('int', { name: 'WorkspaceId', nullable: true })
