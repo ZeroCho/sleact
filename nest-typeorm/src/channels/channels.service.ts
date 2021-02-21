@@ -5,7 +5,6 @@ import { ChannelChats } from '../entities/ChannelChats';
 import { ChannelMembers } from '../entities/ChannelMembers';
 import { Channels } from '../entities/Channels';
 import { Users } from '../entities/Users';
-import { WorkspaceMembers } from '../entities/WorkspaceMembers';
 import { Workspaces } from '../entities/Workspaces';
 
 @Injectable()
@@ -71,13 +70,40 @@ export class ChannelsService {
   async getWorkspaceChannelMembers(url: string, name: string) {
     return this.usersRepository
       .createQueryBuilder('user')
-      .innerJoin('user.workspaces', 'workspaces', 'workspaces.url = :url', {
-        url,
-      })
-      .innerJoin('workspaces.channels', 'channels', 'channels.name = :name', {
+      .innerJoin('user.channels', 'channels', 'channels.name = :name', {
         name,
       })
+      .innerJoin('channels.workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
       .getMany();
+  }
+
+  async createWorkspaceChannelMembers(url, name, email) {
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .where('channel.name = :name', { name })
+      .getOne();
+    if (!channel) {
+      return null; // TODO: 이 때 어떻게 에러 발생?
+    }
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .innerJoin('user.workspaces', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .getOne();
+    if (!user) {
+      return null;
+    }
+    const channelMember = new ChannelMembers();
+    channelMember.channelId = channel.id;
+    channelMember.userId = user.id;
+    await this.channelMembersRepository.save(channelMember);
   }
 
   async getWorkspaceChannelChats(
@@ -95,7 +121,7 @@ export class ChannelsService {
         url,
       })
       .innerJoinAndSelect('channelChats.user', 'user')
-      .orderBy('createdAt', 'DESC')
+      .orderBy('channelChats.createdAt', 'DESC')
       .take(perPage)
       .skip(perPage * (page - 1))
       .getMany();

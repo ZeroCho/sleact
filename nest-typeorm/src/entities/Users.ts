@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { ChannelChats } from './Channelchats';
 import { ChannelMembers } from './Channelmembers';
+import { Channels } from './Channels';
 import { DMs } from './Dms';
 import { Mentions } from './Mentions';
 import { WorkspaceMembers } from './Workspacemembers';
@@ -81,4 +82,18 @@ export class Users {
     },
   })
   workspaces: Workspaces[];
+
+  @ManyToMany(() => Channels, (channels) => channels.members)
+  @JoinTable({
+    name: 'channelmembers',
+    joinColumn: {
+      name: 'UserId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'ChannelId',
+      referencedColumnName: 'id',
+    },
+  })
+  channels: Channels[];
 }

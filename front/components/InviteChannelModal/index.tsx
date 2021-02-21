@@ -30,7 +30,7 @@ const InviteChannelModal: FC<Props> = ({ show, onCloseModal, setShowInviteChanne
         return;
       }
       axios
-        .post(`/api/workspaces/${workspace}/channels/${channel}/member`, {
+        .post(`/api/workspaces/${workspace}/channels/${channel}/members`, {
           email: newMember,
         })
         .then(() => {

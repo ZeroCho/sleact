@@ -56,6 +56,16 @@ export class ChannelsController {
     return this.channelsService.getWorkspaceChannelMembers(url, name);
   }
 
+  @ApiOperation({ summary: '워크스페이스 채널 멤버 초대하기' })
+  @Post(':url/channels/:name/members')
+  async createWorkspaceMembers(
+    @Param('url') url: string,
+    @Param('name') name: string,
+    @Body('email') email,
+  ) {
+    return this.channelsService.createWorkspaceChannelMembers(url, name, email);
+  }
+
   @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 모두 가져오기' })
   @Get(':url/channels/:name/chats')
   async getWorkspaceChannelChats(

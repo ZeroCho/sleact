@@ -4,6 +4,7 @@ import {
   Entity,
   Index,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -11,6 +12,7 @@ import {
 } from 'typeorm';
 import { ChannelChats } from './Channelchats';
 import { ChannelMembers } from './Channelmembers';
+import { Users } from './Users';
 import { Workspaces } from './Workspaces';
 
 @Index('WorkspaceId', ['workspaceId'], {})
@@ -46,6 +48,9 @@ export class Channels {
     cascade: ['insert'],
   })
   channelMembers: ChannelMembers[];
+
+  @ManyToMany(() => Users, (users) => users.channels)
+  members: Users[];
 
   @ManyToOne(() => Workspaces, (workspaces) => workspaces.channels, {
     onDelete: 'SET NULL',
