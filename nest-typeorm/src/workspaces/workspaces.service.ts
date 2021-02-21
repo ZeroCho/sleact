@@ -54,4 +54,14 @@ export class WorkspacesService {
       })
       .getMany();
   }
+
+  async getWorkspaceMember(url: string, id: number) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .leftJoin('user.workspaces', 'workspaces', 'workspaces.url = :url', {
+        url,
+      })
+      .getOne();
+  }
 }

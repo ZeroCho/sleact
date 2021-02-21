@@ -34,4 +34,13 @@ export class WorkspacesController {
   async getWorkspaceMembers(@Param('name') url: string) {
     return this.workspacesService.getWorkspaceMembers(url);
   }
+
+  @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
+  @Get(':url/members/:id')
+  async getWorkspaceMember(
+    @Param('name') url: string,
+    @Param('id') id: string,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, +id);
+  }
 }

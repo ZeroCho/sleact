@@ -1,4 +1,12 @@
-import { Controller, Get, UseGuards, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Post,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoggedInGuard } from '../auth/logged-in.guard';
 import { User } from '../decorators/user.decorator';
@@ -14,28 +22,69 @@ export class ChannelsController {
   constructor(private channelsService: ChannelsService) {}
 
   @ApiOperation({ summary: '워크스페이스 채널 모두 가져오기' })
-  @Get(':name/channels')
-  async getWorkspaceChannels(@Param('name') name, @User() user: Users) {
-    return this.channelsService.getWorkspaceChannels(name, user.id);
+  @Get(':url/channels')
+  async getWorkspaceChannels(@Param('url') url, @User() user: Users) {
+    return this.channelsService.getWorkspaceChannels(url, user.id);
   }
 
   @ApiOperation({ summary: '워크스페이스 특정 채널 가져오기' })
-  @Get(':name/channels/:channelId')
-  async getWorkspaceChannel(@Param('name') name, @Param() channelId) {
-    return this.channelsService.getWorkspaceChannel(name, +channelId);
+  @Get(':url/channels/:name')
+  async getWorkspaceChannel(@Param('url') url, @Param('name') name) {
+    return this.channelsService.getWorkspaceChannel(url, name);
   }
 
   @ApiOperation({ summary: '워크스페이스 채널 만들기' })
-  @Post(':name/channels')
+  @Post(':url/channels')
   async createWorkspaceChannels(
-    @Param('name') name,
+    @Param('url') url,
     @Body() body: CreateChannelDto,
     @User() user: Users,
   ) {
     return this.channelsService.createWorkspaceChannels(
-      name,
+      url,
       body.name,
       user.id,
+    );
+  }
+
+  @ApiOperation({ summary: '워크스페이스 채널 멤버 가져오기' })
+  @Get(':url/channels/:name/members')
+  async getWorkspaceChannelMembers(
+    @Param('url') url: string,
+    @Param('name') name: string,
+  ) {
+    return this.channelsService.getWorkspaceChannelMembers(url, name);
+  }
+
+  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 모두 가져오기' })
+  @Get(':url/channels/:name/chats')
+  async getWorkspaceChannelChats(
+    @Param('url') url,
+    @Param('name') name,
+    @Query('perPage') perPage,
+    @Query('page') page,
+  ) {
+    return this.channelsService.getWorkspaceChannelChats(
+      url,
+      name,
+      +perPage,
+      +page,
+    );
+  }
+
+  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 생성하기' })
+  @Post(':url/channels/:name/chats')
+  async createWorkspaceChannelChats(
+    @Param('url') url,
+    @Param('name') name,
+    @Query('perPage') perPage,
+    @Query('page') page,
+  ) {
+    return this.channelsService.createWorkspaceChannelChats(
+      url,
+      name,
+      +perPage,
+      +page,
     );
   }
 }
