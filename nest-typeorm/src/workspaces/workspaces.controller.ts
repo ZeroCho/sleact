@@ -31,16 +31,13 @@ export class WorkspacesController {
 
   @ApiOperation({ summary: '워크스페이스 멤버 가져오기' })
   @Get(':url/members')
-  async getWorkspaceMembers(@Param('name') url: string) {
+  async getWorkspaceMembers(@Param('url') url: string) {
     return this.workspacesService.getWorkspaceMembers(url);
   }
 
   @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
   @Get(':url/members/:id')
-  async getWorkspaceMember(
-    @Param('name') url: string,
-    @Param('id') id: string,
-  ) {
+  async getWorkspaceMember(@Param('url') url: string, @Param('id') id: string) {
     return this.workspacesService.getWorkspaceMember(url, +id);
   }
 }

@@ -44,4 +44,15 @@ export class DMsController {
       +page,
     );
   }
+
+  @ApiOperation({ summary: '워크스페이스 특정 DM 채팅 생성하기' })
+  @Post(':url/dms/:id/chats')
+  async createWorkspaceDMChats(
+    @Param('url') url,
+    @Param('id') id,
+    @Body('content') content,
+    @User() user: Users,
+  ) {
+    return this.dmsService.createWorkspaceDMChats(url, content, +id, user.id);
+  }
 }

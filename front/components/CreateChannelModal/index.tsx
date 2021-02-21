@@ -31,7 +31,7 @@ const CreateChannelModal: FC<Props> = ({ show, onCloseModal, setShowCreateChanne
         return;
       }
       axios
-        .post(`/api/workspace/${workspace}/channel`, {
+        .post(`/api/workspaces/${workspace}/channels`, {
           name: newChannel,
         })
         .then(() => {

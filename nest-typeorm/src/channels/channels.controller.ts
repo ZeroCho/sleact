@@ -77,14 +77,14 @@ export class ChannelsController {
   async createWorkspaceChannelChats(
     @Param('url') url,
     @Param('name') name,
-    @Query('perPage') perPage,
-    @Query('page') page,
+    @Body('content') content,
+    @User() user: Users,
   ) {
     return this.channelsService.createWorkspaceChannelChats(
       url,
       name,
-      +perPage,
-      +page,
+      content,
+      user.id,
     );
   }
 }

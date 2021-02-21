@@ -3,10 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DMs } from '../entities/DMs';
 import { Users } from '../entities/Users';
+import { Workspaces } from '../entities/Workspaces';
 
 @Injectable()
 export class DMsService {
   constructor(
+    @InjectRepository(Workspaces)
+    private workspacesRepository: Repository<Workspaces>,
     @InjectRepository(DMs) private dmsRepository: Repository<DMs>,
     @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {}
@@ -28,16 +31,34 @@ export class DMsService {
     perPage: number,
     page: number,
   ) {
-    return this.dmsRepository.find({
-      where: {
-        senderId: myId,
-        receiverId: id,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-      take: perPage,
-      skip: perPage * (page - 1),
+    return this.dmsRepository
+      .createQueryBuilder('dms')
+      .innerJoinAndSelect('dms.sender', 'sender')
+      .innerJoinAndSelect('dms.receiver', 'receiver')
+      .innerJoin('dms.workspace', 'workspace')
+      .where('dms.senderId = :myId', { myId })
+      .andWhere('dms.receiverId = :id', { id })
+      .andWhere('workspace.url = :url', { url })
+      .orderBy('dms.createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getMany();
+  }
+
+  async createWorkspaceDMChats(
+    url: string,
+    content: string,
+    id: number,
+    myId: number,
+  ) {
+    const workspace = await this.workspacesRepository.findOne({
+      where: { url },
     });
+    const dm = new DMs();
+    dm.senderId = myId;
+    dm.receiverId = id;
+    dm.content = content;
+    dm.workspaceId = workspace.id;
+    return this.dmsRepository.save(dm);
   }
 }

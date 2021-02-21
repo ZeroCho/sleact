@@ -55,7 +55,8 @@ export class WorkspacesService {
   async getWorkspaceMembers(url: string) {
     return this.usersRepository
       .createQueryBuilder('user')
-      .leftJoin('user.workspaces', 'workspaces', 'workspaces.url = :url', {
+      .innerJoin('user.workspaceMembers', 'members')
+      .innerJoin('members.workspace', 'workspace', 'workspace.url = :url', {
         url,
       })
       .getMany();
@@ -65,7 +66,7 @@ export class WorkspacesService {
     return this.usersRepository
       .createQueryBuilder('user')
       .where('user.id = :id', { id })
-      .leftJoin('user.workspaces', 'workspaces', 'workspaces.url = :url', {
+      .innerJoin('user.workspaces', 'workspaces', 'workspaces.url = :url', {
         url,
       })
       .getOne();
