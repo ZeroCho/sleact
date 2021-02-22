@@ -2,7 +2,7 @@ export interface IUser {
   id: number;
   nickname: string;
   email: string;
-  workspaces: IWorkspace[];
+  Workspaces: IWorkspace[];
 }
 
 export interface IUserWithOnline extends IUser {
@@ -13,24 +13,24 @@ export interface IChannel {
   id: number;
   name: string;
   private: boolean;
-  workspaceId: number;
+  WorkspaceId: number;
 }
 
 export interface IChat {
   id: number;
-  userId: number;
+  UserId: number;
   user: IUser;
   content: string;
   createdAt: Date;
-  channelId: number;
+  ChannelId: number;
   channel: IChannel;
 }
 
 export interface IDM {
   id: number;
-  senderId: number;
+  SenderId: number;
   sender: IUser;
-  receiverId: number;
+  ReceiverId: number;
   receiver: IUser;
   content: string;
   createdAt: Date;
@@ -40,5 +40,5 @@ export interface IWorkspace {
   id: number;
   name: string;
   url: string;
-  ownerId: number;
+  OwnerId: number;
 }

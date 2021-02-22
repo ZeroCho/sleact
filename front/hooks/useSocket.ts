@@ -15,10 +15,15 @@ const useSocket = (workspace?: string): [SocketIOClient.Socket | undefined, () =
     return [undefined, disconnect];
   }
   if (!sockets[workspace]) {
-    sockets[workspace] = io(`${backUrl}/ws-${workspace}`, {
+    sockets[workspace] = io.connect(`${backUrl}/ws-${workspace}`, {
       transports: ['websocket'],
     });
-    console.info('create socket', workspace, sockets[workspace].id);
+    sockets[workspace].on('connect', console.log);
+    sockets[workspace].on('message', console.log);
+    sockets[workspace].on('disconnect', () => {
+      console.log('disconnect');
+    });
+    console.info('create socket', workspace, sockets[workspace]);
   }
 
   return [sockets[workspace], disconnect];

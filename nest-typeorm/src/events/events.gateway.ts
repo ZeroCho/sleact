@@ -1,28 +1,67 @@
 import {
+  ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
-export class EventsGateway {
+@WebSocketGateway({})
+export class EventsGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  private onlineMap = {};
+
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('events')
-  findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
-    return from([1, 2, 3]).pipe(
-      map((item) => ({ event: 'events', data: item })),
-    );
+  @SubscribeMessage('test')
+  handleTest(@MessageBody() data: string) {
+    console.log('test', data);
   }
 
-  @SubscribeMessage('identity')
-  async identity(@MessageBody() data: number): Promise<number> {
-    return data;
+  @SubscribeMessage('login')
+  handleLogin(
+    @MessageBody() data: { id: number; channels: number[] },
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const newNamespace = socket.nsp;
+    console.log('login', newNamespace);
+    this.onlineMap[socket.nsp.name][socket.id] = data.id;
+    newNamespace.emit(
+      'onlineList',
+      Object.values(this.onlineMap[socket.nsp.name]),
+    );
+    data.channels.forEach((channel) => {
+      socket.join(`${socket.nsp.name}-${channel}`);
+    });
+  }
+
+  afterInit(server: Server): any {
+    console.log('init');
+  }
+
+  handleConnection(@ConnectedSocket() socket: Socket) {
+    console.log('connected', socket.nsp.name);
+    if (!this.onlineMap[socket.nsp.name]) {
+      this.onlineMap[socket.nsp.name] = {};
+    }
+    // broadcast to all clients in the given sub-namespace
+    socket.emit('hello', socket.nsp.name);
+    socket.emit('hello', socket.nsp.name);
+    socket.send(socket.nsp.name);
+  }
+
+  handleDisconnect(@ConnectedSocket() socket: Socket) {
+    console.log('disconnected', socket.nsp.name);
+    const newNamespace = socket.nsp;
+    delete this.onlineMap[socket.nsp.name][socket.id];
+    newNamespace.emit(
+      'onlineList',
+      Object.values(this.onlineMap[socket.nsp.name]),
+    );
   }
 }
