@@ -20,22 +20,22 @@ export class ChannelMembers {
   updatedAt: Date;
 
   @Column('int', { primary: true, name: 'ChannelId' })
-  channelId: number;
+  ChannelId: number;
 
   @Column('int', { primary: true, name: 'UserId' })
-  userId: number;
+  UserId: number;
 
   @ManyToOne(() => Channels, (channels) => channels.channelMembers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'ChannelId', referencedColumnName: 'id' }])
-  channel: Channels;
+  Channel: Channels;
 
   @ManyToOne(() => Users, (users) => users.channelMembers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])
-  user: Users;
+  User: Users;
 }

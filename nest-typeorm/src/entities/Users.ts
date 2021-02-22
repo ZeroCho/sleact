@@ -42,34 +42,34 @@ export class Users {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  @OneToMany(() => ChannelChats, (channelchats) => channelchats.user)
-  channelChats: ChannelChats[];
+  @OneToMany(() => ChannelChats, (channelchats) => channelchats.User)
+  ChannelChats: ChannelChats[];
 
-  @OneToMany(() => ChannelMembers, (channelmembers) => channelmembers.user)
-  channelMembers: ChannelMembers[];
+  @OneToMany(() => ChannelMembers, (channelmembers) => channelmembers.User)
+  ChannelMembers: ChannelMembers[];
 
-  @OneToMany(() => DMs, (dms) => dms.sender)
-  dms: DMs[];
+  @OneToMany(() => DMs, (dms) => dms.Sender)
+  DMs: DMs[];
 
-  @OneToMany(() => DMs, (dms) => dms.receiver)
-  dms2: DMs[];
+  @OneToMany(() => DMs, (dms) => dms.Receiver)
+  DMs2: DMs[];
 
-  @OneToMany(() => Mentions, (mentions) => mentions.sender)
-  mentions: Mentions[];
+  @OneToMany(() => Mentions, (mentions) => mentions.Sender)
+  Mentions: Mentions[];
 
-  @OneToMany(() => Mentions, (mentions) => mentions.receiver)
-  mentions2: Mentions[];
+  @OneToMany(() => Mentions, (mentions) => mentions.Receiver)
+  Mentions2: Mentions[];
 
   @OneToMany(
     () => WorkspaceMembers,
-    (workspacemembers) => workspacemembers.user,
+    (workspacemembers) => workspacemembers.User,
   )
-  workspaceMembers: WorkspaceMembers[];
+  WorkspaceMembers: WorkspaceMembers[];
 
-  @OneToMany(() => Workspaces, (workspaces) => workspaces.owner)
-  ownedWorkspaces: Workspaces[];
+  @OneToMany(() => Workspaces, (workspaces) => workspaces.Owner)
+  OwnedWorkspaces: Workspaces[];
 
-  @ManyToMany(() => Workspaces, (workspaces) => workspaces.members)
+  @ManyToMany(() => Workspaces, (workspaces) => workspaces.Members)
   @JoinTable({
     name: 'workspacemembers',
     joinColumn: {
@@ -81,9 +81,9 @@ export class Users {
       referencedColumnName: 'id',
     },
   })
-  workspaces: Workspaces[];
+  Workspaces: Workspaces[];
 
-  @ManyToMany(() => Channels, (channels) => channels.members)
+  @ManyToMany(() => Channels, (channels) => channels.Members)
   @JoinTable({
     name: 'channelmembers',
     joinColumn: {
@@ -95,5 +95,5 @@ export class Users {
       referencedColumnName: 'id',
     },
   })
-  channels: Channels[];
+  Channels: Channels[];
 }

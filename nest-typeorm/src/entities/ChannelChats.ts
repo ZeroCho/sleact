@@ -28,22 +28,22 @@ export class ChannelChats {
   updatedAt: Date;
 
   @Column('int', { name: 'UserId', nullable: true })
-  userId: number | null;
+  UserId: number | null;
 
   @Column('int', { name: 'ChannelId', nullable: true })
-  channelId: number | null;
+  ChannelId: number | null;
 
-  @ManyToOne(() => Users, (users) => users.channelChats, {
+  @ManyToOne(() => Users, (users) => users.ChannelChats, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])
-  user: Users;
+  User: Users;
 
-  @ManyToOne(() => Channels, (channels) => channels.channelChats, {
+  @ManyToOne(() => Channels, (channels) => channels.ChannelChats, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'ChannelId', referencedColumnName: 'id' }])
-  channel: Channels;
+  Channel: Channels;
 }

@@ -23,7 +23,7 @@ export class Mentions {
   category: 'chat' | 'dm' | 'system';
 
   @Column('int', { name: 'chatId', nullable: true })
-  chatId: number | null;
+  ChatId: number | null;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -32,32 +32,32 @@ export class Mentions {
   updatedAt: Date;
 
   @Column('int', { name: 'WorkspaceId', nullable: true })
-  workspaceId: number | null;
+  WorkspaceId: number | null;
 
   @Column('int', { name: 'SenderId', nullable: true })
-  senderId: number | null;
+  SenderId: number | null;
 
   @Column('int', { name: 'ReceiverId', nullable: true })
-  receiverId: number | null;
+  ReceiverId: number | null;
 
-  @ManyToOne(() => Workspaces, (workspaces) => workspaces.mentions, {
+  @ManyToOne(() => Workspaces, (workspaces) => workspaces.Mentions, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'WorkspaceId', referencedColumnName: 'id' }])
-  workspace: Workspaces;
+  Workspace: Workspaces;
 
-  @ManyToOne(() => Users, (users) => users.mentions, {
+  @ManyToOne(() => Users, (users) => users.Mentions, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'SenderId', referencedColumnName: 'id' }])
-  sender: Users;
+  Sender: Users;
 
-  @ManyToOne(() => Users, (users) => users.mentions2, {
+  @ManyToOne(() => Users, (users) => users.Mentions2, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'ReceiverId', referencedColumnName: 'id' }])
-  receiver: Users;
+  Receiver: Users;
 }

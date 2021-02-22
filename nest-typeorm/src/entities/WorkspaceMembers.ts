@@ -20,25 +20,25 @@ export class WorkspaceMembers {
   updatedAt: Date;
 
   @Column('int', { primary: true, name: 'WorkspaceId' })
-  workspaceId: number;
+  WorkspaceId: number;
 
   @Column('int', { primary: true, name: 'UserId' })
-  userId: number;
+  UserId: number;
 
   @Column('datetime', { name: 'loggedInAt', nullable: true })
   loggedInAt: Date | null;
 
-  @ManyToOne(() => Workspaces, (workspaces) => workspaces.workspaceMembers, {
+  @ManyToOne(() => Workspaces, (workspaces) => workspaces.WorkspaceMembers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'WorkspaceId', referencedColumnName: 'id' }])
-  workspace: Workspaces;
+  Workspace: Workspaces;
 
-  @ManyToOne(() => Users, (users) => users.workspaceMembers, {
+  @ManyToOne(() => Users, (users) => users.WorkspaceMembers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])
-  user: Users;
+  User: Users;
 }
