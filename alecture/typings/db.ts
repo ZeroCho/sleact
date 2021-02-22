@@ -13,25 +13,25 @@ export interface IChannel {
   id: number;
   name: string;
   private: boolean;
-  workspaceId: number;
+  WorkspaceId: number;
 }
 
 export interface IChat {
   id: number;
-  userId: number;
-  user: IUser;
+  UserId: number;
+  User: IUser;
   content: string;
   createdAt: Date;
-  channelId: number;
-  channel: IChannel;
+  ChannelId: number;
+  Channel: IChannel;
 }
 
 export interface IDM {
   id: number;
-  senderId: number;
-  sender: IUser;
-  receiverId: number;
-  receiver: IUser;
+  SenderId: number;
+  Sender: IUser;
+  ReceiverId: number;
+  Receiver: IUser;
   content: string;
   createdAt: Date;
 }
@@ -40,5 +40,5 @@ export interface IWorkspace {
   id: number;
   name: string;
   url: string;
-  ownerId: number;
+  OwnerId: number;
 }

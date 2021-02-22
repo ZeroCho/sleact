@@ -43,7 +43,7 @@ const DMList: FC<Props> = ({ userData }) => {
     setCountList((list) => {
       return {
         ...list,
-        [data.senderId]: list[data.senderId] ? list[data.senderId] + 1 : 1,
+        [data.SenderId]: list[data.SenderId] ? list[data.SenderId] + 1 : 1,
       };
     });
   };

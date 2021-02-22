@@ -39,10 +39,10 @@ const DirectMessage = () => {
           prevChatData?.[0].unshift({
             id: (chatData[0][0]?.id || 0) + 1,
             content: savedChat,
-            senderId: myData.id,
-            sender: myData,
-            receiverId: userData.id,
-            receiver: userData,
+            SenderId: myData.id,
+            Sender: myData,
+            ReceiverId: userData.id,
+            Receiver: userData,
             createdAt: new Date(),
           });
           return prevChatData;
@@ -64,7 +64,7 @@ const DirectMessage = () => {
   );
 
   const onMessage = (data: IDM) => {
-    if (data.senderId === Number(id) && myData.id !== Number(id)) {
+    if (data.SenderId === Number(id) && myData.id !== Number(id)) {
       mutateChat((chatData) => {
         chatData?.[0].unshift(data);
         return chatData;

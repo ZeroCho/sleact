@@ -19,19 +19,19 @@ export interface IChannel {
 export interface IChat {
   id: number;
   UserId: number;
-  user: IUser;
+  User: IUser;
   content: string;
   createdAt: Date;
   ChannelId: number;
-  channel: IChannel;
+  Channel: IChannel;
 }
 
 export interface IDM {
   id: number;
   SenderId: number;
-  sender: IUser;
+  Sender: IUser;
   ReceiverId: number;
-  receiver: IUser;
+  Receiver: IUser;
   content: string;
   createdAt: Date;
 }

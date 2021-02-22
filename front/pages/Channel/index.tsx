@@ -50,11 +50,11 @@ const Channel = () => {
           prevChatData?.[0].unshift({
             id: (chatData[0][0]?.id || 0) + 1,
             content: savedChat,
-            userId: userData.id,
-            user: userData,
+            UserId: userData.id,
+            User: userData,
             createdAt: new Date(),
-            channelId: channelData.id,
-            channel: channelData,
+            ChannelId: channelData.id,
+            Channel: channelData,
           });
           return prevChatData;
         }, false).then(() => {
@@ -75,7 +75,7 @@ const Channel = () => {
   );
 
   const onMessage = (data: IChat) => {
-    if (data.channel.name === channel && data.userId !== userData?.id) {
+    if (data.Channel.name === channel && data.UserId !== userData?.id) {
       mutateChat((chatData) => {
         chatData?.[0].unshift(data);
         return chatData;
