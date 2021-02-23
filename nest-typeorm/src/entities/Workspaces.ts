@@ -19,7 +19,7 @@ import { Users } from './Users';
 
 @Index('name', ['name'], { unique: true })
 @Index('url', ['url'], { unique: true })
-@Index('OwnerId', ['ownerId'], {})
+@Index('OwnerId', ['OwnerId'], {})
 @Entity({ schema: 'sleact', name: 'workspaces' })
 export class Workspaces {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })

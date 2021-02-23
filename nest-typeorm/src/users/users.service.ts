@@ -36,12 +36,12 @@ export class UsersService {
       password: hashedPassword,
     });
     const workspaceMember = new WorkspaceMembers();
-    workspaceMember.userId = returned.id;
-    workspaceMember.workspaceId = 1;
+    workspaceMember.UserId = returned.id;
+    workspaceMember.WorkspaceId = 1;
     await this.workspaceMembersRepository.save(workspaceMember);
     const channelMember = new ChannelMembers();
-    channelMember.userId = returned.id;
-    channelMember.channelId = 1;
+    channelMember.UserId = returned.id;
+    channelMember.ChannelId = 1;
     await this.channelMembersRepository.save(channelMember);
     return true;
   }

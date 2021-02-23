@@ -55,10 +55,10 @@ export class DMsService {
       where: { url },
     });
     const dm = new DMs();
-    dm.senderId = myId;
-    dm.receiverId = id;
+    dm.SenderId = myId;
+    dm.ReceiverId = id;
     dm.content = content;
-    dm.workspaceId = workspace.id;
+    dm.WorkspaceId = workspace.id;
     return this.dmsRepository.save(dm);
   }
 }

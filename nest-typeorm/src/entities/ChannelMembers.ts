@@ -10,7 +10,7 @@ import {
 import { Channels } from './Channels';
 import { Users } from './Users';
 
-@Index('UserId', ['userId'], {})
+@Index('UserId', ['UserId'], {})
 @Entity({ schema: 'sleact', name: 'channelmembers' })
 export class ChannelMembers {
   @CreateDateColumn()
@@ -25,14 +25,14 @@ export class ChannelMembers {
   @Column('int', { primary: true, name: 'UserId' })
   UserId: number;
 
-  @ManyToOne(() => Channels, (channels) => channels.channelMembers, {
+  @ManyToOne(() => Channels, (channels) => channels.ChannelMembers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'ChannelId', referencedColumnName: 'id' }])
   Channel: Channels;
 
-  @ManyToOne(() => Users, (users) => users.channelMembers, {
+  @ManyToOne(() => Users, (users) => users.ChannelMembers, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
