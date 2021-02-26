@@ -26,7 +26,6 @@ sequelize
 passportConfig();
 const prod = process.env.NODE_ENV === "production";
 
-app.use(express.static(path.join(__dirname, "public")));
 if (prod) {
   app.enable("trust proxy");
   app.use(morgan("combined"));
@@ -41,6 +40,7 @@ if (prod) {
     })
   );
 }
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));

@@ -10,13 +10,10 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway({ namespace: /ws-.+/ })
+@WebSocketGateway({ namespace: /\/ws-.+/ })
 export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private onlineMap = {};
-
-  @WebSocketServer()
-  server: Server;
 
   @SubscribeMessage('test')
   handleTest(@MessageBody() data: string) {
@@ -51,8 +48,6 @@ export class EventsGateway
     }
     // broadcast to all clients in the given sub-namespace
     socket.emit('hello', socket.nsp.name);
-    socket.emit('hello', socket.nsp.name);
-    socket.send(socket.nsp.name);
   }
 
   handleDisconnect(@ConnectedSocket() socket: Socket) {
