@@ -21,7 +21,7 @@ HTTP 요청 리스트(ajax)
 - :workspace 내부의 :channel의 채팅을 가져옴
 - query: { perPage: number(한 페이지 당 몇 개), page: number(페이지) }
 - return: IChat[]
-### POST /workspaces/:workspace/channels/:channel/chat
+### POST /workspaces/:workspace/channels/:channel/chats
 - :workspace 내부의 :channel의 채팅을 저장
 - body: { content: string(내용) }
 - return: 'ok'
@@ -48,7 +48,7 @@ HTTP 요청 리스트(ajax)
 ### GET /workspaces/:workspace/channels/:channel/members
 - :workspace 내부의 :channel 멤버 목록을 가져옴
 - return: IUser[]
-### POST /workspaces/:workspace/channels/:channel/member
+### POST /workspaces/:workspace/channels/:channel/members
 - :workspace 내부의 :channel로 멤버 초대
 - body: { email: string(이메일) }
 - return: 'ok'
