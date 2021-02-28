@@ -16,4 +16,10 @@ export const Header = styled.header`
   padding: 20px 16px 20px 20px;
   font-weight: bold;
   align-items: center;
+  
+  & .header-right {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
 `;
