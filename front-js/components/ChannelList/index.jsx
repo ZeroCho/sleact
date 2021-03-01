@@ -1,21 +1,21 @@
 import useSocket from '@hooks/useSocket';
 import { CollapseButton } from '@components/DMList/styles';
-import { IChannel, IChat, IUser } from '@typings/db';
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
 
-interface Props {
-  channelData?: IChannel[];
-  userData?: IUser;
-}
-
-const ChannelList: FC<Props> = ({ userData, channelData }) => {
-  const { workspace } = useParams<{ workspace?: string }>();
+const ChannelList = () => {
+  const { workspace } = useParams();
   const location = useLocation();
+  const { data: userData } = useSWR('/api/users', fetcher, {
+    dedupingInterval: 2000, // 2초
+  });
+  const { data: channelData } = useSWR(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const [socket] = useSocket(workspace);
   const [channelCollapse, setChannelCollapse] = useState(false);
-  const [countList, setCountList] = useState<{ [key: string]: number | undefined }>({});
+  const [countList, setCountList] = useState({});
 
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse((prev) => !prev);
@@ -38,10 +38,10 @@ const ChannelList: FC<Props> = ({ userData, channelData }) => {
     setCountList({});
   }, [workspace, location]);
 
-  const onMessage = (data: IChat) => {
+  const onMessage = (data) => {
     console.log('message 왔다', data);
-    const mentions: string[] | null = data.content.match(/@\[(.+?)]\((\d)\)/g);
-    if (mentions?.find((v) => v.match(/@\[(.+?)]\((\d)\)/)![2] === userData?.id.toString())) {
+    const mentions = data.content.match(/@\[(.+?)]\((\d)\)/g);
+    if (mentions?.find((v) => v.match(/@\[(.+?)]\((\d)\)/)[2] === userData?.id.toString())) {
       return setCountList((list) => {
         return {
           ...list,

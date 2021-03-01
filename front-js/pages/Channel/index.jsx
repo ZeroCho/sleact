@@ -4,7 +4,6 @@ import InviteChannelModal from '@components/InviteChannelModal';
 import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
 import { Header, Container } from '@pages/Channel/styles';
-import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
 import axios from 'axios';
@@ -17,22 +16,22 @@ import useSWR, { useSWRInfinite } from 'swr';
 
 const PAGE_SIZE = 20;
 const Channel = () => {
-  const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
+  const { workspace, channel } = useParams();
   const [socket] = useSocket(workspace);
-  const { data: userData } = useSWR<IUser>('/api/users', fetcher);
-  const { data: channelsData } = useSWR<IChannel[]>(`/api/workspaces/${workspace}/channels`, fetcher);
+  const { data: userData } = useSWR('/api/users', fetcher);
+  const { data: channelsData } = useSWR(`/api/workspaces/${workspace}/channels`, fetcher);
   const channelData = channelsData?.find((v) => v.name === channel);
-  const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
+  const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite(
     (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
-  const { data: channelMembersData } = useSWR<IUser[]>(
+  const { data: channelMembersData } = useSWR(
     userData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
     fetcher,
   );
   const [chat, onChangeChat, setChat] = useInput('');
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
-  const scrollbarRef = useRef<Scrollbars>(null);
+  const scrollbarRef = useRef(null);
 
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
@@ -74,7 +73,7 @@ const Channel = () => {
     [chat, workspace, channel, channelData, userData, chatData],
   );
 
-  const onMessage = (data: IChat) => {
+  const onMessage = (data) => {
     if (data.Channel.name === channel && data.UserId !== userData?.id) {
       mutateChat((chatData) => {
         chatData?.[0].unshift(data);
@@ -122,7 +121,7 @@ const Channel = () => {
     return <Redirect to={`/workspace/${workspace}/channel/일반`} />;
   }
 
-  const chatSections = makeSection(chatData ? ([] as IChat[]).concat(...chatData).reverse() : []);
+  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   return (
     <Container>

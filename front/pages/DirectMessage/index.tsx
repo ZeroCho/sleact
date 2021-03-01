@@ -19,7 +19,7 @@ const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
   const [socket] = useSocket(workspace);
   const { data: myData } = useSWR('/api/users', fetcher);
-  const { data: userData } = useSWR(`/api/workspaces/${workspace}/members/${id}`, fetcher);
+  const { data: userData } = useSWR(`/api/workspaces/${workspace}/users/${id}`, fetcher);
   const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IDM[]>(
     (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,

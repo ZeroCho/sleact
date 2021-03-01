@@ -63,7 +63,7 @@ export const SendButton = styled.button`
   top: 5px;
 `;
 
-export const EachMention = styled.button<{ focus: boolean }>`
+export const EachMention = styled.button`
   padding: 4px 20px;
   background: transparent;
   border: none;

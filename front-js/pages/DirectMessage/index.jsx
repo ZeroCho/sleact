@@ -3,7 +3,6 @@ import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
 import { Header, Container } from '@pages/DirectMessage/styles';
-import { IDM } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
 import axios from 'axios';
@@ -16,16 +15,16 @@ import useSWR, { useSWRInfinite } from 'swr';
 
 const PAGE_SIZE = 20;
 const DirectMessage = () => {
-  const { workspace, id } = useParams<{ workspace: string; id: string }>();
+  const { workspace, id } = useParams();
   const [socket] = useSocket(workspace);
   const { data: myData } = useSWR('/api/users', fetcher);
-  const { data: userData } = useSWR(`/api/workspaces/${workspace}/members/${id}`, fetcher);
-  const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IDM[]>(
+  const { data: userData } = useSWR(`/api/workspaces/${workspace}/users/${id}`, fetcher);
+  const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite(
     (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
   const [chat, onChangeChat, setChat] = useInput('');
-  const scrollbarRef = useRef<Scrollbars>(null);
+  const scrollbarRef = useRef(null);
 
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
@@ -63,7 +62,7 @@ const DirectMessage = () => {
     [chat, workspace, id, myData, userData, chatData],
   );
 
-  const onMessage = (data: IDM) => {
+  const onMessage = (data) => {
     if (data.SenderId === Number(id) && myData.id !== Number(id)) {
       mutateChat((chatData) => {
         chatData?.[0].unshift(data);
@@ -107,7 +106,7 @@ const DirectMessage = () => {
     return null;
   }
 
-  const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
+  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   return (
     <Container>

@@ -1,12 +1,7 @@
 import { CreateModal, CloseModalButton } from '@components/Modal/styles';
-import React, { FC, PropsWithChildren, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
-interface Props {
-  show: boolean;
-  onCloseModal: () => void;
-}
-
-const Modal: FC<PropsWithChildren<Props>> = ({ show, children, onCloseModal }) => {
+const Modal = ({ show, children, onCloseModal }) => {
   const stopPropagation = useCallback((e) => {
     e.stopPropagation();
   }, []);

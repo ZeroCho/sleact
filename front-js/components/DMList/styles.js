@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-export const CollapseButton = styled.button<{ collapse: boolean }>`
+export const CollapseButton = styled.button`
   background: transparent;
   border: none;
   width: 26px;

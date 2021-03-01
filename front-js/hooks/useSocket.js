@@ -3,8 +3,8 @@ import io from 'socket.io-client';
 
 const backUrl = process.env.NODE_ENV === 'production' ? 'https://sleact.nodebird.com' : 'http://localhost:3095';
 
-const sockets: { [key: string]: SocketIOClient.Socket } = {};
-const useSocket = (workspace?: string): [SocketIOClient.Socket | undefined, () => void] => {
+const sockets = {};
+const useSocket = (workspace) => {
   const disconnect = useCallback(() => {
     if (workspace && sockets[workspace]) {
       sockets[workspace].disconnect();

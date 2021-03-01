@@ -1,26 +1,21 @@
 import { ChatWrapper } from '@components/Chat/styles';
-import { IChat, IDM, IUser } from '@typings/db';
 import dayjs from 'dayjs';
 import gravatar from 'gravatar';
-import React, { FC, useMemo, memo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 import regexifyString from 'regexify-string';
 
-interface Props {
-  data: IDM | IChat;
-}
+const Chat = memo(({ data }) => {
+  const { workspace } = useParams();
+  const user = 'Sender' in data ? data.Sender : data.User;
 
-const Chat: FC<Props> = memo(({ data }) => {
-  const { workspace } = useParams<{ workspace: string; channel: string }>();
-  const user: IUser = 'Sender' in data ? data.Sender : data.User;
-
-  const result = useMemo<(string | JSX.Element)[]>(
+  const result = useMemo(
     () =>
       regexifyString({
         pattern: /@\[(.+?)]\((\d+?)\)|\n/g,
         decorator(match, index) {
-          const arr: string[] | null = match.match(/@\[(.+?)]\((\d+?)\)/)!;
+          const arr = match.match(/@\[(.+?)]\((\d+?)\)/);
           if (arr) {
             return (
               <Link key={match + index} to={`/workspace/${workspace}/dm/${arr[2]}`}>

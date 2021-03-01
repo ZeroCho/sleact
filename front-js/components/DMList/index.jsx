@@ -1,26 +1,21 @@
 import useSocket from '@hooks/useSocket';
 import { CollapseButton } from '@components/DMList/styles';
-import { IDM, IUser, IUserWithOnline } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import useSWR from 'swr';
 
-interface Props {
-  userData?: IUser;
-}
-
-const DMList: FC<Props> = ({ userData }) => {
-  const { workspace } = useParams<{ workspace?: string }>();
-  const { data: memberData } = useSWR<IUserWithOnline[]>(
-    userData ? `/api/workspaces/${workspace}/members` : null,
-    fetcher,
-  );
+const DMList = () => {
+  const { workspace } = useParams();
+  const { data: userData, error, revalidate, mutate } = useSWR('/api/users', fetcher, {
+    dedupingInterval: 2000, // 2초
+  });
+  const { data: memberData } = useSWR(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
   const [socket] = useSocket(workspace);
   const [channelCollapse, setChannelCollapse] = useState(false);
-  const [countList, setCountList] = useState<{ [key: string]: number }>({});
-  const [onlineList, setOnlineList] = useState<number[]>([]);
+  const [countList, setCountList] = useState({});
+  const [onlineList, setOnlineList] = useState([]);
 
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse((prev) => !prev);
@@ -38,7 +33,7 @@ const DMList: FC<Props> = ({ userData }) => {
     [],
   );
 
-  const onMessage = (data: IDM) => {
+  const onMessage = (data) => {
     console.log('dm왔다', data);
     setCountList((list) => {
       return {
@@ -55,7 +50,7 @@ const DMList: FC<Props> = ({ userData }) => {
   }, [workspace]);
 
   useEffect(() => {
-    socket?.on('onlineList', (data: number[]) => {
+    socket?.on('onlineList', (data) => {
       setOnlineList(data);
     });
     socket?.on('dm', onMessage);
