@@ -1,7 +1,7 @@
 import Chat from '@components/Chat';
 import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
 import { IDM, IChat } from '@typings/db';
-import React, { useCallback, forwardRef, ForwardedRef, RefObject, VFC } from 'react';
+import React, { useCallback, forwardRef, RefObject, MutableRefObject } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 interface Props {
@@ -10,18 +10,22 @@ interface Props {
   isReachingEnd: boolean;
   scrollRef: RefObject<Scrollbars>;
 }
-const ChatList: VFC<Props> = ({ chatSections, setSize, scrollRef, isReachingEnd }) => {
-  const onScroll = useCallback((values) => {
-    if (values.scrollTop === 0 && !isReachingEnd) {
-      console.log('가장 위');
-      setSize((prevSize) => prevSize + 1).then(() => {
-        // 스크롤 위치 유지
-        if (scrollRef?.current) {
-          scrollRef.current?.scrollTop(scrollRef.current?.getScrollHeight() - values.scrollHeight);
-        }
-      });
-    }
-  }, []);
+const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isReachingEnd }, scrollRef) => {
+  const onScroll = useCallback(
+    (values) => {
+      if (values.scrollTop === 0 && !isReachingEnd) {
+        console.log('가장 위');
+        setSize((prevSize) => prevSize + 1).then(() => {
+          // 스크롤 위치 유지
+          const current = (scrollRef as MutableRefObject<Scrollbars>)?.current;
+          if (current) {
+            current.scrollTop(current.getScrollHeight() - values.scrollHeight);
+          }
+        });
+      }
+    },
+    [scrollRef, isReachingEnd, setSize],
+  );
 
   return (
     <ChatZone>
@@ -41,6 +45,6 @@ const ChatList: VFC<Props> = ({ chatSections, setSize, scrollRef, isReachingEnd 
       </Scrollbars>
     </ChatZone>
   );
-};
+});
 
 export default ChatList;
