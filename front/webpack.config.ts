@@ -9,7 +9,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const config: webpack.Configuration = {
   name: 'sleact',
   mode: isDevelopment ? 'development' : 'production',
-  devtool: isDevelopment ? 'hidden-source-map' : 'inline-source-map',
+  devtool: !isDevelopment ? 'hidden-source-map' : 'inline-source-map',
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
