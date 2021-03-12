@@ -224,6 +224,42 @@ router.get(
     }
   }
 );
+router.get(
+  "/workspaces/:workspace/channels/:channel/unreads",
+  isLoggedIn,
+  async (req, res, next) => {
+    try {
+      const workspace = await Workspace.findOne({
+        where: { url: req.params.workspace },
+        include: [
+          {
+            model: Channel,
+          },
+        ],
+      });
+      if (!workspace) {
+        return res.status(404).send("존재하지 않는 워크스페이스입니다.");
+      }
+      const channel = workspace.Channels.find(
+        (v) => v.name === decodeURIComponent(req.params.channel)
+      );
+      if (!channel) {
+        return res.status(404).send("존재하지 않는 채널입니다.");
+      }
+      const count = await ChannelChat.count({
+        where: {
+          ChannelId: channel.id,
+          createdAt: {
+            [Sequelize.Op.gt]: new Date(req.query.after),
+          },
+        },
+      });
+      return res.json(count > 0);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 router.post(
   "/workspaces/:workspace/channels/:channel/chats",
@@ -386,6 +422,34 @@ router.get(
           offset: req.query.perPage * (req.query.page - 1),
         })
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  "/workspaces/:workspace/dms/:id/unreads",
+  isLoggedIn,
+  async (req, res, next) => {
+    try {
+      const workspace = await Workspace.findOne({
+        where: { url: req.params.workspace },
+      });
+      if (!workspace) {
+        return res.status(404).send("존재하지 않는 워크스페이스입니다.");
+      }
+      const count = await DM.count({
+        where: {
+          WorkspaceId: workspace.id,
+          SenderId: req.user.id,
+          ReceiverId: req.params.id,
+          createdAt: {
+            [Sequelize.Op.gt]: new Date(req.query.after),
+          },
+        },
+      });
+      return res.json(count);
     } catch (error) {
       next(error);
     }
