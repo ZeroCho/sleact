@@ -26,12 +26,22 @@ HTTP 요청 리스트(ajax)
 - body: { content: string(내용) }
 - return: 'ok'
 - message 소켓 이벤트가 emit됨
+### POST /workspaces/:workspace/channels/:channel/chats
+- :workspace 내부의 :channel의 이미지를 저장
+- body: { content: string(내용) }
+- return: 'ok'
+- message 소켓 이벤트가 emit됨
 ### GET /workspaces/:workspace/dms/:id/chats
 - :workspace 내부의 :id와 나눈 dm을 가져옴
 - query: { perPage: number(한 페이지 당 몇 개), page: number(페이지) }
 - return: IDM[]
-### POST /workspaces/:workspace/dms/:id/chat
+### POST /workspaces/:workspace/dms/:id/chats
 - :workspace 내부의 :id와 나눈 dm을 저장
+- body: { content: string(내용) }
+- return: 'ok'
+- dm 소켓 이벤트가 emit됨
+### POST /workspaces/:workspace/dms/:id/images
+- :workspace 내부의 :id에게 보낸 이미지 저장
 - body: { content: string(내용) }
 - return: 'ok'
 - dm 소켓 이벤트가 emit됨
