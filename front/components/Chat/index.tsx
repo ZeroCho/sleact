@@ -37,7 +37,7 @@ const Chat: FC<Props> = memo(({ data }) => {
           input: data.content,
         })
       ),
-    [data.content],
+    [workspace, data.content],
   );
 
   return (

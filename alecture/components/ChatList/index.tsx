@@ -8,7 +8,6 @@ interface Props {
   chatSections: { [key: string]: (IDM | IChat)[] };
   setSize: (f: (size: number) => number) => Promise<(IDM | IChat)[][] | undefined>;
   isReachingEnd: boolean;
-  scrollRef: RefObject<Scrollbars>;
 }
 const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isReachingEnd }, scrollRef) => {
   const onScroll = useCallback(
