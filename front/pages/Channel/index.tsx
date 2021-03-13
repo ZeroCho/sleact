@@ -3,7 +3,7 @@ import ChatList from '@components/ChatList';
 import InviteChannelModal from '@components/InviteChannelModal';
 import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
-import { Header, Container } from '@pages/Channel/styles';
+import { Header, Container, DragOver } from '@pages/Channel/styles';
 import { IChannel, IChat, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
@@ -33,6 +33,7 @@ const Channel = () => {
   const [chat, onChangeChat, setChat] = useInput('');
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const scrollbarRef = useRef<Scrollbars>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const isEmpty = chatData?.[0]?.length === 0;
   const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
@@ -74,48 +75,90 @@ const Channel = () => {
     [chat, workspace, channel, channelData, userData, chatData],
   );
 
-  const onMessage = (data: IChat) => {
-    if (data.Channel.name === channel && data.UserId !== userData?.id) {
-      mutateChat((chatData) => {
-        chatData?.[0].unshift(data);
-        return chatData;
-      }, false).then(() => {
-        if (scrollbarRef.current) {
-          if (
-            scrollbarRef.current.getScrollHeight() <
-            scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
-          ) {
-            console.log('scrollToBottom!', scrollbarRef.current?.getValues());
-            scrollbarRef.current.scrollToBottom();
-          } else {
-            toast.success('새 메시지가 도착했습니다.', {
-              onClick() {
+  const onMessage = useCallback(
+    (data: IChat) => {
+      if (data.Channel.name === channel && (data.content.startsWith('uploads\\') || data.UserId !== userData?.id)) {
+        mutateChat((chatData) => {
+          chatData?.[0].unshift(data);
+          return chatData;
+        }, false).then(() => {
+          if (scrollbarRef.current) {
+            if (
+              scrollbarRef.current.getScrollHeight() <
+              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+            ) {
+              console.log('scrollToBottom!', scrollbarRef.current?.getValues());
+              setTimeout(() => {
                 scrollbarRef.current?.scrollToBottom();
-              },
-              closeOnClick: true,
-            });
+              }, 100);
+            } else {
+              toast.success('새 메시지가 도착했습니다.', {
+                onClick() {
+                  scrollbarRef.current?.scrollToBottom();
+                },
+                closeOnClick: true,
+              });
+            }
           }
-        }
-      });
-    }
-  };
+        });
+      }
+    },
+    [channel, userData, mutateChat],
+  );
 
   useEffect(() => {
     socket?.on('message', onMessage);
     return () => {
       socket?.off('message', onMessage);
     };
-  }, [socket, userData]);
+  }, [socket, onMessage]);
 
   useEffect(() => {
     if (chatData?.length === 1) {
       console.log('toBottomWhenLoaded', chatData, scrollbarRef.current?.getValues());
-      scrollbarRef.current?.scrollToBottom();
+      setTimeout(() => {
+        scrollbarRef.current?.scrollToBottom();
+      }, 100);
     }
   }, [chatData]);
 
   const onClickInviteChannel = useCallback(() => {
     setShowInviteChannelModal(true);
+  }, []);
+
+  const onDrop = useCallback(
+    (e) => {
+      e.preventDefault();
+      console.log(e);
+      const formData = new FormData();
+      if (e.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          // If dropped items aren't files, reject them
+          if (e.dataTransfer.items[i].kind === 'file') {
+            const file = e.dataTransfer.items[i].getAsFile();
+            console.log('... file[' + i + '].name = ' + file.name);
+            formData.append('image', file);
+          }
+        }
+      } else {
+        // Use DataTransfer interface to access the file(s)
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+          console.log('... file[' + i + '].name = ' + e.dataTransfer.files[i].name);
+          formData.append('image', e.dataTransfer.files[i]);
+        }
+      }
+      axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {
+        setDragOver(false);
+      });
+    },
+    [workspace, channel],
+  );
+
+  const onDragOver = useCallback((e) => {
+    e.preventDefault();
+    console.log(e);
+    setDragOver(true);
   }, []);
 
   if (channelsData && !channelData) {
@@ -125,7 +168,7 @@ const Channel = () => {
   const chatSections = makeSection(chatData ? ([] as IChat[]).concat(...chatData).reverse() : []);
 
   return (
-    <Container>
+    <Container onDrop={onDrop} onDragOver={onDragOver}>
       <Header>
         <span>#{channel}</span>
         <div style={{ display: 'flex', flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
@@ -161,6 +204,7 @@ const Channel = () => {
         setShowInviteChannelModal={setShowInviteChannelModal}
       />
       <ToastContainer position="bottom-center" />
+      {dragOver && <DragOver>업로드!</DragOver>}
     </Container>
   );
 };

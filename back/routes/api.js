@@ -355,7 +355,7 @@ router.post(
         const chat = await ChannelChat.create({
           UserId: req.user.id,
           ChannelId: channel.id,
-          content: req.files[i].filename,
+          content: req.files[i].path,
         });
         const chatWithUser = await ChannelChat.findOne({
           where: { id: chat.id },
@@ -522,7 +522,7 @@ router.post(
           SenderId,
           ReceiverId,
           WorkspaceId: workspace.id,
-          content: req.files[i].filename,
+          content: req.files[i].path,
         });
         const dmWithSender = await DM.findOne({
           where: { id: dm.id },
