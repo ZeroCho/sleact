@@ -23,8 +23,8 @@ HTTP 요청 리스트(ajax)
 - return: IChat[]
 ### GET /workspaces/:workspace/channels/:channel/unreads
 - :workspace 내부의 :channel의 안 읽은 채팅 유무를 가져옴
-- query: { after: Date }
-- return: boolean
+- query: { after: Timestamp }
+- return: number
 ### POST /workspaces/:workspace/channels/:channel/chats
 - :workspace 내부의 :channel의 채팅을 저장
 - body: { content: string(내용) }
@@ -41,7 +41,7 @@ HTTP 요청 리스트(ajax)
 - return: IDM[]
 ### GET /workspaces/:workspace/dms/:id/unreads
 - :workspace 내부의 :id가 보낸 안 읽은 채팅 수를 가져옴.
-- query: { after: Date }
+- query: { after: Timestamp }
 - return: number
 ### POST /workspaces/:workspace/dms/:id/chats
 - :workspace 내부의 :id와 나눈 dm을 저장

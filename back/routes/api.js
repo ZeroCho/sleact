@@ -100,6 +100,7 @@ router.get(
                 },
                 attributes: ["UserId"],
               },
+              required: true,
             },
           ],
         })
@@ -250,11 +251,11 @@ router.get(
         where: {
           ChannelId: channel.id,
           createdAt: {
-            [Sequelize.Op.gt]: new Date(req.query.after),
+            [Op.gt]: new Date(+req.query.after),
           },
         },
       });
-      return res.json(count > 0);
+      return res.json(count);
     } catch (error) {
       next(error);
     }
@@ -442,10 +443,10 @@ router.get(
       const count = await DM.count({
         where: {
           WorkspaceId: workspace.id,
-          SenderId: req.user.id,
-          ReceiverId: req.params.id,
+          SenderId: req.params.id,
+          ReceiverId: req.user.id,
           createdAt: {
-            [Sequelize.Op.gt]: new Date(req.query.after),
+            [Op.gt]: new Date(+req.query.after),
           },
         },
       });

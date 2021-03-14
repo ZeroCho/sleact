@@ -25,6 +25,15 @@ const Channel = () => {
   const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
     (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
+    {
+      onSuccess(data) {
+        if (data?.length === 1) {
+          setTimeout(() => {
+            scrollbarRef.current?.scrollToBottom();
+          }, 100);
+        }
+      },
+    },
   );
   const { data: channelMembersData } = useSWR<IUser[]>(
     userData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
@@ -59,6 +68,7 @@ const Channel = () => {
           });
           return prevChatData;
         }, false).then(() => {
+          localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
           setChat('');
           if (scrollbarRef.current) {
             console.log('scrollToBottom!', scrollbarRef.current?.getValues());
@@ -114,13 +124,8 @@ const Channel = () => {
   }, [socket, onMessage]);
 
   useEffect(() => {
-    if (chatData?.length === 1) {
-      console.log('toBottomWhenLoaded', chatData, scrollbarRef.current?.getValues());
-      setTimeout(() => {
-        scrollbarRef.current?.scrollToBottom();
-      }, 100);
-    }
-  }, [chatData]);
+    localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
+  }, [workspace, channel]);
 
   const onClickInviteChannel = useCallback(() => {
     setShowInviteChannelModal(true);
@@ -150,6 +155,7 @@ const Channel = () => {
       }
       axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {
         setDragOver(false);
+        localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
       });
     },
     [workspace, channel],
