@@ -5,6 +5,7 @@ import { ChannelMembers } from '../entities/ChannelMembers';
 import { Channels } from '../entities/Channels';
 import { Users } from '../entities/Users';
 import { Workspaces } from '../entities/Workspaces';
+import { EventsGateway } from '../events/events.gateway';
 import { ChannelsService } from './channels.service';
 import { ChannelsController } from './channels.controller';
 
@@ -18,7 +19,7 @@ import { ChannelsController } from './channels.controller';
       ChannelMembers,
     ]),
   ],
-  providers: [ChannelsService],
+  providers: [ChannelsService, EventsGateway],
   controllers: [ChannelsController],
 })
 export class ChannelsModule {}

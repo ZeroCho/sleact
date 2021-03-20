@@ -26,10 +26,9 @@ export class UsersController {
 
   @ApiCookieAuth('connect.sid')
   @ApiOperation({ summary: '내 정보 가져오기' })
-  @UseGuards(LoggedInGuard)
   @Get()
   async getProfile(@User() user: Users) {
-    return user;
+    return user || false;
   }
 
   @ApiOperation({ summary: '로그인' })

@@ -6,6 +6,7 @@ import { ChannelMembers } from '../entities/ChannelMembers';
 import { Channels } from '../entities/Channels';
 import { Users } from '../entities/Users';
 import { Workspaces } from '../entities/Workspaces';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class ChannelsService {
@@ -20,6 +21,7 @@ export class ChannelsService {
     private channelChatsRepository: Repository<ChannelChats>,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   async findById(id: number) {
@@ -144,6 +146,14 @@ export class ChannelsService {
     chats.content = content;
     chats.UserId = myId;
     chats.ChannelId = channel.id;
-    return this.channelChatsRepository.save(chats);
+    const savedChat = await this.channelChatsRepository.save(chats);
+    const chatWithUser = await this.channelChatsRepository.findOne({
+      where: { id: savedChat.id },
+      relations: ['User', 'Channel'],
+    });
+    this.eventsGateway.server
+      // .of(`/ws-${url}`)
+      .to(`/ws-${url}-${chatWithUser.ChannelId}`)
+      .emit('message', chatWithUser);
   }
 }

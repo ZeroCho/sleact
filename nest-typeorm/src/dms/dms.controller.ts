@@ -55,4 +55,10 @@ export class DMsController {
   ) {
     return this.dmsService.createWorkspaceDMChats(url, content, +id, user.id);
   }
+
+  @ApiOperation({ summary: '안 읽은 개수 가져오기' })
+  @Get(':url/dms/:id/unreads')
+  async getUnreads(@Query('after') after: number) {
+    return 0;
+  }
 }
