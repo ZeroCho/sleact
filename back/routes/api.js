@@ -624,7 +624,7 @@ router.delete(
         return res.status(404).send("존재하지 않는 워크스페이스입니다.");
       }
       await workspace.removeMembers({
-        where: { id: req.params.id },
+        where: { id: parseInt(req.params.id, 10) },
       });
       return res.send("ok");
     } catch (error) {
@@ -744,7 +744,7 @@ router.delete(
         return res.status(404).send("존재하지 않는 채널입니다.");
       }
       await channel.removeMembers({
-        where: { id: req.params.id },
+        where: { id: parseInt(req.params.id, 10) },
       });
       return res.send("ok");
     } catch (error) {
