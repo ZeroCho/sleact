@@ -11,7 +11,7 @@ import axios from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Scrollbars from 'react-custom-scrollbars';
 import { useParams } from 'react-router';
-import useSWR, { useSWRInfinite } from 'swr';
+import useSWR, { useSWRInfinite } from 'react-query';
 
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();

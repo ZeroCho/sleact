@@ -10,12 +10,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ChannelChats } from './Channelchats';
-import { ChannelMembers } from './Channelmembers';
+import { ChannelChats } from './ChannelChats';
+import { ChannelMembers } from './ChannelMembers';
 import { Channels } from './Channels';
-import { DMs } from './Dms';
+import { DMs } from './DMs';
 import { Mentions } from './Mentions';
-import { WorkspaceMembers } from './Workspacemembers';
+import { WorkspaceMembers } from './WorkspaceMembers';
 import { Workspaces } from './Workspaces';
 
 @Index('email', ['email'], { unique: true })
