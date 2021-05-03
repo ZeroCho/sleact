@@ -44,9 +44,11 @@ export class DMsService {
       .innerJoinAndSelect('dms.Sender', 'sender')
       .innerJoinAndSelect('dms.Receiver', 'receiver')
       .innerJoin('dms.Workspace', 'workspace')
-      .where('dms.SenderId = :myId AND dms.ReceiverId = :id', { id, myId })
-      .orWhere('dms.ReceiverId = :myId AND dms.SenderId = :id', { id, myId })
-      .andWhere('workspace.url = :url', { url })
+      .where('workspace.url = :url', { url })
+      .andWhere(
+        '((dms.SenderId = :myId AND dms.ReceiverId = :id) OR (dms.ReceiverId = :myId AND dms.SenderId = :id))',
+        { id, myId },
+      )
       .orderBy('dms.createdAt', 'DESC')
       .take(perPage)
       .skip(perPage * (page - 1))
