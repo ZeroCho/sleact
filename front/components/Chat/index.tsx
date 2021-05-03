@@ -18,7 +18,7 @@ const Chat: FC<Props> = memo(({ data }) => {
 
   const result = useMemo<(string | JSX.Element)[] | JSX.Element>(
     () =>
-      data.content.startsWith('uploads\\') ? (
+      data.content.startsWith('uploads\\') || data.content.startsWith('uploads/') ? (
         <img src={`${BACK_URL}/${data.content}`} style={{ maxHeight: 200 }} />
       ) : (
         regexifyString({

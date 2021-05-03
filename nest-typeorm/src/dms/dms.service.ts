@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { onlineMap } from 'src/events/onlineMap';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { DMs } from '../entities/DMs';
 import { Users } from '../entities/Users';
 import { Workspaces } from '../entities/Workspaces';
@@ -20,6 +20,7 @@ export class DMsService {
     @InjectRepository(Users) private usersRepository: Repository<Users>,
     private readonly eventsGateway: EventsGateway,
   ) {}
+
   async getWorkspaceDMs(url: string, myId: number) {
     return (
       this.usersRepository
@@ -40,11 +41,11 @@ export class DMsService {
   ) {
     return this.dmsRepository
       .createQueryBuilder('dms')
-      .innerJoinAndSelect('dms.sender', 'sender')
-      .innerJoinAndSelect('dms.receiver', 'receiver')
-      .innerJoin('dms.workspace', 'workspace')
-      .where('dms.senderId = :myId', { myId })
-      .andWhere('dms.receiverId = :id', { id })
+      .innerJoinAndSelect('dms.Sender', 'sender')
+      .innerJoinAndSelect('dms.Receiver', 'receiver')
+      .innerJoin('dms.Workspace', 'workspace')
+      .where('dms.SenderId = :myId AND dms.ReceiverId = :id', { id, myId })
+      .orWhere('dms.ReceiverId = :myId AND dms.SenderId = :id', { id, myId })
       .andWhere('workspace.url = :url', { url })
       .orderBy('dms.createdAt', 'DESC')
       .take(perPage)
@@ -76,5 +77,47 @@ export class DMsService {
       Number(id),
     );
     this.eventsGateway.server.to(receiverSocketId).emit('dm', dmWithSender);
+  }
+
+  async createWorkspaceDMImages(
+    url: string,
+    files: Express.Multer.File[],
+    id: number,
+    myId: number,
+  ) {
+    const workspace = await this.workspacesRepository.findOne({
+      where: { url },
+    });
+    for (let i = 0; i < files.length; i++) {
+      const dm = new DMs();
+      dm.SenderId = myId;
+      dm.ReceiverId = id;
+      dm.content = files[i].path;
+      dm.WorkspaceId = workspace.id;
+      const savedDm = await this.dmsRepository.save(dm);
+      const dmWithSender = await this.dmsRepository.findOne({
+        where: { id: savedDm.id },
+        relations: ['Sender'],
+      });
+      const receiverSocketId = getKeyByValue(
+        onlineMap[`/ws-${workspace.url}`],
+        Number(id),
+      );
+      this.eventsGateway.server.to(receiverSocketId).emit('dm', dmWithSender);
+    }
+  }
+
+  async getDMUnreadsCount(url, id, myId, after) {
+    const workspace = await this.workspacesRepository.findOne({
+      where: { url },
+    });
+    return this.dmsRepository.count({
+      where: {
+        WorkspaceId: workspace.id,
+        SenderId: id,
+        ReceiverId: myId,
+        createdAt: MoreThan(new Date(after)),
+      },
+    });
   }
 }
