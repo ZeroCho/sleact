@@ -10,7 +10,7 @@ import makeSection from '@utils/makeSection';
 import axios from 'axios';
 import gravatar from 'gravatar';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Scrollbars } from 'react-custom-scrollbars-2';
 import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import useSWR, { useSWRInfinite } from 'swr';

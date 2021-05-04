@@ -2,7 +2,7 @@ import Chat from '@components/Chat';
 import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
 import { IChat, IDM } from '@typings/db';
 import React, { FC, RefObject, useCallback } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Scrollbars } from 'react-custom-scrollbars-2';
 
 interface Props {
   scrollbarRef: RefObject<Scrollbars>;

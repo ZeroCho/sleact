@@ -9,7 +9,7 @@ import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
 import axios from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Scrollbars } from 'react-custom-scrollbars-2';
 import { useParams } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -140,16 +140,17 @@ const Channel = () => {
         // Use DataTransferItemList interface to access the file(s)
         for (let i = 0; i < e.dataTransfer.items.length; i++) {
           // If dropped items aren't files, reject them
+          console.log(e.dataTransfer.items[i]);
           if (e.dataTransfer.items[i].kind === 'file') {
             const file = e.dataTransfer.items[i].getAsFile();
-            console.log('... file[' + i + '].name = ' + file.name);
+            console.log(e, '.... file[' + i + '].name = ' + file.name);
             formData.append('image', file);
           }
         }
       } else {
         // Use DataTransfer interface to access the file(s)
         for (let i = 0; i < e.dataTransfer.files.length; i++) {
-          console.log('... file[' + i + '].name = ' + e.dataTransfer.files[i].name);
+          console.log(e, '... file[' + i + '].name = ' + e.dataTransfer.files[i].name);
           formData.append('image', e.dataTransfer.files[i]);
         }
       }
