@@ -1,4 +1,12 @@
-import { Controller, Get, UseGuards, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Post,
+  Body,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoggedInGuard } from '../auth/logged-in.guard';
 import { User } from '../decorators/user.decorator';
@@ -46,13 +54,19 @@ export class WorkspacesController {
 
   @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
   @Get(':url/members/:id')
-  async getWorkspaceMember(@Param('url') url: string, @Param('id') id: string) {
-    return this.workspacesService.getWorkspaceMember(url, +id);
+  async getWorkspaceMember(
+    @Param('url') url: string,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, id);
   }
 
   @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
   @Get(':url/users/:id')
-  async getWorkspaceUser(@Param('url') url: string, @Param('id') id: string) {
-    return this.workspacesService.getWorkspaceMember(url, +id);
+  async getWorkspaceUser(
+    @Param('url') url: string,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, id);
   }
 }

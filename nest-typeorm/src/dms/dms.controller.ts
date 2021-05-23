@@ -1,3 +1,4 @@
+import { ParseIntPipe } from '@nestjs/common';
 import {
   Controller,
   Get,
@@ -44,29 +45,23 @@ export class DMsController {
   @Get(':url/dms/:id/chats')
   async getWorkspaceDMChats(
     @Param('url') url,
-    @Param('id') id,
-    @Query('perPage') perPage,
-    @Query('page') page,
+    @Param('id', ParseIntPipe) id: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
     @User() user: Users,
   ) {
-    return this.dmsService.getWorkspaceDMChats(
-      url,
-      +id,
-      user.id,
-      +perPage,
-      +page,
-    );
+    return this.dmsService.getWorkspaceDMChats(url, id, user.id, perPage, page);
   }
 
   @ApiOperation({ summary: '워크스페이스 특정 DM 채팅 생성하기' })
   @Post(':url/dms/:id/chats')
   async createWorkspaceDMChats(
     @Param('url') url,
-    @Param('id') id,
+    @Param('id', ParseIntPipe) id: number,
     @Body('content') content,
     @User() user: Users,
   ) {
-    return this.dmsService.createWorkspaceDMChats(url, content, +id, user.id);
+    return this.dmsService.createWorkspaceDMChats(url, content, id, user.id);
   }
 
   @ApiOperation({ summary: '워크스페이스 특정 DM 이미지 업로드하기' })
@@ -87,21 +82,21 @@ export class DMsController {
   @Post(':url/dms/:id/images')
   async createWorkspaceDMImages(
     @Param('url') url,
-    @Param('id') id,
+    @Param('id', ParseIntPipe) id: number,
     @UploadedFiles() files: Express.Multer.File[],
     @User() user: Users,
   ) {
-    return this.dmsService.createWorkspaceDMImages(url, files, +id, user.id);
+    return this.dmsService.createWorkspaceDMImages(url, files, id, user.id);
   }
 
   @ApiOperation({ summary: '안 읽은 개수 가져오기' })
   @Get(':url/dms/:id/unreads')
   async getUnreads(
     @Param('url') url,
-    @Param('id') id,
-    @Query('after') after: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Query('after', ParseIntPipe) after: number,
     @User() user: Users,
   ) {
-    return this.dmsService.getDMUnreadsCount(url, +id, user.id, +after);
+    return this.dmsService.getDMUnreadsCount(url, id, user.id, after);
   }
 }

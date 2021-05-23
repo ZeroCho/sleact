@@ -8,6 +8,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFiles,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -84,14 +85,14 @@ export class ChannelsController {
   async getWorkspaceChannelChats(
     @Param('url') url,
     @Param('name') name,
-    @Query('perPage') perPage,
-    @Query('page') page,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
     return this.channelsService.getWorkspaceChannelChats(
       url,
       name,
-      +perPage,
-      +page,
+      perPage,
+      page,
     );
   }
 
@@ -146,8 +147,8 @@ export class ChannelsController {
   async getUnreads(
     @Param('url') url,
     @Param('name') name,
-    @Query('after') after: number,
+    @Query('after', ParseIntPipe) after: number,
   ) {
-    return this.channelsService.getChannelUnreadsCount(url, name, +after);
+    return this.channelsService.getChannelUnreadsCount(url, name, after);
   }
 }
