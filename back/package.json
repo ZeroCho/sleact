@@ -2,7 +2,7 @@
   "name": "sleact-ts-back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "dev": "nodemon app",
     "start": "cross-env NODE_ENV=production pm2 start app.js"
