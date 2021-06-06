@@ -20,9 +20,9 @@ export class Mentions {
   id: number;
 
   @Column('enum', { name: 'category', enum: ['chat', 'dm', 'system'] })
-  category: 'chat' | 'dm' | 'system';
+  type: 'chat' | 'dm' | 'system';
 
-  @Column('int', { name: 'chatId', nullable: true })
+  @Column('int', { name: 'ChatId', nullable: true })
   ChatId: number | null;
 
   @CreateDateColumn()
