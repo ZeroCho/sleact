@@ -27,6 +27,9 @@ async function bootstrap() {
   app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
     prefix: '/uploads',
   });
+  app.useStaticAssets(path.join(__dirname, '..', '..', 'public'), {
+    prefix: '/dist',
+  });
   const config = new DocumentBuilder()
     .setTitle('Sleact API')
     .setDescription('Sleact 개발을 위한 API 문서입니다.')

@@ -26,6 +26,7 @@
     "@types/socket.io-client": "^1.4.35",
     "autosize": "^4.0.2",
     "axios": "^0.21.1",
+    "core-js": "^3.14.0",
     "cross-env": "^7.0.3",
     "dayjs": "^1.10.4",
     "gravatar": "^1.8.1",
