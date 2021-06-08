@@ -22,10 +22,14 @@ async function bootstrap() {
         origin: true,
         credentials: true,
     });
-    app.useStaticAssets(path_1.default.join(__dirname, '..', 'uploads'), {
+    app.useStaticAssets(process.env.NODE_ENV === 'production'
+        ? path_1.default.join(__dirname, '..', '..', 'uploads')
+        : path_1.default.join(__dirname, '..', 'uploads'), {
         prefix: '/uploads',
     });
-    app.useStaticAssets(path_1.default.join(__dirname, '..', '..', 'public'), {
+    app.useStaticAssets(process.env.NODE_ENV === 'production'
+        ? path_1.default.join(__dirname, '..', '..', 'public')
+        : path_1.default.join(__dirname, '..', 'public'), {
         prefix: '/dist',
     });
     const config = new swagger_1.DocumentBuilder()
