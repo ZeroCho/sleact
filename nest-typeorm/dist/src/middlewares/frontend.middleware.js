@@ -14,8 +14,8 @@ const common_1 = require("@nestjs/common");
 const path_1 = __importDefault(require("path"));
 let FrontendMiddleware = class FrontendMiddleware {
     use(req, res, next) {
-        const { url } = req;
-        if (url.includes('/api')) {
+        const { baseUrl } = req;
+        if (baseUrl.includes('/api')) {
             next();
         }
         else {

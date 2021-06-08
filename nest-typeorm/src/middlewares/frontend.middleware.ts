@@ -4,8 +4,8 @@ import path from 'path';
 @Injectable()
 export class FrontendMiddleware implements NestMiddleware {
   use(req, res, next) {
-    const { url } = req;
-    if (url.includes('/api')) {
+    const { baseUrl } = req;
+    if (baseUrl.includes('/api')) {
       next();
     } else {
       res.sendFile(
