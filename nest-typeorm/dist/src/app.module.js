@@ -39,9 +39,14 @@ const workspaces_module_1 = require("./workspaces/workspaces.module");
 const channels_module_1 = require("./channels/channels.module");
 const events_module_1 = require("./events/events.module");
 const dms_module_1 = require("./dms/dms.module");
+const frontend_middleware_1 = require("./middlewares/frontend.middleware");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('*');
+        consumer.apply(frontend_middleware_1.FrontendMiddleware).forRoutes({
+            path: '/**',
+            method: common_1.RequestMethod.ALL,
+        });
     }
 };
 AppModule = __decorate([
