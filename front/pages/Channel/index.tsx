@@ -87,7 +87,10 @@ const Channel = () => {
 
   const onMessage = useCallback(
     (data: IChat) => {
-      if (data.Channel.name === channel && (data.content.startsWith('uploads\\') || data.UserId !== userData?.id)) {
+      if (
+        data.Channel.name === channel &&
+        (data.content.startsWith('uploads\\') || data.content.startsWith('uploads/') || data.UserId !== userData?.id)
+      ) {
         mutateChat((chatData) => {
           chatData?.[0].unshift(data);
           return chatData;
