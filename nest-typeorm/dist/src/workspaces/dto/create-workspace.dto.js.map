@@ -1,0 +1,1 @@
+{"version":3,"file":"create-workspace.dto.js","sourceRoot":"","sources":["../../../../src/workspaces/dto/create-workspace.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,6CAA8C;AAE9C,MAAa,kBAAkB;CAY9B;AAPC;IAJC,qBAAW,CAAC;QACX,OAAO,EAAE,MAAM;QACf,WAAW,EAAE,SAAS;KACvB,CAAC;;qDACuB;AAMzB;IAJC,qBAAW,CAAC;QACX,OAAO,EAAE,QAAQ;QACjB,WAAW,EAAE,QAAQ;KACtB,CAAC;;+CACiB;AAXrB,gDAYC"}
