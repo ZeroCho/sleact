@@ -30,9 +30,9 @@ HTTP 요청 리스트(ajax)
 - body: { content: string(내용) }
 - return: 'ok'
 - message 소켓 이벤트가 emit됨
-### POST /workspaces/:workspace/channels/:channel/chats
+### POST /workspaces/:workspace/channels/:channel/images
 - :workspace 내부의 :channel의 이미지를 저장
-- body: { content: string(내용) }
+- body: { image: 이미지(multipart) }
 - return: 'ok'
 - message 소켓 이벤트가 emit됨
 ### GET /workspaces/:workspace/dms/:id/chats
@@ -50,7 +50,7 @@ HTTP 요청 리스트(ajax)
 - dm 소켓 이벤트가 emit됨
 ### POST /workspaces/:workspace/dms/:id/images
 - :workspace 내부의 :id에게 보낸 이미지 저장
-- body: { content: string(내용) }
+- body: { image: 이미지(multipart) }
 - return: 'ok'
 - dm 소켓 이벤트가 emit됨
 ### GET /workspaces/:workspace/members
