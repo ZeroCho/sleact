@@ -46,13 +46,14 @@ export class ChannelsService {
       .getMany();
   }
 
-  async getWorkspaceChannel(url: string, channelId: number) {
-    return this.channelsRepository.findOne({
-      where: {
-        // workspaceId: id,
-        id: channelId,
-      },
-    });
+  async getWorkspaceChannel(url: string, name: string) {
+    return this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.Workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
+      .where('channel.name = :name', { name })
+      .getOne();
   }
 
   async createWorkspaceChannels(url: string, name: string, myId: number) {
