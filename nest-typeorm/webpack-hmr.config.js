@@ -1,12 +1,12 @@
-const webpack = require('webpack');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const nodeExternals = require('webpack-node-externals');
-const StartServerPlugin = require('start-server-webpack-plugin');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { RunScriptWebpackPlugin } = require('run-script-webpack-plugin');
 
-module.exports = function (options) {
+module.exports = function (options, webpack) {
   return {
     ...options,
     entry: ['webpack/hot/poll?100', options.entry],
-    watch: true,
     externals: [
       nodeExternals({
         allowlist: ['webpack/hot/poll?100'],
@@ -15,8 +15,10 @@ module.exports = function (options) {
     plugins: [
       ...options.plugins,
       new webpack.HotModuleReplacementPlugin(),
-      new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
-      new StartServerPlugin({ name: options.output.filename }),
+      new webpack.WatchIgnorePlugin({
+        paths: [/\.js$/, /\.d\.ts$/],
+      }),
+      new RunScriptWebpackPlugin({ name: options.output.filename }),
     ],
   };
 };
