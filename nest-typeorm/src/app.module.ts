@@ -15,7 +15,6 @@ import * as ormconfig from './ormconfig';
 import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
-import { EventsModule } from './events/events.module';
 import { DMsModule } from './dms/dms.module';
 import { FrontendMiddleware } from './middlewares/frontend.middleware';
 
@@ -27,7 +26,6 @@ import { FrontendMiddleware } from './middlewares/frontend.middleware';
     UsersModule,
     WorkspacesModule,
     ChannelsModule,
-    EventsModule,
     DMsModule,
   ],
   controllers: [AppController],
