@@ -3,13 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DMs } from '../entities/DMs';
 import { Users } from '../entities/Users';
 import { Workspaces } from '../entities/Workspaces';
-import { EventsGateway } from '../events/events.gateway';
 import { DMsController } from './dms.controller';
 import { DMsService } from './dms.service';
+import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DMs, Users, Workspaces])],
+  imports: [TypeOrmModule.forFeature([DMs, Users, Workspaces]), EventsModule],
   controllers: [DMsController],
-  providers: [DMsService, EventsGateway],
+  providers: [DMsService],
 })
 export class DMsModule {}
