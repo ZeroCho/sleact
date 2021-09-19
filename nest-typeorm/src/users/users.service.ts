@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
@@ -33,7 +37,7 @@ export class UsersService {
       .getRepository(Users)
       .findOne({ where: { email } });
     if (user) {
-      throw new UnauthorizedException('이미 존재하는 사용자입니다');
+      throw new ForbiddenException('이미 존재하는 사용자입니다');
     }
     const hashedPassword = await bcrypt.hash(password, 12);
     try {
