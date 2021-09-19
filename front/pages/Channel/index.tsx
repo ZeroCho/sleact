@@ -13,7 +13,8 @@ import { Scrollbars } from 'react-custom-scrollbars-2';
 import { useParams } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
-import useSWR, { useSWRInfinite } from 'swr';
+import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
 
 const PAGE_SIZE = 20;
 const Channel = () => {
@@ -22,7 +23,11 @@ const Channel = () => {
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);
   const { data: channelsData } = useSWR<IChannel[]>(`/api/workspaces/${workspace}/channels`, fetcher);
   const channelData = channelsData?.find((v) => v.name === channel);
-  const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
+  const {
+    data: chatData,
+    mutate: mutateChat,
+    setSize,
+  } = useSWRInfinite<IChat[]>(
     (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
     {
@@ -82,7 +87,7 @@ const Channel = () => {
           .catch(console.error);
       }
     },
-    [chat, workspace, channel, channelData, userData, chatData],
+    [chat, workspace, channel, channelData, userData, chatData, mutateChat, setChat],
   );
 
   const onMessage = useCallback(

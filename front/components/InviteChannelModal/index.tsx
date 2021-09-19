@@ -18,7 +18,7 @@ const InviteChannelModal: FC<Props> = ({ show, onCloseModal, setShowInviteChanne
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [newMember, onChangeNewMember, setNewMember] = useInput('');
   const { data: userData } = useSWR<IUser>('/api/users', fetcher);
-  const { revalidate: revalidateMembers } = useSWR<IUser[]>(
+  const { mutate: revalidateMembers } = useSWR<IUser[]>(
     userData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
     fetcher,
   );
@@ -43,7 +43,7 @@ const InviteChannelModal: FC<Props> = ({ show, onCloseModal, setShowInviteChanne
           toast.error(error.response?.data, { position: 'bottom-center' });
         });
     },
-    [newMember],
+    [channel, newMember, revalidateMembers, setNewMember, setShowInviteChannelModal, workspace],
   );
 
   return (

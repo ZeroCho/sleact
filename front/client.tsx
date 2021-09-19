@@ -4,8 +4,8 @@ import React from 'react';
 import { render } from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
-import SWRDevtools from '@jjordy/swr-devtools';
-import { cache, mutate } from 'swr';
+import SWRDevtools, { Cache } from '@jjordy/swr-devtools';
+import { SWRConfig } from 'swr';
 
 import App from './layouts/App';
 
@@ -15,10 +15,10 @@ axios.defaults.baseURL =
 console.log('env', process.env.NODE_ENV === 'production');
 render(
   <BrowserRouter>
-    <>
-      {process.env.NODE_ENV === 'production' ? null : <SWRDevtools cache={cache} mutate={mutate} />}
+    <SWRConfig value={{ provider: () => new Cache() }}>
+      {process.env.NODE_ENV === 'production' ? null : <SWRDevtools />}
       <App />
-    </>
+    </SWRConfig>
   </BrowserRouter>,
   document.querySelector('#app'),
 );

@@ -19,7 +19,7 @@ const CreateChannelModal: FC<Props> = ({ show, onCloseModal, setShowCreateChanne
   const { workspace } = params;
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput('');
   const { data: userData } = useSWR<IUser | false>('/api/users', fetcher);
-  const { revalidate: revalidateChannel } = useSWR<IChannel[]>(
+  const { mutate: revalidateChannel } = useSWR<IChannel[]>(
     userData ? `/api/workspaces/${workspace}/channels` : null,
     fetcher,
   );
@@ -44,7 +44,7 @@ const CreateChannelModal: FC<Props> = ({ show, onCloseModal, setShowCreateChanne
           toast.error(error.response?.data, { position: 'bottom-center' });
         });
     },
-    [newChannel],
+    [newChannel, revalidateChannel, setNewChannel, setShowCreateChannelModal, workspace],
   );
 
   return (

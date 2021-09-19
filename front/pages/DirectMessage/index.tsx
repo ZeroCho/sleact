@@ -13,7 +13,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars-2';
 import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
-import useSWR, { useSWRInfinite } from 'swr';
+import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
 
 const PAGE_SIZE = 20;
 const DirectMessage = () => {
@@ -21,7 +22,11 @@ const DirectMessage = () => {
   const [socket] = useSocket(workspace);
   const { data: myData } = useSWR('/api/users', fetcher);
   const { data: userData } = useSWR(`/api/workspaces/${workspace}/users/${id}`, fetcher);
-  const { data: chatData, mutate: mutateChat, setSize, revalidate } = useSWRInfinite<IDM[]>(
+  const {
+    data: chatData,
+    mutate: mutateChat,
+    setSize,
+  } = useSWRInfinite<IDM[]>(
     (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
     {
@@ -72,7 +77,7 @@ const DirectMessage = () => {
           .catch(console.error);
       }
     },
-    [chat, workspace, id, myData, userData, chatData],
+    [chat, workspace, id, myData, userData, chatData, mutateChat, setChat],
   );
 
   const onMessage = useCallback(
@@ -142,10 +147,10 @@ const DirectMessage = () => {
       axios.post(`/api/workspaces/${workspace}/dms/${id}/images`, formData).then(() => {
         setDragOver(false);
         localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
-        revalidate();
+        mutateChat();
       });
     },
-    [workspace, id],
+    [workspace, id, mutateChat],
   );
 
   const onDragOver = useCallback((e) => {

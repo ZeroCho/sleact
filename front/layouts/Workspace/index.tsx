@@ -42,10 +42,7 @@ const Workspace = () => {
   // console.log('params', params, 'location', location, 'routeMatch', routeMatch, 'history', history);
   const { workspace } = params;
   const [socket, disconnectSocket] = useSocket(workspace);
-  const { data: userData, error: loginError, revalidate: revalidateUser } = useSWR<IUser | false>(
-    '/api/users',
-    fetcher,
-  );
+  const { data: userData, mutate: revalidateUser } = useSWR<IUser | false>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
