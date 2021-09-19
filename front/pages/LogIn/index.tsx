@@ -27,7 +27,7 @@ const LogIn = () => {
           revalidate();
         })
         .catch((error) => {
-          setLogInError(error.response?.data?.statusCode === 401);
+          setLogInError(error.response?.data?.code === 401);
         });
     },
     [email, password],

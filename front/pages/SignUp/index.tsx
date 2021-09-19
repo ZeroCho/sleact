@@ -47,7 +47,8 @@ const SignUp = () => {
             setSignUpSuccess(true);
           })
           .catch((error) => {
-            setSignUpError(error.response?.data?.statusCode === 403);
+            console.log(error.response?.data);
+            setSignUpError(error.response?.data?.code === 403);
           });
       }
     },
