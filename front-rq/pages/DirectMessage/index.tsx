@@ -6,71 +6,98 @@ import { Container, Header, DragOver } from '@pages/DirectMessage/styles';
 import { IDM } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import gravatar from 'gravatar';
-import Scrollbars from 'react-custom-scrollbars';
-import { useQuery, useQueryClient, useInfiniteQuery } from 'react-query';
+import Scrollbars from 'react-custom-scrollbars-2';
+import { useQuery, useQueryClient, useInfiniteQuery, useMutation, InfiniteData } from 'react-query';
 import { useParams } from 'react-router';
 
 const DirectMessage = () => {
   const queryClient = useQueryClient();
-  const { isLoading, isSuccess, status, isError, data, error } = useQuery('/api/users', fetcher);
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
-  const { data: userData } = useQuery(`/api/workspaces/${workspace}/users/${id}`, fetcher);
-  const { data: myData } = useQuery('/api/users', fetcher);
+  const { data: userData } = useQuery(['workspace', workspace, 'users', id], () =>
+    fetcher({ queryKey: `/api/workspaces/${workspace}/users/${id}` }),
+  );
+  const { data: myData } = useQuery('user', () => fetcher({ queryKey: '/api/users' }));
   const [chat, onChangeChat, setChat] = useInput('');
-  const { data: chatData, fetchNextPage, hasNextPage } = useInfiniteQuery<IDM[]>(
-    `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
-    fetcher,
+  const {
+    data: chatData,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery<IDM[]>(
+    ['workspace', workspace, 'dm', id, 'chat'],
+    ({ pageParam }) =>
+      fetcher({ queryKey: `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${pageParam + 1}` }),
+    {
+      getNextPageParam: (lastPage, pages) => {
+        if (lastPage.length === 0) return;
+        return pages.length;
+      },
+    },
   );
   const [socket] = useSocket(workspace);
-  const isEmpty = chatData?.[0]?.length === 0;
-  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
+  const isEmpty = chatData?.pages[0]?.length === 0;
+  const isReachingEnd = isEmpty || (chatData && chatData?.pages[chatData?.pages.length - 1]?.length < 20) || false;
   const scrollbarRef = useRef<Scrollbars>(null);
   const [dragOver, setDragOver] = useState(false);
 
-  const onSubmitForm = useCallback(
-    (e) => {
-      e.preventDefault();
-      console.log(chat);
-      if (chat?.trim() && chatData) {
-        const savedChat = chat;
-        mutateChat((prevChatData) => {
-          prevChatData?.[0].unshift({
-            id: (chatData[0][0]?.id || 0) + 1,
-            content: savedChat,
+  const mutation = useMutation<IDM, AxiosError, { content: string }>(
+    ['workspace', workspace, 'dm', id, 'chat'],
+    () => fetcher({ queryKey: `/api/workspaces/${workspace}/dms/${id}/chats` }),
+    {
+      onMutate(mutateData) {
+        queryClient.setQueryData<InfiniteData<IDM[]>>(['workspace', workspace, 'dm', id, 'chat'], (data) => {
+          const newPages = data?.pages.slice() || [];
+          newPages[0].unshift({
+            id: (data?.pages[0][0]?.id || 0) + 1,
+            content: mutateData.content,
             SenderId: myData.id,
             Sender: myData,
             ReceiverId: userData.id,
             Receiver: userData,
             createdAt: new Date(),
           });
-          return prevChatData;
-        }, false).then(() => {
-          setChat('');
-          scrollbarRef.current?.scrollToBottom();
+          return {
+            pageParams: data?.pageParams || [],
+            pages: newPages,
+          };
         });
-        axios
-          .post(`/api/workspaces/${workspace}/dms/${id}/chats`, {
-            content: chat,
-          })
-          .then(() => {
-            revalidate();
-          })
-          .catch(console.error);
-      }
+        setChat('');
+        scrollbarRef.current?.scrollToBottom();
+      },
+      onError(error) {
+        console.error(error);
+      },
+      onSuccess() {
+        queryClient.refetchQueries(['workspace', workspace, 'dm', id, 'chat']);
+      },
     },
-    [chat, chatData, myData, userData, workspace, id],
   );
 
-  const onMessage = useCallback((data: IDM) => {
-    // id는 상대방 아이디
-    if (data.SenderId === Number(id) && myData.id !== Number(id)) {
-      mutateChat((chatData) => {
-        chatData?.[0].unshift(data);
-        return chatData;
-      }, false).then(() => {
+  const onSubmitForm = useCallback(
+    (e) => {
+      e.preventDefault();
+      console.log(chat);
+      if (chat?.trim() && chatData) {
+        mutation.mutate({ content: chat });
+      }
+    },
+    [chat, chatData, mutation],
+  );
+
+  const onMessage = useCallback(
+    (data: IDM) => {
+      // id는 상대방 아이디
+      if (data.SenderId === Number(id) && myData.id !== Number(id)) {
+        queryClient.setQueryData<InfiniteData<IDM[]>>(['workspace', workspace, 'dm', id, 'chat'], (prev) => {
+          const newPages = prev?.pages.slice() || [];
+          newPages[0].unshift(data);
+          return {
+            pageParams: prev?.pageParams || [],
+            pages: newPages,
+          };
+        });
         if (scrollbarRef.current) {
           if (
             scrollbarRef.current.getScrollHeight() <
@@ -82,9 +109,10 @@ const DirectMessage = () => {
             }, 50);
           }
         }
-      });
-    }
-  }, []);
+      }
+    },
+    [workspace, id, myData.id, queryClient],
+  );
 
   useEffect(() => {
     socket?.on('dm', onMessage);
@@ -95,7 +123,7 @@ const DirectMessage = () => {
 
   // 로딩 시 스크롤바 제일 아래로
   useEffect(() => {
-    if (chatData?.length === 1) {
+    if (chatData?.pages.length === 1) {
       setTimeout(() => {
         scrollbarRef.current?.scrollToBottom();
       }, 100);
@@ -126,10 +154,10 @@ const DirectMessage = () => {
       }
       axios.post(`/api/workspaces/${workspace}/dms/${id}/images`, formData).then(() => {
         setDragOver(false);
-        revalidate();
+        queryClient.refetchQueries(['workspace', workspace, 'dm', id, 'chat']);
       });
     },
-    [revalidate, workspace, id],
+    [queryClient, workspace, id],
   );
 
   const onDragOver = useCallback((e) => {
@@ -142,7 +170,7 @@ const DirectMessage = () => {
     return null;
   }
 
-  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
+  const chatSections = makeSection(chatData ? chatData.pages.flat().reverse() : []);
 
   return (
     <Container onDrop={onDrop} onDragOver={onDragOver}>
@@ -150,7 +178,12 @@ const DirectMessage = () => {
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname}</span>
       </Header>
-      <ChatList chatSections={chatSections} ref={scrollbarRef} setSize={setSize} isReachingEnd={isReachingEnd} />
+      <ChatList
+        chatSections={chatSections}
+        ref={scrollbarRef}
+        fetchNext={fetchNextPage}
+        isReachingEnd={isReachingEnd}
+      />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
       {dragOver && <DragOver>업로드!</DragOver>}
     </Container>

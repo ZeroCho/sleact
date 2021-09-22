@@ -4,8 +4,8 @@ import fetcher from '@utils/fetcher';
 import React, { useCallback, useEffect, useRef, VFC } from 'react';
 import autosize from 'autosize';
 import { Mention, SuggestionDataItem } from 'react-mentions';
+import { useQuery } from 'react-query';
 import { useParams } from 'react-router';
-import useSWR from 'swr';
 import gravatar from 'gravatar';
 
 interface Props {
@@ -16,10 +16,14 @@ interface Props {
 }
 const ChatBox: VFC<Props> = ({ chat, onSubmitForm, onChangeChat, placeholder }) => {
   const { workspace } = useParams<{ workspace: string }>();
-  const { data: userData, error, revalidate, mutate } = useSWR<IUser | false>('/api/users', fetcher, {
-    dedupingInterval: 2000, // 2초
-  });
-  const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
+  const { data: userData } = useQuery<IUser | false>('user', () => fetcher({ queryKey: '/api/users' }), {});
+  const { data: memberData } = useQuery<IUser[]>(
+    ['workspace', workspace, 'member'],
+    () => fetcher({ queryKey: `/api/workspaces/${workspace}/members` }),
+    {
+      enabled: !!userData,
+    },
+  );
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {

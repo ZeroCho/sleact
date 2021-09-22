@@ -4,96 +4,131 @@ import InviteChannelModal from '@components/InviteChannelModal';
 import useInput from '@hooks/useInput';
 import useSocket from '@hooks/useSocket';
 import { Container, Header, DragOver } from '@pages/Channel/styles';
-import { IChannel, IChat, IUser } from '@typings/db';
+import { IChannel, IChat, IDM, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import makeSection from '@utils/makeSection';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Scrollbars from 'react-custom-scrollbars';
+import Scrollbars from 'react-custom-scrollbars-2';
 import { useParams } from 'react-router';
-import useSWR, { useSWRInfinite } from 'react-query';
+import { useQuery, useInfiniteQuery, InfiniteData, useQueryClient, useMutation } from 'react-query';
 
 const Channel = () => {
+  const queryClient = useQueryClient();
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
-  const { data: myData } = useSWR('/api/users', fetcher);
+  const { data: myData } = useQuery('user', () => fetcher({ queryKey: '/api/users' }));
   const [chat, onChangeChat, setChat] = useInput('');
-  const { data: channelData } = useSWR<IChannel>(`/api/workspaces/${workspace}/channels/${channel}`, fetcher);
-  const { data: chatData, mutate: mutateChat, revalidate, setSize } = useSWRInfinite<IChat[]>(
-    (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=20&page=${index + 1}`,
-    fetcher,
+  const { data: channelData } = useQuery<IChannel>(['workspace', workspace, 'channel', channel, 'chat'], () =>
+    fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}` }),
   );
-  const { data: channelMembersData } = useSWR<IUser[]>(
-    myData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
-    fetcher,
+  const {
+    data: chatData,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery<IChat[]>(
+    ['workspace', workspace, 'channel', channel, 'chat'],
+    ({ pageParam }) =>
+      fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=20&page=${pageParam + 1}` }),
+    {
+      getNextPageParam: (lastPage, pages) => {
+        if (lastPage.length === 0) return;
+        return pages.length;
+      },
+    },
+  );
+  const { data: channelMembersData } = useQuery<IUser[]>(
+    ['workspace', workspace, 'channel', channel, 'member'],
+    () => fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}/members` }),
+    {
+      enabled: !!myData,
+    },
   );
   const [socket] = useSocket(workspace);
-  const isEmpty = chatData?.[0]?.length === 0;
-  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
+  const isEmpty = chatData?.pages[0]?.length === 0;
+  const isReachingEnd = isEmpty || (chatData && chatData.pages[chatData.pages.length - 1]?.length < 20) || false;
   const scrollbarRef = useRef<Scrollbars>(null);
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
+  const mutation = useMutation<IDM, AxiosError, { content: string }>(
+    ['workspace', workspace, 'channel', channel, 'chat'],
+    () => fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}/chats` }),
+    {
+      onMutate(mutateData) {
+        if (!channelData) return;
+        queryClient.setQueryData<InfiniteData<IChat[]>>(
+          ['workspace', workspace, 'channel', channel, 'chat'],
+          (data) => {
+            const newPages = data?.pages.slice() || [];
+            newPages[0].unshift({
+              id: (data?.pages[0][0]?.id || 0) + 1,
+              content: mutateData.content,
+              UserId: myData.id,
+              User: myData,
+              ChannelId: channelData.id,
+              Channel: channelData,
+              createdAt: new Date(),
+            });
+            return {
+              pageParams: data?.pageParams || [],
+              pages: newPages,
+            };
+          },
+        );
+        setChat('');
+        scrollbarRef.current?.scrollToBottom();
+      },
+      onError(error) {
+        console.error(error);
+      },
+      onSuccess() {
+        queryClient.refetchQueries(['workspace', workspace, 'channel', channel, 'chat']);
+      },
+    },
+  );
   // 0초 A: 안녕~(optimistic UI)
   // 1초 B: 안녕~
   // 2초 A: 안녕~(실제 서버)
-
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault();
       console.log(chat);
       if (chat?.trim() && chatData && channelData) {
-        const savedChat = chat;
-        mutateChat((prevChatData) => {
-          prevChatData?.[0].unshift({
-            id: (chatData[0][0]?.id || 0) + 1,
-            content: savedChat,
-            UserId: myData.id,
-            User: myData,
-            ChannelId: channelData.id,
-            Channel: channelData,
-            createdAt: new Date(),
-          });
-          return prevChatData;
-        }, false).then(() => {
-          setChat('');
-          scrollbarRef.current?.scrollToBottom();
-        });
-        axios
-          .post(`/api/workspaces/${workspace}/channels/${channel}/chats`, {
-            content: chat,
-          })
-          .then(() => {
-            revalidate();
-          })
-          .catch(console.error);
+        mutation.mutate({ content: chat });
       }
     },
-    [chat, chatData, myData, channelData, workspace, channel],
+    [chat, chatData, channelData, mutation],
   );
 
   const onMessage = useCallback(
     (data: IChat) => {
       // id는 상대방 아이디
       if (data.Channel.name === channel && (data.content.startsWith('uploads\\') || data.UserId !== myData?.id)) {
-        mutateChat((chatData) => {
-          chatData?.[0].unshift(data);
-          return chatData;
-        }, false).then(() => {
-          if (scrollbarRef.current) {
-            if (
-              scrollbarRef.current.getScrollHeight() <
-              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
-            ) {
-              console.log('scrollToBottom!', scrollbarRef.current?.getValues());
-              setTimeout(() => {
-                scrollbarRef.current?.scrollToBottom();
-              }, 50);
-            }
+        queryClient.setQueryData<InfiniteData<IChat[]>>(
+          ['workspace', workspace, 'channel', channel, 'chat'],
+          (prev) => {
+            const newPages = prev?.pages.slice() || [];
+            newPages[0].unshift(data);
+            return {
+              pageParams: prev?.pageParams || [],
+              pages: newPages,
+            };
+          },
+        );
+        if (scrollbarRef.current) {
+          if (
+            scrollbarRef.current.getScrollHeight() <
+            scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+          ) {
+            console.log('scrollToBottom!', scrollbarRef.current?.getValues());
+            setTimeout(() => {
+              scrollbarRef.current?.scrollToBottom();
+            }, 50);
           }
-        });
+        }
       }
     },
-    [channel, myData],
+    [channel, myData, queryClient, workspace],
   );
 
   useEffect(() => {
@@ -105,7 +140,7 @@ const Channel = () => {
 
   // 로딩 시 스크롤바 제일 아래로
   useEffect(() => {
-    if (chatData?.length === 1) {
+    if (chatData?.pages.length === 1) {
       console.log('toBottomWhenLoaded', scrollbarRef.current);
       setTimeout(() => {
         console.log('scrollbar', scrollbarRef.current);
@@ -122,18 +157,21 @@ const Channel = () => {
     setShowInviteChannelModal(false);
   }, []);
 
-  const onChangeFile = useCallback((e) => {
-    const formData = new FormData();
-    if (e.target.files) {
-      // Use DataTransferItemList interface to access the file(s)
-      for (let i = 0; i < e.target.files.length; i++) {
-        const file = e.target.files[i].getAsFile();
-        console.log('... file[' + i + '].name = ' + file.name);
-        formData.append('image', file);
+  const onChangeFile = useCallback(
+    (e) => {
+      const formData = new FormData();
+      if (e.target.files) {
+        // Use DataTransferItemList interface to access the file(s)
+        for (let i = 0; i < e.target.files.length; i++) {
+          const file = e.target.files[i].getAsFile();
+          console.log('... file[' + i + '].name = ' + file.name);
+          formData.append('image', file);
+        }
       }
-    }
-    axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {});
-  }, []);
+      axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {});
+    },
+    [channel, workspace],
+  );
 
   const onDrop = useCallback(
     (e) => {
@@ -174,7 +212,7 @@ const Channel = () => {
     return null;
   }
 
-  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
+  const chatSections = makeSection(chatData ? chatData.pages.flat().reverse() : []);
 
   return (
     <Container onDrop={onDrop} onDragOver={onDragOver}>
@@ -193,7 +231,12 @@ const Channel = () => {
           </button>
         </div>
       </Header>
-      <ChatList chatSections={chatSections} ref={scrollbarRef} setSize={setSize} isReachingEnd={isReachingEnd} />
+      <ChatList
+        chatSections={chatSections}
+        ref={scrollbarRef}
+        fetchNext={fetchNextPage}
+        isReachingEnd={isReachingEnd}
+      />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} />
       <InviteChannelModal
         show={showInviteChannelModal}

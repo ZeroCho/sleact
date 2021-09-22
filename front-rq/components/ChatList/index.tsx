@@ -1,20 +1,21 @@
 import Chat from '@components/Chat';
 import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
 import { IDM, IChat } from '@typings/db';
-import React, { useCallback, forwardRef, RefObject, MutableRefObject } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
+import React, { useCallback, forwardRef, MutableRefObject } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars-2';
+import { InfiniteQueryObserverResult } from 'react-query';
 
 interface Props {
   chatSections: { [key: string]: (IDM | IChat)[] };
-  setSize: (f: (size: number) => number) => Promise<(IDM | IChat)[][] | undefined>;
+  fetchNext: () => Promise<InfiniteQueryObserverResult>;
   isReachingEnd: boolean;
 }
-const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isReachingEnd }, scrollRef) => {
+const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, fetchNext, isReachingEnd }, scrollRef) => {
   const onScroll = useCallback(
     (values) => {
       if (values.scrollTop === 0 && !isReachingEnd) {
         console.log('가장 위');
-        setSize((prevSize) => prevSize + 1).then(() => {
+        fetchNext().then(() => {
           // 스크롤 위치 유지
           const current = (scrollRef as MutableRefObject<Scrollbars>)?.current;
           if (current) {
@@ -23,7 +24,7 @@ const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isReach
         });
       }
     },
-    [scrollRef, isReachingEnd, setSize],
+    [scrollRef, isReachingEnd, fetchNext],
   );
 
   return (

@@ -1,14 +1,16 @@
 import useInput from '@hooks/useInput';
+import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import React, { useCallback, useState, VFC } from 'react';
-import axios from 'axios';
-import { useQuery, useQueryClient } from 'react-query';
+import React, { useCallback, useState } from 'react';
+import axios, { AxiosError } from 'axios';
+import { useMutation, useQuery } from 'react-query';
 import { Success, Form, Error, Label, Input, LinkContainer, Button, Header } from './styles';
 import { Link, Redirect } from 'react-router-dom';
 
 const SignUp = () => {
-  const queryClient = useQueryClient();
-  const { isLoading, isSuccess, status, isError, data, error } = useQuery('/api/users', fetcher);
+  const { isLoading, isSuccess, status, isError, data, error } = useQuery('user', () =>
+    fetcher({ queryKey: '/api/users' }),
+  );
 
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -23,7 +25,7 @@ const SignUp = () => {
       setPassword(e.target.value);
       setMismatchError(e.target.value !== passwordCheck);
     },
-    [passwordCheck],
+    [passwordCheck, setPassword],
   );
 
   const onChangePasswordCheck = useCallback(
@@ -31,7 +33,24 @@ const SignUp = () => {
       setPasswordCheck(e.target.value);
       setMismatchError(e.target.value !== password);
     },
-    [password],
+    [password, setPasswordCheck],
+  );
+
+  const mutation = useMutation<IUser, AxiosError, { email: string; password: string; nickname: string }>(
+    'user',
+    (data) => axios.post('/api/users', data).then((response) => response.data),
+    {
+      onMutate() {
+        setSignUpError('');
+        setSignUpSuccess(false);
+      },
+      onSuccess() {
+        setSignUpSuccess(true);
+      },
+      onError(error) {
+        setSignUpError(error.response?.data);
+      },
+    },
   );
 
   const onSubmit = useCallback(
@@ -39,26 +58,10 @@ const SignUp = () => {
       e.preventDefault();
       if (!mismatchError && nickname) {
         console.log('서버로 회원가입하기');
-        setSignUpError('');
-        setSignUpSuccess(false);
-        axios
-          .post('/api/users', {
-            email,
-            nickname,
-            password,
-          })
-          .then((response) => {
-            console.log(response);
-            setSignUpSuccess(true);
-          })
-          .catch((error) => {
-            console.log(error.response);
-            setSignUpError(error.response.data);
-          })
-          .finally(() => {});
+        mutation.mutate({ email, nickname, password });
       }
     },
-    [email, nickname, password, passwordCheck, mismatchError],
+    [email, nickname, password, mismatchError, mutation],
   );
 
   if (isLoading) {

@@ -1,15 +1,38 @@
 import useInput from '@hooks/useInput';
 import { Success, Form, Error, Label, Input, LinkContainer, Button, Header } from '@pages/SignUp/styles';
+import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useCallback, useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
-import { useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 const LogIn = () => {
   const queryClient = useQueryClient();
-  const { isLoading, isSuccess, status, isError, data, error } = useQuery('/api/users', fetcher);
+  const { isLoading, isSuccess, status, isError, data, error } = useQuery('user', () =>
+    fetcher({ queryKey: '/api/users' }),
+  );
   // const { data, error, revalidate, mutate } = useSWR('/api/users', fetcher);
+  const mutation = useMutation<IUser, AxiosError, { email: string; password: string }>(
+    'user',
+    (data) =>
+      axios
+        .post('/api/users/login', data, {
+          withCredentials: true,
+        })
+        .then((response) => response.data),
+    {
+      onMutate() {
+        setLogInError(false);
+      },
+      onSuccess() {
+        queryClient.refetchQueries('user');
+      },
+      onError(error) {
+        setLogInError(error.response?.data?.code === 401);
+      },
+    },
+  );
 
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
@@ -17,23 +40,9 @@ const LogIn = () => {
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();
-      setLogInError(false);
-      axios
-        .post(
-          '/api/users/login',
-          { email, password },
-          {
-            withCredentials: true,
-          },
-        )
-        .then((response) => {
-          return queryClient.refetchQueries('/api/users');
-        })
-        .catch((error) => {
-          setLogInError(error.response?.data?.statusCode === 401);
-        });
+      mutation.mutate({ email, password });
     },
-    [email, password],
+    [email, password, mutation],
   );
 
   if (isLoading) {
