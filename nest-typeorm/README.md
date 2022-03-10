@@ -205,3 +205,23 @@ src/common/interceptors/undefinedtoNull.interceptor.ts
 - 적용은 @UseInterceptor(인터셉터)
 
 # 섹션2 (ch2 폴더)
+
+**집중**
+
+강좌에 나오는 typeorm-model-generator를 쓰시지 마시고
+nest-typeorm 폴더의 src/entities를 그냥 복사해서 src 폴더에 붙여넣으세요.
+
+- ORM은 실제 DB 테이블을 자바스크립트 객체와 연결해주는 역할
+- @Entity: 해당 클래스가 Entity 역할을 함을 나타냄(Entity는 엄밀히는 테이블과 다르지만 여기서는 테이블과 1대1 대응이라고 생각해도 됨)
+- @Index: 테이블에 적용된 index 목록들(성능 향상 목적)
+- @PrimaryGeneratedColumn: 프라이머리키
+- @Column: 컬럼의 타입과 설정(대문자 컬럼명을 자바스크립트 속성으로 매핑)
+
+## 관계
+- 테이블간에는 관계가 있음(워크스페이스에 소속된 채널, 워크스페이스에 소속된 사람)
+- 말로 표현해보면 어떤 관계인지 알 수 있음
+- @ManyToMany: 워크스페이스 하나에 여러 사람 소속 가능. 한 사람이 여러 워크스페이스에 소속 가능. 따라서 다대다
+- 다대다는 1대다 테이블 두개로 나눌 수 있음. 대신 중간 테이블이 생김(Workspace와 User는 다대다이지만 Workspace-WorkspaceMember, WorkspaceMember-User로 분해 가능)
+- @OneToMany: 일대다. 워크스페이스 하나에 여러 멤버가 소속 가능. 따라서 워크스페이스와 멤버는 일대다(사람과 워크스페이스멤버를 구분할 것)
+- @ManyToOne: 다대일(일대다의 반대). 워크스페이스멤버와 워크스페이스는 다대일
+- @OneToOne: 1대1 관계(강좌에는 없지만 사람과 개인정보의 관계 등)
