@@ -1,3 +1,7 @@
+강의교안 기여(Pull Request) 환영합니다.
+
+백엔드 강좌 강의교안은 [여기](https://github.com/ZeroCho/sleact/blob/master/nest-typeorm/README.md) 에 있습니다. 
+
 # 라이브강좌 핵심 내용 정리해서 여기(README.md)에 올려두었습니다~ 다시보기하면서 같이 읽고 복습하시면 됩니다!
 
 # 백그라운드 세팅
@@ -14,6 +18,10 @@
 10. 백엔드 개발자가 API.md와 typings/db.ts를 남겨둔 상황
 
 # 강좌 순서
+
+강좌에서 언급한대로 직접 세팅하기보다는 그냥 **settings/ts** 폴더 클론받아서 하시는 것을 추천드립니다.
+직접 세팅하기에는 버전이 자꾸 달라져서 세팅법이 바뀌고, 입문자분들한테는 버겁습니다.
+
 ## 1일차
 1. package.json
   - npm init으로 생성

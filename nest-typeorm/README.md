@@ -1,73 +1,116 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+각 섹션별로 ch0, ch1, ... 폴더에 결과물이 있습니다.  다만 여러분들은 처음 만든 a-nest라는 폴더 안에서 계속 진행하시면 됩니다.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+**Node.js 교과서** 책이나 강좌를 듣고 오시는 게 Express 코드 이해에 좋습니다.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# 섹션0 (ch0)
+1. 먼저 [node](https://nodejs.org) 16버전 이상 다운로드
+2. [mysql community](https://dev.mysql.com/downloads) 다운로드
+3. mysql 설치할 때 legacy authentication 클릭하기!!!
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
+```shell
+# 다음 명령어에 버전이 나와야 node가 성공적으로 설치된 것
+npm -v
+```
+```shell
+npm i -g @nestjs/cli
+nest new aNest
 ```
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```shell
+cd a-nest
+# 서버 실행
+npm run start
 ```
 
-## Test
+- src/main.ts: nest앱을 http 포트와 연결하는 부분
 
-```bash
-# unit tests
-$ npm run test
+## hot reloading
+[문서](https://docs.nestjs.com/recipes/hot-reload)
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```shell
+npm i --save-dev webpack-node-externals run-script-webpack-plugin webpack
 ```
 
-## Support
+webpack-hmr.config.js 추가
+```
+# 강좌 참조
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+package.json
+```
+"start:dev": "nest build --webpack --webpackPath webpack-hmr.config.js --watch"
+```
 
-## Stay in touch
+- nest@8 사용 시 핫 리로딩 버그 없음
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+src/main.ts
+```
 
-## License
+```
 
-Nest is [MIT licensed](LICENSE).
+```shell
+npm run start:dev
+```
+
+## 컨트롤러와 서비스
+- @Controller와 @Get(또는 @Post @Put @Delete 등) 의 주소가 합쳐짐
+- Controller 만든 것은 Module의 controllers 배열에 추가해야함
+- Service는 req와 res에 대해 몰라야함. 만들고자 하는 서비스에 대한 로직만 있어야 함.
+- 나중에 테스트 시 가짜 req, res를 컨트롤러에 넣을 수 있음
+
+## dotenv
+src/app.module.ts
+```
+import { ConfigModule } from '@nestjs/config';
+...
+  imports: [ConfigModule.forRoot()],
+  controllers: [AppController],
+  providers: [AppService, ConfigService],
+```
+src/app.service.ts
+```typescript
+import {ConfigService} from "@nestjs/config";
+
+export class AppService {
+    constructor(private configService: ConfigService) {}
+    getHello(): string {
+        return this.configService.get('NAME'); // 제로초바보
+    }
+}
+```
+### 심화과정
+- ConfigModule.forRoot에 isGlobal: true를 하면 전역 설정이 됨(추후 ConfigModule 넣을 필요 없음)
+- load에 함수를 넣으면 return 값이 설정이 됨(비동기도 지원해서 보통 여기서 외부 env들을 가져와서 return함);
+
+## morgan
+src/middlewares/logger.middlewares.ts
+```
+# 강좌 참조
+```
+- use 부분은 요청 시에
+- response.on('finish') 부분은 응답 후에 찍힘
+- next 꼭 넣기
+
+src/app.module.ts
+```
+import { MiddlewareConsumer, Module } from '@nestjs/common';
+...
+import { LoggerMiddleware } from './middlewares/logger.middleware';
+...
+export class AppModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
+
+```
+
+## DI
+- @Injectable과 provider 기억하기
+- @Module의 provider에 들어있는 것이 constructor에 주입됨. 마법이 아님!
+- 나중에 provider만 바꾸면 주입되는 것을 자유자재로 바꿀 수 있음(테스트 시 유용)
+- providers의 원형 기억하기(provide와 useClass, useValue, useFactory 등)
+- class는 클래스 이름 자체가 token이고, 클래스가 아닌 경우에는 @Inject(토큰)로 provide의 값과 일치해야 함
+
+#섹션1 (ch1)
+
