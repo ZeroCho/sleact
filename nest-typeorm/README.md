@@ -1,4 +1,5 @@
 각 섹션별로 ch0, ch1, ... 폴더에 결과물이 있습니다.  다만 여러분들은 처음 만든 a-nest라는 폴더 안에서 계속 진행하시면 됩니다.
+3월 13일까지 강의교안, 소스코드 폴더 전부 업로드하겠습니다.
 
 **Node.js 교과서** 책이나 강좌를 듣고 오시는 게 Express 코드 이해에 좋습니다.
 
@@ -45,7 +46,7 @@ package.json
 
 src/main.ts
 ```
-
+# 강좌 참조
 ```
 
 ```shell
@@ -112,7 +113,7 @@ export class AppModule {
 - providers의 원형 기억하기(provide와 useClass, useValue, useFactory 등)
 - class는 클래스 이름 자체가 token이고, 클래스가 아닌 경우에는 @Inject(토큰)로 provide의 값과 일치해야 함
 
-#섹션1 (ch1 폴더)
+# 섹션1 (ch1 폴더)
 
 a-nest 폴더 안에서 명령어 입력(모듈 만드는 명령)
 - src/app.module.ts와 연결되었는지 확인할 것
@@ -203,4 +204,4 @@ src/common/interceptors/undefinedtoNull.interceptor.ts
 - 에러는 expectionFilter에서 처리할 것
 - 적용은 @UseInterceptor(인터셉터)
 
-#섹션2 (ch2 폴더)
+# 섹션2 (ch2 폴더)
