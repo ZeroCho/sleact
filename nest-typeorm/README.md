@@ -168,7 +168,7 @@ src/main.ts
 ```
 
 ```shell
-npm i @nestjs/swagger
+npm i @nestjs/swagger swagger-ui-express
 ```
 
 src/users/dto/join.request.dto, src/users/users.controller.ts, src/dms/dms.controller.ts
@@ -402,12 +402,15 @@ src/http-exception.filter.ts 작성
 ```
 - src/main.ts에서 app.useGlobalFilters(new HttpExceptionFilter());로 등록
 - service 앞에 await 붙여야 controller로 에러가 전파됨
+- LifeCycle 기억하기
 
 ## dto 밸리데이션
 ```shell
-npm i class-validator
+npm i class-validator class-transformer
 ```
 - src/main.ts에 app.useGlobalPipes(new ValidationPipe()); 등록
+  - class-transformer도 설치 필요
+
 src/users/dto/join.request.dto.ts에 밸리데이션 추가
 ```typescript
 ```
@@ -416,5 +419,164 @@ src/http-exception.filter.ts에서 에러 메시지 커스터마이징 가능
 ```
 # 강좌 참조
 ```
+
+# 섹션3 (ch3)
+
+## 로그인
+- @UseGuards: 컨트롤러에 접근할 수 있는지 권한 체크
+
+src/auth/local-auth.guard.ts 작성
+```typescript
+# 강좌 참조
+```
+필요 패키지 설치
+```shell
+npm i @nestjs/passport passport passport-local
+npm i -D @types/passport-local
+```
+src/auth/local.strategy.ts, src/auth/local.serializer.ts, src/auth/auth.service.ts
+```shell
+# 강좌 참조
+```
+### 로그인 과정
+
+- local-auth.guard 실행 시 local.strategy가 실행됨.
+- local.strategy에서는 auth.service의 validateUser 호출
+- auth.service의 validateUser(사용자가 존재하는지, 로그인 비밀번호가 일치하는 지)
+  - Users 엔티티에서 password 컬럼 옵션이 select: false라서 기본적으로 password 안 가져옴
+  - findOne의 select 옵션에 id, password 빼먹지 말기
+- local.strategy에서 만약 validateUser가 실패하면 UnauthorizedException(401)
+- local.strategy에서 최종적으로 done(에러, 로그인성공시사용자객체);
+- done에서 에러가 없고 로그인성공시사용자객체가 제공되면 local.serializer의 serializeUser가 호출됨
+- serializeUser에서의 done(에러, 세션에저장할값); 보통 세션에 저장할 값으로 사용자 아이디를 넣음
+  - 세션에 유저 객체를 통째로 저장하면 메모리가 너무 무거워지기 때문
+- 여기까지 되면 로그인 성공한 것
+- deserializeUser는 로그인 성공 후 컨트롤러에 접근하기 전에 매번 호출됨 
+  - 세션에저장한값으로부터 사용자 객체를 찾아서 req.user를 만듦(@User() 사용 가능해짐)
+  - done(에러, req.user가될값);
+
+src/auth/auth.module.ts
+```typescript
+# 강좌 참조
+```
+- AuthService, LocalStrategy, LocalSerializer를 모두 묶어줌
+- PassportModule.register로 passport모듈 등록
+  - 세션 사용시 옵션으로 session: true
+  - 토큰 기반으로 하면 session: false 하면 됨
+
+```shell
+npm i cookie-parser express-session
+```
+- 세션 기반 로그인을 할 때 쿠키파서와 익스프레스세션이 추가적으로 필요함
+
+src/main.ts
+```typescript
+  app.use(cookieParser());
+  app.use(
+    session({
+      resave: false,
+      saveUninitialized: false,
+      secret: process.env.COOKIE_SECRET,
+      cookie: {
+        httpOnly: true,
+      },
+    }),
+  );
+  app.use(passport.initialize());
+  app.use(passport.session());
+```
+- src/main.ts에 익스프레스 미들웨어들 장착 필요
+- src/app.module.ts에 AuthModule 장착
+```typescript
+import { AuthModule } from './auth/auth.module';
+...
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule, // 여기
+    UsersModule,
+```
+**서버 실행해서 로그인 되는 것 확인하기**
+
+### 커스텀 가드 만들기
+src/auth/logged-in.guard.ts, src/auth/not-logged-in.guard.ts
+```typescript
+# 강좌 참조
+```
+- canActivate에서 true/false 여부에 따라 다음 컨트롤러 접근 권한 부여
+- 컨트롤러: 회원가입(NotLoggedInGuard), 로그아웃(LoggedInGuard) 붙이기
+
+## typeorm 쿼리
+### findOne할 때 join해서 불러오기
+
+- src/auth/local.serializer.ts에서 deserializeUser 보면 relations: ['Workspaces'] 가 있음
+  - typeorm에서 조인하는 방법 중 하나임(Users 엔티티의 Workspaces @JoinTable대로 join됨)
+  - 다른 방법으로 [join](https://github.com/typeorm/typeorm/blob/master/docs/find-options.md#basic-options) 이 있음
+    - 개인적으로는 queryBuilder 선호
+
+### 회원가입 수정
+src/users/users.service.ts
+```typescript
+...
+import { WorkspaceMembers } from '../entities/WorkspaceMembers';
+import { ChannelMembers } from '../entities/ChannelMembers';
+...
+@Injectable()
+export class UsersService {
+  constructor(
+...
+    @InjectRepository(WorkspaceMembers)
+    private workspaceMembersRepository: Repository<WorkspaceMembers>,
+    @InjectRepository(ChannelMembers)
+    private channelMembersRepository: Repository<ChannelMembers>,
+...
+  const returned = await this.usersRepository.save({
+    email,
+    nickname,
+    password: hashedPassword,
+  });
+  await this.workspaceMembersRepository.save({
+    UserId: returned.id,
+    WorkspaceId: 1,
+  });
+  await this.channelMembersRepository.save({
+    UserId: returned.id,
+    ChannelId: 1,
+  });
+  return true;
+```
+- const workspaceMember = new WorkspaceMembers() 해서 save(workspaceMember)하는 방법도 있음 
+- const workspaceMember = this.workspaceMembersRepository.create(); 동일
+
+src/users/users.module.ts
+```typescript
+import { WorkspaceMembers } from '../entities/WorkspaceMembers';
+import { ChannelMembers } from '../entities/ChannelMembers';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([Users, WorkspaceMembers, ChannelMembers]),
+  ],
+```
+
+## 트랜잭션
+- 강좌에서는 createQueryRunner 방식을 사용함
+- getConnection 대신 의존성 주입을 사용(connection: Connection)
+- Repository도 QueryRunner와 연결된 것으로 바꿔야 함
+  - queryRunner.manager.getRepository(Users)
+```typescript
+const queryRunner = this.connection.createQueryRunner();
+await queryRunner.connect();
+await queryRunner.startTransaction();
+try {
+  // DB작업
+  await queryRunner.commitTransaction();  
+} catch (err) {
+  // 실패 처리
+  await queryRunner.rollbackTransaction();
+} finally {
+  await queryRunner.release();
+}
+```
+- 데코레이트 방식을 쓰고 싶다면 [이 라이브러리](https://github.com/odavid/typeorm-transactional-cls-hooked) 사용하면 됨
 
 # 섹션3, 섹션4 (nest-typeorm 폴더)
