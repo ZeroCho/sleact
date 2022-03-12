@@ -8,6 +8,9 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 import { UsersService } from './users/users.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import ormConfig from '../ormconfig';
+import { Users } from './entities/Users';
 
 @Module({
   imports: [
@@ -16,6 +19,8 @@ import { UsersService } from './users/users.service';
     WorkspacesModule,
     ChannelsModule,
     DmsModule,
+    TypeOrmModule.forRoot(ormConfig),
+    TypeOrmModule.forFeature([Users]),
   ],
   controllers: [AppController],
   providers: [AppService, UsersService],
