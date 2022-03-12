@@ -1,3 +1,4 @@
+강의 교안 기여(Pull Request) 환영합니다!
 각 섹션별로 ch0, ch1, ... 폴더에 결과물이 있습니다.  다만 여러분들은 처음 만든 a-nest라는 폴더 안에서 계속 진행하시면 됩니다.
 
 **Node.js 교과서** 책이나 강좌를 듣고 오시는 게 Express 코드 이해에 좋습니다.
@@ -621,3 +622,93 @@ src/channels/channels.service.ts, src/channels/channels.controller.ts
 
 # 섹션3, 섹션4 (nest-typeorm 폴더)
 ## WebSocket
+```shell
+npm i @nestjs/websockets @nestjs/platform-socket.io
+nest g mo events
+nest g ga events
+```
+- events.module.ts와 events.gateways.ts를 events 폴더 안으로 옮기기
+- **AppModule**에서는 EventsModule과 EventsGateway를 지우세요!!!
+
+## Socket.io
+- namespace와 room으로 구성됨
+  - namespace는 워크스페이스(ws-워크스페이스명, 예시:ws-sleact)
+  - room은 채널, DM
+- @WebSocketGateway({ namespace: '이름' 또는 정규표현식 })
+- @WebSocketServer(): 서비스에서 의존성주입받아 사용할 소켓 서버 객체
+- @SubscribeMessage(이벤트명): 웹소켓 이벤트리스너
+  - @MessageBody(): 이벤트의 데이터가 의존성주입됨
+- afterInit: 웹소켓 초기화가 끝났을 때
+- handleConnection: 클라이언트와 연결이 맺어졌을 때
+  - @ConnectedSocket(): socket을 의존성주입받을 수 있음
+  - socket.emit으로 이벤트 전송 가능(이렇게 하면 모두에게 이벤트 전송)
+  - socket.nsp: 네임스페이스 객체(socket.nsp.emit 하면 해당 네임스페이스 전체에게 이벤트 전송)
+  - socket.nsp.name: 네임스페이스 이름
+  - socket.id: 소켓의 고유 아이디(이걸 사용해서 1대1 메시지도 보낼 수 있음, socket.to(소켓아이디).emit)
+- handleDisconnect: 클라이언트와 연결이 끊어졌을 때
+
+src/events/onlineMap.ts
+```shell
+# 강좌 참조
+```
+
+- ChannelsModule, DMsModule 등에 이벤트모듈 넣기
+  - EventsGateway 넣으면 안 됨!!!
+  - eventsGateway: EventsGateway로 서비스에서 의존성주입 가능
+  
+## Multer
+```shell
+npm i -D @types/multer
+```
+- @UseInterceptors(FileInterceptor)
+  - @UploadedFile로 file 객체 의존성 주입 가능(Express.Multer.File로 타이핑)
+  - 파일이 여러 개면 FilesInterceptor, @UploadedFiles
+  - FileInterceptor에 멀터 설정 가능
+
+## Static
+src/main.ts
+```typescript
+import path from 'path';
+...
+  const app = await NestFactory.create<NestExpressApplication>(AppModule); 
+...
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+   prefix: '/uploads'
+  });
+```
+- useStaticAssets(실제 업로드 폴더 경로, { prefix: '브라우저에서 쓸 경로' });
+
+## Cors
+src/main.ts
+```typescript
+app.enableCors({
+  origin: true,
+  credentials: true,
+});
+```
+
+## 배포 준비하기
+```shell
+npm run build
+NODE_ENV=production PORT=포트 npm run start:prod
+```
+- 다만 NODE_ENV, PORT 등은 윈도우에서 안 돌아감
+- cross-env 설치하면 해결됨
+
+```shell
+npm i cross-env
+cross-env NODE_ENV=production PORT=포트 npm run start:prod
+```
+- EC2 등에서 배포할 때 터미널을 끄면 서버도 같이 꺼짐
+- pm2로 방지
+```shell
+npm i pm2
+```
+package.json 스크립트 수정
+```json
+"start:prod": "cross-env NODE_ENV=production PORT=80 pm2 start dist/main.js"
+```
+```shell
+npm run start:prod
+```
+- 리눅스에서는 80번 포트쓸 때 sudo 붙여야 함(1024번 이하 포트는 sudo 필요)
