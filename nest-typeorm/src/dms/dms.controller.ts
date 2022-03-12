@@ -17,7 +17,7 @@ import * as fs from 'fs';
 import multer from 'multer';
 import path from 'path';
 import { LoggedInGuard } from '../auth/logged-in.guard';
-import { User } from '../decorators/user.decorator';
+import { User } from '../common/decorators/user.decorator';
 import { Users } from '../entities/Users';
 import { DMsService } from './dms.service';
 

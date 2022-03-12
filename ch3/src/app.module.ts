@@ -12,6 +12,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import ormConfig from '../ormconfig';
 import { Users } from './entities/Users';
 import { AuthModule } from './auth/auth.module';
+import { Workspaces } from './entities/Workspaces';
+import { WorkspaceMembers } from './entities/WorkspaceMembers';
+import { ChannelMembers } from './entities/ChannelMembers';
 
 @Module({
   imports: [
@@ -22,7 +25,12 @@ import { AuthModule } from './auth/auth.module';
     ChannelsModule,
     DmsModule,
     TypeOrmModule.forRoot(ormConfig),
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([
+      Users,
+      Workspaces,
+      WorkspaceMembers,
+      ChannelMembers,
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService, UsersService],

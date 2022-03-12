@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoggedInGuard } from '../auth/logged-in.guard';
-import { User } from '../decorators/user.decorator';
+import { User } from '../common/decorators/user.decorator';
 import { Users } from '../entities/Users';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspacesService } from './workspaces.service';
@@ -63,7 +63,7 @@ export class WorkspacesController {
 
   @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
   @Get(':url/users/:id')
-  async getWorkspaceUser(
+  async DEPRECATED_getWorkspaceUser(
     @Param('url') url: string,
     @Param('id', ParseIntPipe) id: number,
   ) {

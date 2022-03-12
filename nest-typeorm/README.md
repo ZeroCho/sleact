@@ -547,7 +547,7 @@ export class UsersService {
 - const workspaceMember = new WorkspaceMembers() 해서 save(workspaceMember)하는 방법도 있음 
 - const workspaceMember = this.workspaceMembersRepository.create(); 동일
 
-src/users/users.module.ts
+src/users/users.module.ts, src/app.module.ts
 ```typescript
 import { WorkspaceMembers } from '../entities/WorkspaceMembers';
 import { ChannelMembers } from '../entities/ChannelMembers';
@@ -557,6 +557,8 @@ import { ChannelMembers } from '../entities/ChannelMembers';
     TypeOrmModule.forFeature([Users, WorkspaceMembers, ChannelMembers]),
   ],
 ```
+
+**AppModule**에서도 TypeOrmModule.forFeature에 넣는 것 잊지 말기
 
 ## 트랜잭션
 - 강좌에서는 createQueryRunner 방식을 사용함
@@ -577,6 +579,45 @@ try {
   await queryRunner.release();
 }
 ```
-- 데코레이트 방식을 쓰고 싶다면 [이 라이브러리](https://github.com/odavid/typeorm-transactional-cls-hooked) 사용하면 됨
+- 데코레이터 방식을 쓰고 싶다면 [이 라이브러리](https://github.com/odavid/typeorm-transactional-cls-hooked) 사용하면 됨
+
+## WorkspacesService
+- 의존성 주입을 constructor 안에 넣을 때와 바깥에 꺼낼 때 구분하기
+
+src/workspaces/workspaces.service.ts, src/workspaces/workspaces.controller.ts
+```typescript
+# 강좌 참조
+```
+- findOne, findByIds, find + { take: 1 } 등으로 하나만 찾을 수 있음
+- 쿼리 조건은 where, join 테이블의 컬럼도 전부 where 안에서 조회 가능
+- ParseIntPipe, ParseArrayPipe 등으로 @Param이나 @Query 타입 변경 가능(기본은 string)
+
+src/workspaces/dto/create-workspace.dto
+```typescript
+# 강좌 참조
+```
+
+- createQueryBuilder
+  - sql 문법을 최대한 비슷하게 사용할 수 있음
+  - alias는 별명을 넣어주는 자리
+  - select 통해서 원하는 필드만 가져올 수 있음
+    - addSelect로 추가로 원하는 필드 지정할 수 있음
+  - where에는 조건을 넣을 수 있음
+    - where({ id: 값 }) 형식 또는 where('쿼리', { 쿼리파라미터 }) 형식 가능
+    - 조건 여러 개일 때는 andWhere, orWhere 등이 있음
+  - innerJoin, leftJoin 등으로 join 가능
+    - innerJoinAndSelect, leftJoinAndSelect는 join하면서 동시에 해당 테이블 컬럼 select
+    - join의 세 번째 인자로 조건, 네 번째 인자로 쿼리 파라미터(sql인젝션 방어용)
+  - orderBy, addOrderBy로 정렬법 지정 가능
+  - take(숫자)로 조회 시 지정한 개수만 가져올 수 있음(LIMIT)
+  - skip(숫자)으로 조회 시 지정한 개수를 건너 뛰고 가져올 수 있음(OFFSET)
+  - getCount, getMany, getOne, getManyAndCount, getOneOrFail 등으로 최종적으로 조회
+  - getRawOne, getRawMany는 typeorm 가공 없이 db 결과물 그대로 가져옴
+
+src/channels/channels.service.ts, src/channels/channels.controller.ts
+```typescript
+# 강좌 참조
+```
 
 # 섹션3, 섹션4 (nest-typeorm 폴더)
+## WebSocket

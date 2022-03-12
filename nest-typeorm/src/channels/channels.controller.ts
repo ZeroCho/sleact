@@ -10,13 +10,13 @@ import {
   UploadedFiles,
   ParseIntPipe,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
 import { LoggedInGuard } from '../auth/logged-in.guard';
-import { User } from '../decorators/user.decorator';
+import { User } from '../common/decorators/user.decorator';
 import { Users } from '../entities/Users';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { ChannelsService } from './channels.service';
