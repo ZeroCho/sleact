@@ -1,5 +1,4 @@
 import {
-  Request,
   Body,
   Controller,
   NotFoundException,
@@ -13,10 +12,9 @@ import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from '../auth/local-auth.guard';
 import { NotLoggedInGuard } from '../auth/not-logged-in.guard';
 import { LoggedInGuard } from '../auth/logged-in.guard';
-import { User } from '../decorators/user.decorator';
+import { User } from '../common/decorators/user.decorator';
 import { Users } from '../entities/Users';
 import { JoinRequestDto } from './dto/join.request.dto';
-import { LoginRequestDto } from './dto/login.request.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('USERS')
