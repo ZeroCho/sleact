@@ -8,7 +8,7 @@
 0. [node 16](https://nodejs.org)버전(14나 17도 괜찮음)과 [MySQL](https://dev.mysql.com/downloads/mysql/)을 미리 설치하기
 1. 이 레포 git clone 받기
 2. cd back (멀티캠퍼스 강좌 수강자라면 cd multicampus-back)
-3. npm i
+3. npm i  (여기서 에러나면 질문으로 문의)
 4. .env 작성하기(COOKIE_SECRET과 MYSQL_PASSWORD 비밀번호 설정)
 5. config/config.json 설정(MYSQL 접속 설정)
 6. npx sequelize db:create(스키마 생성)
