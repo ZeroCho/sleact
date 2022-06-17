@@ -18,7 +18,7 @@ MYSQL_PASSWORD=디비비번
 6. npx sequelize db:create(스키마 생성)
 7. npm run dev했다가 ctrl + c로 끄기(테이블 생성)
 8. npx sequelize db:seed:all(기초 데이터 넣기)
-9. npm run dev
+9. npm run dev(앞으로 매번 이걸로 백엔드 서버 켜야 함, 1~8은 할 필요 없음)
 10. localhost:3095에서 서버 돌아가는 중
 11. 백엔드 개발자가 API.md와 typings/db.ts를 남겨둔 상황
 
