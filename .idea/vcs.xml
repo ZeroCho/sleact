@@ -2,8 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/a-nest" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/ch0" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/nest-typeorm/a-nest" vcs="Git" />
   </component>
 </project>
