@@ -5,17 +5,22 @@
 # 라이브강좌 핵심 내용 정리해서 여기(README.md)에 올려두었습니다~ 다시보기하면서 같이 읽고 복습하시면 됩니다!
 
 # 백그라운드 세팅
-0. [node 16](https://nodejs.org)버전(14나 17도 괜찮음)과 [MySQL](https://dev.mysql.com/downloads/mysql/)을 미리 설치하기
-1. cd back (멀티캠퍼스 강좌 수강자라면 cd multicampus-back)
-2. npm i
-3. .env 작성하기(COOKIE_SECRET과 MYSQL_PASSWORD 비밀번호 설정)
-4. config/config.json 설정(MYSQL 접속 설정)
-5. npx sequelize db:create(스키마 생성)
-6. npm run dev했다가 ctrl + c로 끄기(테이블 생성)
-7. npx sequelize db:seed:all(기초 데이터 넣기)
-8. npm run dev
-9. localhost:3095에서 서버 돌아가는 중
-10. 백엔드 개발자가 API.md와 typings/db.ts를 남겨둔 상황
+0. [node 16](https://nodejs.org)버전(14나 17도 괜찮음)과 [MySQL](https://dev.mysql.com/downloads/mysql/)을 미리 설치하기, mysql은 설치과정 중 비번 설정 함.
+1. 이 레포 git clone 받기
+2. cd back (멀티캠퍼스 강좌 수강자라면 cd multicampus-back)
+3. npm i  (여기서 에러나면 질문으로 문의)
+4. .env 작성하기(COOKIE_SECRET과 MYSQL_PASSWORD 비밀번호 설정)
+```
+COOKIE_SECRET=cookienyamnyam
+MYSQL_PASSWORD=디비비번
+```
+5. config/config.json 설정(MYSQL 접속 설정)
+6. npx sequelize db:create(스키마 생성)
+7. npm run dev했다가 ctrl + c로 끄기(테이블 생성)
+8. npx sequelize db:seed:all(기초 데이터 넣기)
+9. npm run dev(앞으로 매번 이걸로 백엔드 서버 켜야 함, 1~8은 할 필요 없음)
+10. localhost:3095에서 서버 돌아가는 중
+11. 백엔드 개발자가 API.md와 typings/db.ts를 남겨둔 상황
 
 # 강좌 순서
 
