@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env TS_NODE_PROJECT=\\\"tsconfig-for-webpack-config.json\\\" webpack serve --env development",
-    "build": "cross-env TS_NODE_PROJECT=\\\"tsconfig-for-webpack-config.json\\\" NODE_ENV=production webpack"
+    "dev": "webpack serve --env development",
+    "build": "cross-env NODE_ENV=production webpack"
   },
   "author": "ZeroCho",
   "license": "MIT",
