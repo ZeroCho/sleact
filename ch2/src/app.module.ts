@@ -9,8 +9,14 @@ import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 import { UsersService } from './users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import ormConfig from '../ormconfig';
 import { Users } from './entities/Users';
+import {ChannelChats} from "./entities/ChannelChats";
+import {ChannelMembers} from "./entities/ChannelMembers";
+import {Channels} from "./entities/Channels";
+import {DMs} from "./entities/DMs";
+import {Mentions} from "./entities/Mentions";
+import {WorkspaceMembers} from "./entities/WorkspaceMembers";
+import {Workspaces} from "./entities/Workspaces";
 
 @Module({
   imports: [
@@ -19,7 +25,28 @@ import { Users } from './entities/Users';
     WorkspacesModule,
     ChannelsModule,
     DmsModule,
-    TypeOrmModule.forRoot(ormConfig),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: [
+        ChannelChats,
+        ChannelMembers,
+        Channels,
+        DMs,
+        Mentions,
+        Users,
+        WorkspaceMembers,
+        Workspaces,
+      ],
+      keepConnectionAlive: true,
+      synchronize: false,
+      logging: true,
+      charset: 'utf8mb4_general_ci',
+    }),
     TypeOrmModule.forFeature([Users]),
   ],
   controllers: [AppController],

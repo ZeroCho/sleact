@@ -20,14 +20,15 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
-    "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
-    "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
+    "db:create": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:create -d ./dataSource.ts",
+    "db:drop": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:drop -d ./dataSource.ts",
+    "seed": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js seed -d ./dataSource.ts",
     "schema:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop",
     "schema:sync": "ts-node ./node_modules/typeorm/cli.js schema:sync",
-    "db:migrate": "npm run typeorm migration:run",
-    "db:migrate:revert": "npm run typeorm migration:revert",
-    "db:create-migration": "npm run typeorm migration:create -- -n",
-    "db:generate-migration": "npm run typeorm migration:generate -- -n"
+    "db:migrate": "npm run typeorm migration:run -- -d ./dataSource.ts",
+    "db:migrate:revert": "npm run typeorm migration:revert -- -d ./dataSource.ts",
+    "db:create-migration": "npm run typeorm migration:create -- ./src/migrations/",
+    "db:generate-migration": "npm run typeorm migration:generate -- ./src/migrations -d ./dataSource.ts"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.6",
@@ -56,9 +57,9 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.3.0",
     "swagger-ui-express": "^4.1.6",
-    "typeorm": "^0.2.37",
+    "typeorm": "^0.3.0",
+    "typeorm-extension": "^2.1.15",
     "typeorm-model-generator": "^0.4.4",
-    "typeorm-seeding": "^1.6.1",
     "webpack": "^5.51.1"
   },
   "devDependencies": {

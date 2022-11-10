@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { ChannelMembers } from '../entities/ChannelMembers';
 
@@ -19,7 +19,7 @@ export class UsersService {
     private workspaceMembersRepository: Repository<WorkspaceMembers>,
     @InjectRepository(ChannelMembers)
     private channelMembersRepository: Repository<ChannelMembers>,
-    private connection: Connection,
+    private dataSource: DataSource,
   ) {}
 
   async findByEmail(email: string) {
@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async join(email: string, nickname: string, password: string) {
-    const queryRunner = this.connection.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     const user = await queryRunner.manager

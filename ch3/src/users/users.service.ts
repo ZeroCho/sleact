@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from '../entities/Users';
-import { Connection, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { WorkspaceMembers } from '../entities/WorkspaceMembers';
 import { ChannelMembers } from '../entities/ChannelMembers';
-import { query } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -16,13 +15,13 @@ export class UsersService {
     private workspaceMembersRepository: Repository<WorkspaceMembers>,
     @InjectRepository(ChannelMembers)
     private channelMembersRepository: Repository<ChannelMembers>,
-    private connection: Connection,
+    private dataSource: DataSource,
   ) {}
 
   getUser() {}
 
   async join(email: string, nickname: string, password: string) {
-    const queryRunner = this.connection.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     const user = await this.usersRepository.findOne({ where: { email } });
