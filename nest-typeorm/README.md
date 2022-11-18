@@ -277,9 +277,8 @@ src/app.module.ts에 TypeOrmModule.forRoot 작업
 - keepConnectionAlive: true여야 핫 리로딩시에도 db 연결이 끊어지지 않음
 - charset: db의 언어 설정(utf8mb4로 할것)
 
-ormConfig.ts를 따로 만들어서(package.json과 같은 위치에) import해서 쓰는 것도 괜찮음
+dataSource.ts를 따로 만들어서 package.json과 같은 위치에 두기
 - 그래야 나중에 seed나 migration 작업할 때 재사용 가능
-- 다만 configService는 쓸 수 없음
 
 ## SCHEMA, 테이블 생성
 
