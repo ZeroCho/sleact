@@ -317,23 +317,24 @@ const someQuery = entitiyManager.query(`
 
 ## seeding
 
-typeorm-seeding 설치
+typeorm-extension 설치
 ```shell
-npm i typeorm-seeding
+npm i typeorm-extension
 npm i -D ts-node
 ```
 
 package.json에 다음 줄 추가(json이므로 콤마 조심)
 ```
-    "typeorm": "ts-node --require tsconfig-paths/register ./node_modules/typeorm/cli.js",
-    "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
-    "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+    "db:create": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:create -d ./dataSource.ts",
+    "db:drop": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:drop -d ./dataSource.ts",
+    "seed": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js seed -d ./dataSource.ts",
     "schema:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop",
     "schema:sync": "ts-node ./node_modules/typeorm/cli.js schema:sync",
-    "db:migrate": "npm run typeorm migration:run",
-    "db:migrate:revert": "npm run typeorm migration:revert",
-    "db:create-migration": "npm run typeorm migration:create -- -n",
-    "db:generate-migration": "npm run typeorm migration:generate -- -n"
+    "db:migrate": "npm run typeorm migration:run -- -d ./dataSource.ts",
+    "db:migrate:revert": "npm run typeorm migration:revert -- -d ./dataSource.ts",
+    "db:create-migration": "npm run typeorm migration:create -- ./src/migrations/",
+    "db:generate-migration": "npm run typeorm migration:generate -- ./src/migrations -d ./dataSource.ts"
 ```
 
 src/database/seeds/create-initial-data.ts 작성
@@ -342,16 +343,15 @@ src/database/seeds/create-initial-data.ts 작성
 ```
 시드 수행
 ```
-npm run seed:run
+npm run seed
 ```
 실제 테이블에 데이터 생겼는지 항상 확인!
 
 ## migration
 
-ormconfig.ts에 다음 줄 추가
+dataSource.ts에 다음 줄 추가
 ```
   migrations: [__dirname + '/src/migrations/*.ts'],
-  cli: { migrationsDir: 'src/migrations' },
 ```
 직접 마이그레이션 작성하기
 ```
