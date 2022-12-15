@@ -9,7 +9,6 @@ import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 import { UsersService } from './users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import ormConfig from '../ormconfig';
 import { Users } from './entities/Users';
 import { AuthModule } from './auth/auth.module';
 import { Workspaces } from './entities/Workspaces';
@@ -24,7 +23,20 @@ import { ChannelMembers } from './entities/ChannelMembers';
     WorkspacesModule,
     ChannelsModule,
     DmsModule,
-    TypeOrmModule.forRoot(ormConfig),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      autoLoadEntities: true,
+      keepConnectionAlive: true,
+      migrations: [__dirname + '/migrations/*.ts'],
+      charset: 'utf8mb4',
+      synchronize: false,
+      logging: true,
+    }),
     TypeOrmModule.forFeature([
       Users,
       Workspaces,

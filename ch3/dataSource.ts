@@ -1,4 +1,4 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import dotenv from 'dotenv';
 import { ChannelChats } from './src/entities/ChannelChats';
 import { ChannelMembers } from './src/entities/ChannelMembers';
@@ -10,7 +10,8 @@ import { WorkspaceMembers } from './src/entities/WorkspaceMembers';
 import { Workspaces } from './src/entities/Workspaces';
 
 dotenv.config();
-const config: TypeOrmModuleOptions = {
+
+const dataSource = new DataSource({
   type: 'mysql',
   host: 'localhost',
   port: 3306,
@@ -28,12 +29,9 @@ const config: TypeOrmModuleOptions = {
     Workspaces,
   ],
   migrations: [__dirname + '/src/migrations/*.ts'],
-  cli: { migrationsDir: 'src/migrations' },
-  autoLoadEntities: true,
   charset: 'utf8mb4',
   synchronize: false,
   logging: true,
-  keepConnectionAlive: true,
-};
+});
 
-export = config;
+export default dataSource;
