@@ -841,9 +841,9 @@ router.post("/users/login", isNotLoggedIn, (req, res, next) => {
 });
 
 router.post("/users/logout", isLoggedIn, (req, res) => {
-  req.logout();
-  req.session.destroy();
-  res.send("ok");
+  req.logout(() => {
+    res.send("ok");
+  });
 });
 
 module.exports = router;

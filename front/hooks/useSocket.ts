@@ -7,6 +7,7 @@ const sockets: { [key: string]: Socket } = {};
 const useSocket = (workspace?: string): [Socket | undefined, () => void] => {
   const disconnect = useCallback(() => {
     if (workspace && sockets[workspace]) {
+      console.log('소켓 연결 끊음');
       sockets[workspace].disconnect();
       delete sockets[workspace];
     }
@@ -19,6 +20,10 @@ const useSocket = (workspace?: string): [Socket | undefined, () => void] => {
       transports: ['websocket'],
     });
     console.info('create socket', workspace, sockets[workspace]);
+    sockets[workspace].on('connect_error', (err) => {
+      console.error(err);
+      console.log(`connect_error due to ${err.message}`);
+    });
   }
 
   return [sockets[workspace], disconnect];
