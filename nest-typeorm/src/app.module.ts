@@ -16,6 +16,14 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
 import { DMsModule } from './dms/dms.module';
 import { FrontendMiddleware } from './middlewares/frontend.middleware';
+import { ChannelChats } from './entities/ChannelChats';
+import { ChannelMembers } from './entities/ChannelMembers';
+import { Channels } from './entities/Channels';
+import { DMs } from './entities/DMs';
+import { Mentions } from './entities/Mentions';
+import { Users } from './entities/Users';
+import { WorkspaceMembers } from './entities/WorkspaceMembers';
+import { Workspaces } from './entities/Workspaces';
 
 @Module({
   imports: [
@@ -28,10 +36,20 @@ import { FrontendMiddleware } from './middlewares/frontend.middleware';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       autoLoadEntities: true,
+      entities: [
+        ChannelChats,
+        ChannelMembers,
+        Channels,
+        DMs,
+        Mentions,
+        Users,
+        WorkspaceMembers,
+        Workspaces,
+      ],
       keepConnectionAlive: true,
       migrations: [__dirname + '/migrations/*.ts'],
       charset: 'utf8mb4_general_ci',
-      synchronize: false,
+      synchronize: true,
       logging: true,
     }),
     AuthModule,
