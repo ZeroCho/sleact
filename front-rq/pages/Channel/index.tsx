@@ -18,7 +18,7 @@ const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const { data: myData } = useQuery('user', () => fetcher({ queryKey: '/api/users' }));
   const [chat, onChangeChat, setChat] = useInput('');
-  const { data: channelData } = useQuery<IChannel>(['workspace', workspace, 'channel', channel, 'chat'], () =>
+  const { data: channelData } = useQuery<IChannel>(['workspace', workspace, 'channel', channel], () =>
     fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}` }),
   );
   const {
