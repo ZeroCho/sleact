@@ -50,9 +50,12 @@ const Channel = () => {
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
-  const mutation = useMutation<IDM, AxiosError, { content: string }>(
+  const mutation = useMutation<IChat, AxiosError, { content: string }>(
     ['workspace', workspace, 'channel', channel, 'chat'],
-    () => fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}/chats` }),
+    () =>
+      axios.post(`/api/workspaces/${workspace}/channels/${channel}/chats`, {
+        content: chat,
+      }),
     {
       onMutate(mutateData) {
         if (!channelData) return;
