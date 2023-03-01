@@ -63,7 +63,7 @@ const ChatBox: FC<Props> = ({ onSubmitForm, chat, onChangeChat, placeholder, dat
           onKeyPress={onKeydownChat}
           placeholder={placeholder}
           inputRef={textareaRef}
-          allowSuggestionsAboveCursor
+          forceSuggestionsAboveCursor
         >
           <Mention
             appendSpaceOnAdd
