@@ -18,10 +18,14 @@ const PAGE_SIZE = 20;
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const [socket] = useSocket(workspace);
-  const { data: userData } = useSWR<IUser>('/api/user', fetcher);
+  const { data: userData } = useSWR<IUser>('/api/users', fetcher);
   const { data: channelsData } = useSWR<IChannel[]>(`/api/workspace/${workspace}/channels`, fetcher);
   const channelData = channelsData?.find((v) => v.name === channel);
-  const { data: chatData, mutate: mutateChat, setSize } = useSWRInfinite<IChat[]>(
+  const {
+    data: chatData,
+    mutate: mutateChat,
+    setSize,
+  } = useSWRInfinite<IChat[]>(
     (index) => `/api/workspace/${workspace}/channel/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );

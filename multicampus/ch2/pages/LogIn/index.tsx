@@ -7,7 +7,7 @@ import { Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data: userData, error, revalidate, mutate } = useSWR('/api/user', fetcher);
+  const { data: userData, error, revalidate, mutate } = useSWR('/api/users', fetcher);
   const [logInError, setLogInError] = useState('');
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
