@@ -8,7 +8,7 @@
 0. [node 16](https://nodejs.org)버전(14나 17도 괜찮음)과 [MySQL](https://dev.mysql.com/downloads/mysql/)을 미리 설치하기, mysql은 설치과정 중 비번 설정 함.
 1. 이 레포 git clone 받기
 2. cd back
-3. npm i  (여기서 에러나면 질문으로 문의)
+3. npm i bcrypt && npm i  (여기서 에러나면 질문으로 문의)
 4. .env 작성하기(COOKIE_SECRET과 MYSQL_PASSWORD 비밀번호 설정)
 ```
 COOKIE_SECRET=cookienyamnyam
