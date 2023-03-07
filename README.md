@@ -7,8 +7,8 @@
 # 백그라운드 세팅
 0. [node 16](https://nodejs.org)버전(14나 17도 괜찮음)과 [MySQL](https://dev.mysql.com/downloads/mysql/)을 미리 설치하기, mysql은 설치과정 중 비번 설정 함.
 1. 이 레포 git clone 받기
-2. cd back (멀티캠퍼스 강좌 수강자라면 cd multicampus-back)
-3. npm i  (여기서 에러나면 질문으로 문의)
+2. cd back
+3. npm i bcrypt && npm i  (여기서 에러나면 질문으로 문의)
 4. .env 작성하기(COOKIE_SECRET과 MYSQL_PASSWORD 비밀번호 설정)
 ```
 COOKIE_SECRET=cookienyamnyam
@@ -26,6 +26,7 @@ MYSQL_PASSWORD=디비비번
 
 강좌에서 언급한대로 직접 세팅하기보다는 그냥 **settings/ts** 폴더 클론받아서 하시는 것을 추천드립니다.
 직접 세팅하기에는 버전이 자꾸 달라져서 세팅법이 바뀌고, 입문자분들한테는 버겁습니다.
+**폴더가 많아서 헷갈리니 back 폴더는 백엔드 용으로 남겨두시고, setting/ts 폴더를 front 폴더로 바꾼 뒤 나머지 폴더는 전부 지워버리세요.**
 
 ## 1일차
 1. package.json

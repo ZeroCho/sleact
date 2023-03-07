@@ -170,7 +170,7 @@ const Channel = () => {
     setDragOver(true);
   }, []);
 
-  if (!myData || !myData) {
+  if (!myData) {
     return null;
   }
 

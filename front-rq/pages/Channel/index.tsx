@@ -18,7 +18,7 @@ const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const { data: myData } = useQuery('user', () => fetcher({ queryKey: '/api/users' }));
   const [chat, onChangeChat, setChat] = useInput('');
-  const { data: channelData } = useQuery<IChannel>(['workspace', workspace, 'channel', channel, 'chat'], () =>
+  const { data: channelData } = useQuery<IChannel>(['workspace', workspace, 'channel', channel], () =>
     fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}` }),
   );
   const {
@@ -50,9 +50,12 @@ const Channel = () => {
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
-  const mutation = useMutation<IDM, AxiosError, { content: string }>(
+  const mutation = useMutation<IChat, AxiosError, { content: string }>(
     ['workspace', workspace, 'channel', channel, 'chat'],
-    () => fetcher({ queryKey: `/api/workspaces/${workspace}/channels/${channel}/chats` }),
+    () =>
+      axios.post(`/api/workspaces/${workspace}/channels/${channel}/chats`, {
+        content: chat,
+      }),
     {
       onMutate(mutateData) {
         if (!channelData) return;
