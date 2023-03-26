@@ -380,6 +380,11 @@ src/users/dto/join.request.dto.ts 수정
 # 강좌 참조
 ```
 - PickType으로 다른 dto에서 특정 속성만 추출 가능
+```
+import { PickType } from '@nestjs/swagger'
+import { PickType } from '@nestjs/mapped-types'
+```
+이렇게 두 개가 있는데 mapped-types로 import 되어 있으면 나중에 swagger 문서에 출력되지 않으므로 주의. @nestjs/swagger로 import할 것
 
 src/users/users.controller.ts, src/users/users.service.ts 수정
 ```
