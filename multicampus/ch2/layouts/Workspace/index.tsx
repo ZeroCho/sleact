@@ -22,7 +22,7 @@ import useSWR from 'swr';
 import gravatar from 'gravatar';
 
 const Workspace = () => {
-  const { data: userData } = useSWR<IUser>('/api/user', fetcher);
+  const { data: userData } = useSWR<IUser>('/api/users', fetcher);
   const { workspace } = useParams<{ workspace: string }>();
   const [socket, disconnectSocket] = useSocket(workspace);
 

@@ -25,7 +25,7 @@ import gravatar from 'gravatar';
 
 const Workspace = () => {
   const { workspace } = useParams<{ workspace: string }>();
-  const { data: userData } = useSWR<IUser>('/api/user', fetcher);
+  const { data: userData } = useSWR<IUser>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(`/api/workspace/${workspace}/channels`, fetcher);
   const [socket, disconnectSocket] = useSocket(workspace);
 

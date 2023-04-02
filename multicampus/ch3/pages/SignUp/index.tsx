@@ -40,7 +40,7 @@ const SignUp = () => {
         setSignUpError('');
         setSignUpSuccess(false);
         axios
-          .post('/api/user', { email, nickname, password })
+          .post('/api/users', { email, nickname, password })
           .then(() => {
             setSignUpSuccess(true);
           })
