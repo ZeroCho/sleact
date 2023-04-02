@@ -37,6 +37,7 @@ if (prod) {
     cors({
       origin: true,
       credentials: true,
+      webSocket: true,
     })
   );
 }
