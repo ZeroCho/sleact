@@ -27,7 +27,8 @@ const LogIn = () => {
           mutate();
         })
         .catch((error) => {
-          setLogInError(error.response?.data?.code === 401);
+          console.dir(error);
+          setLogInError(error.response?.status === 401);
         });
     },
     [email, password, mutate],
