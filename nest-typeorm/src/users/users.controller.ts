@@ -40,10 +40,6 @@ export class UsersController {
   @UseGuards(NotLoggedInGuard)
   @Post()
   async join(@Body() data: JoinRequestDto) {
-    const user = this.usersService.findByEmail(data.email);
-    if (!user) {
-      throw new NotFoundException();
-    }
     const result = await this.usersService.join(
       data.email,
       data.nickname,
